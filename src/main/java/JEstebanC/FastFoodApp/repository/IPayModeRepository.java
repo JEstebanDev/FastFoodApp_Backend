@@ -15,5 +15,4 @@ import JEstebanC.FastFoodApp.model.PayMode;
  */
 @Repository
 public interface IPayModeRepository extends JpaRepository<PayMode, Long>{
-	PayMode findByName(String name);
 }

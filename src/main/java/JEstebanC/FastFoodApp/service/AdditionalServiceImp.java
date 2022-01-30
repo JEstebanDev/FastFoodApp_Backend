@@ -73,7 +73,7 @@ public class AdditionalServiceImp implements IAdditionalService {
 		return additionalRepository.existsById(id_additional);
 	}
 
-	public Additional findByName(String name) {
+	public Collection<Additional> findByName(String name) {
 		log.info("Searching additional by name: " + name);
 		return additionalRepository.findByName(name);
 	}

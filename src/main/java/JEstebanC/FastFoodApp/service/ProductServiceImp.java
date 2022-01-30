@@ -65,7 +65,7 @@ public class ProductServiceImp implements IProductService {
 		return productRepository.findAll();
 	}
 
-	public Product findByName(String name) {
+	public Collection<Product> findByName(String name) {
 		log.info("Searching product by name: " + name);
 		return productRepository.findByName(name) != null ? productRepository.findByName(name) : null;
 	}

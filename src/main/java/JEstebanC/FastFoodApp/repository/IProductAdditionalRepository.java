@@ -19,6 +19,6 @@ import JEstebanC.FastFoodApp.model.Product_Additional;
 @EnableJpaRepositories
 public interface IProductAdditionalRepository extends JpaRepository<Product_Additional, Long> {
 
-	@Query(value = "SELECT pin.* FROM product_ingredient pin JOIN ingredient ing on ing.id_ingredient=pin.id_ingredient where pin.id_product=?",nativeQuery = true)
+	@Query(value = "SELECT pin.* FROM product_additional pin JOIN additional ing on ing.id_additional=pin.id_additional where pin.id_product=?",nativeQuery = true)
 	Collection<Product_Additional> findByIdProduct(Long idProduct);
 }

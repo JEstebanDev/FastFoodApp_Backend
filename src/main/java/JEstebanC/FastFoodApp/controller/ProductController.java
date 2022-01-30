@@ -88,7 +88,7 @@ public class ProductController {
 
 		if (serviceImp.findByName(name) != null) {
 			return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
-					.data(Map.of("products", serviceImp.findByName(name))).message("Get product by name: " + name)
+					.data(Map.of("products", serviceImp.findByName(name))).message("Get products by name: " + name)
 					.status(HttpStatus.OK).statusCode(HttpStatus.OK.value()).build());
 
 		} else {

@@ -59,9 +59,4 @@ public class PayModeServiceImp implements IPayModeService {
 		return payModeRepository.existsById(idPayMode);
 	}
 
-	public PayMode findByName(String name) {
-		log.info("Searching category by name: " + name);
-		return payModeRepository.findByName(name);
-	}
-
 }

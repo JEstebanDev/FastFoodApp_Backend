@@ -59,9 +59,9 @@ public class CategoryServiceImp implements ICategoryService {
 		return categoryRepository.existsById(idCategory);
 	}
 
-	public Category findByName(String name) {
+	public Collection<Category> findByName(String name) {
 		log.info("Searching category by name: " + name);
-		return categoryRepository.findByName(name);
+		return categoryRepository.findAllByName(name);
 	}
 
 }

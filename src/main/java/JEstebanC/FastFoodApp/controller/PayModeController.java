@@ -78,20 +78,4 @@ public class PayModeController {
 							.status(HttpStatus.BAD_REQUEST).statusCode(HttpStatus.BAD_REQUEST.value()).build());
 		}
 	}
-
-//	SEARCH BY NAME
-	@GetMapping(value = "/{name}")
-	public ResponseEntity<Response> getPayModeByName(@PathVariable("name") String name) {
-		if (serviceImp.findByName(name) != null) {
-			return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
-					.data(Map.of("payMode", serviceImp.findByName(name))).message("Get payMode by name: " + name)
-					.status(HttpStatus.OK).statusCode(HttpStatus.OK.value()).build());
-
-		} else {
-			return ResponseEntity.ok(
-					Response.builder().timeStamp(Instant.now()).message("The payMode called" + name + " does not exist")
-							.status(HttpStatus.BAD_REQUEST).statusCode(HttpStatus.BAD_REQUEST.value()).build());
-		}
-
-	}
 }

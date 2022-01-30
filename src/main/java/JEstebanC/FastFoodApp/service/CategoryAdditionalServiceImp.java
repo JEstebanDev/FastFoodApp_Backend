@@ -59,7 +59,7 @@ public class CategoryAdditionalServiceImp implements ICategoryAdditionalService 
 		return categoryAdditionalRepository.existsById(idCategory);
 	}
 
-	public CategoryAdditional findByName(String name) {
+	public Collection<CategoryAdditional> findByName(String name) {
 		log.info("Searching category additional by name: " + name);
 		return categoryAdditionalRepository.findByName(name);
 	}

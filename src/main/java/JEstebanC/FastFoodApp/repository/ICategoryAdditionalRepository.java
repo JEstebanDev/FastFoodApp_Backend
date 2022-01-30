@@ -3,7 +3,10 @@
  */
 package JEstebanC.FastFoodApp.repository;
 
+import java.util.Collection;
+
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import JEstebanC.FastFoodApp.model.CategoryAdditional;
@@ -15,5 +18,6 @@ import JEstebanC.FastFoodApp.model.CategoryAdditional;
  */
 @Repository
 public interface ICategoryAdditionalRepository extends JpaRepository<CategoryAdditional, Long>{
-	CategoryAdditional findByName(String name);
+	@Query(value = "SELECT * FROM category_additional WHERE name like ?%",nativeQuery = true)
+	Collection<CategoryAdditional> findByName(String name);
 }
