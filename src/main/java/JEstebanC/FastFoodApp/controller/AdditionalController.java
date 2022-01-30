@@ -20,9 +20,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import JEstebanC.FastFoodApp.model.Ingredient;
+import JEstebanC.FastFoodApp.model.Additional;
 import JEstebanC.FastFoodApp.model.Response;
-import JEstebanC.FastFoodApp.service.IngredientServiceImp;
+import JEstebanC.FastFoodApp.service.AdditionalServiceImp;
 import lombok.RequiredArgsConstructor;
 
 /**
@@ -30,66 +30,66 @@ import lombok.RequiredArgsConstructor;
  */
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/ingredient")
-public class IngredientController {
+@RequestMapping("/additional")
+public class AdditionalController {
 
 	@Autowired
-	private final IngredientServiceImp serviceImp;
+	private final AdditionalServiceImp serviceImp;
 
 //	CREATE
 	@PostMapping()
-	public ResponseEntity<Response> saveIngredient(@RequestBody @Valid Ingredient ingredient) {
+	public ResponseEntity<Response> saveAdditional(@RequestBody @Valid Additional addiotional) {
 		return ResponseEntity
-				.ok(Response.builder().timeStamp(Instant.now()).data(Map.of("ingredient", serviceImp.create(ingredient)))
-						.message("Create ingredient").status(HttpStatus.OK).statusCode(HttpStatus.OK.value()).build());
+				.ok(Response.builder().timeStamp(Instant.now()).data(Map.of("additional", serviceImp.create(addiotional)))
+						.message("Create additional").status(HttpStatus.OK).statusCode(HttpStatus.OK.value()).build());
 	}
 
 //  READ
 	@GetMapping(value = "/list")
-	public ResponseEntity<Response> getIngredient() {
-		return ResponseEntity.ok(Response.builder().timeStamp(Instant.now()).data(Map.of("ingredient", serviceImp.list()))
-				.message("List ingredients").status(HttpStatus.OK).statusCode(HttpStatus.OK.value()).build());
+	public ResponseEntity<Response> getadditional() {
+		return ResponseEntity.ok(Response.builder().timeStamp(Instant.now()).data(Map.of("additional", serviceImp.list()))
+				.message("List additionals").status(HttpStatus.OK).statusCode(HttpStatus.OK.value()).build());
 	}
 
 //	UPDATE
 	@PutMapping(value = "/{id}")
-	public ResponseEntity<Response> updateIngredient(@PathVariable("id") Long id, @RequestBody @Valid Ingredient ingredient) {
+	public ResponseEntity<Response> updateAdditional(@PathVariable("id") Long id, @RequestBody @Valid Additional addiotional) {
 		if (serviceImp.exist(id)) {
 			return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
-					.data(Map.of("ingredient", serviceImp.update(ingredient))).message("Update ingredient with id:" + id)
+					.data(Map.of("additional", serviceImp.update(addiotional))).message("Update additional with id:" + id)
 					.status(HttpStatus.OK).statusCode(HttpStatus.OK.value()).build());
 		} else {
 			return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
-					.message("The ingredient with id:" + id + " does not exist").status(HttpStatus.BAD_REQUEST)
+					.message("The additional with id:" + id + " does not exist").status(HttpStatus.BAD_REQUEST)
 					.statusCode(HttpStatus.BAD_REQUEST.value()).build());
 		}
 	}
 
 //	DELETE
 	@DeleteMapping(value = "/{id}")
-	public ResponseEntity<Response> deleteIngredient(@PathVariable("id") Long id) {
+	public ResponseEntity<Response> deleteAdditional(@PathVariable("id") Long id) {
 		if (serviceImp.exist(id)) {
 			return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
-					.data(Map.of("ingredient", serviceImp.delete(id))).message("Delete ingredient with id: " + id)
+					.data(Map.of("additional", serviceImp.delete(id))).message("Delete additional with id: " + id)
 					.status(HttpStatus.OK).statusCode(HttpStatus.OK.value()).build());
 		} else {
 			return ResponseEntity
-					.ok(Response.builder().timeStamp(Instant.now()).message("The ingredient " + id + " does not exist")
+					.ok(Response.builder().timeStamp(Instant.now()).message("The additional " + id + " does not exist")
 							.status(HttpStatus.BAD_REQUEST).statusCode(HttpStatus.BAD_REQUEST.value()).build());
 		}
 	}
 //	SEARCH BY NAME
 	@GetMapping(value = "/{name}")
-	public ResponseEntity<Response> getIngredientByName(@PathVariable("name") String name) {
+	public ResponseEntity<Response> getAdditionalByName(@PathVariable("name") String name) {
 
 		if (serviceImp.findByName(name) != null) {
 			return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
-					.data(Map.of("ingredient", serviceImp.findByName(name))).message("Get ingredient by name: " + name)
+					.data(Map.of("additional", serviceImp.findByName(name))).message("Get additional by name: " + name)
 					.status(HttpStatus.OK).statusCode(HttpStatus.OK.value()).build());
 
 		} else {
 			return ResponseEntity.ok(
-					Response.builder().timeStamp(Instant.now()).message("The ingredient called" + name + " does not exist")
+					Response.builder().timeStamp(Instant.now()).message("The additional called" + name + " does not exist")
 							.status(HttpStatus.BAD_REQUEST).statusCode(HttpStatus.BAD_REQUEST.value()).build());
 		}
 

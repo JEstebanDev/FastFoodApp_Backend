@@ -1,0 +1,81 @@
+/**
+ * 
+ */
+package JEstebanC.FastFoodApp.service;
+
+import java.util.Collection;
+
+import javax.transaction.Transactional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import JEstebanC.FastFoodApp.model.Additional;
+import JEstebanC.FastFoodApp.repository.IAdditionalRepository;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
+/**
+ * @author Juan Esteban Castaño Holguin castanoesteban9@gmail.com 2022-01-25
+ */
+@Service
+@Transactional
+@RequiredArgsConstructor
+@Slf4j
+public class AdditionalServiceImp implements IAdditionalService {
+
+	@Autowired
+	private IAdditionalRepository additionalRepository;
+	@Autowired
+	private ICategoryAdditionalService categoryAdditionalRepository;
+
+	@Override
+	public Additional create(Additional additional) {
+		if (categoryAdditionalRepository.exist(additional.getIdCategoryAdditional().getIdCategoryAdditional())) {
+			log.info("Saving new additional: " + additional.getName());
+			return additionalRepository.save(additional);
+		} else {
+			return null;
+		}
+
+	}
+
+	@Override
+	public Additional update(Additional additional) {
+		if (categoryAdditionalRepository.exist(additional.getIdCategoryAdditional().getIdCategoryAdditional())) {
+			log.info("Updating additional with id:" + additional.getIdAdditional());
+			return additionalRepository.save(additional);
+		} else {
+			return null;
+		}
+	}
+
+	@Override
+	public Boolean delete(Long id_additional) {
+		log.info("Deleting the additional id: " + id_additional);
+		if (additionalRepository.existsById(id_additional)) {
+			additionalRepository.deleteById(id_additional);
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	@Override
+	public Collection<Additional> list() {
+		log.info("List all additional");
+		return additionalRepository.findAll();
+	}
+
+	@Override
+	public Boolean exist(Long id_additional) {
+		log.info("Searching additional by id: " + id_additional);
+		return additionalRepository.existsById(id_additional);
+	}
+
+	public Additional findByName(String name) {
+		log.info("Searching additional by name: " + name);
+		return additionalRepository.findByName(name);
+	}
+
+}

@@ -1,10 +1,11 @@
 package JEstebanC.FastFoodApp.model;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 
 import JEstebanC.FastFoodApp.enumeration.Status;
 
@@ -24,7 +25,8 @@ public class PayMode {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long idPayMode;
-    @NotEmpty(message = "name cannot be empty or null")
+    @NotNull(message = "name cannot be empty or null")
+    @Column(length = 30)
     private String name;
     private Status status;
 }

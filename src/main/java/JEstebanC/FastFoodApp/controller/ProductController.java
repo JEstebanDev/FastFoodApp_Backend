@@ -36,9 +36,15 @@ public class ProductController {
 //	CREATE
 	@PostMapping()
 	public ResponseEntity<Response> saveProduct(@RequestBody @Valid Product product) {
-		return ResponseEntity
-				.ok(Response.builder().timeStamp(Instant.now()).data(Map.of("product", serviceImp.create(product)))
-						.message("Create product").status(HttpStatus.OK).statusCode(HttpStatus.OK.value()).build());
+		if (serviceImp.create(product) != null) {
+			return ResponseEntity
+					.ok(Response.builder().timeStamp(Instant.now()).data(Map.of("product", serviceImp.create(product)))
+							.message("Create product").status(HttpStatus.OK).statusCode(HttpStatus.OK.value()).build());
+		} else {
+			return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
+					.developerMessage("Please check if exist any category").message("Cannot create the product")
+					.status(HttpStatus.OK).statusCode(HttpStatus.OK.value()).build());
+		}
 	}
 
 //	READ
@@ -86,11 +92,28 @@ public class ProductController {
 					.status(HttpStatus.OK).statusCode(HttpStatus.OK.value()).build());
 
 		} else {
-			return ResponseEntity.ok(
-					Response.builder().timeStamp(Instant.now()).message("The product called" + name + " does not exist")
-							.status(HttpStatus.BAD_REQUEST).statusCode(HttpStatus.BAD_REQUEST.value()).build());
+			return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
+					.message("The product called " + name + " does not exist").status(HttpStatus.BAD_REQUEST)
+					.statusCode(HttpStatus.BAD_REQUEST.value()).build());
 		}
 
 	}
 
+//	SEARCH BY CATEGORY
+	@GetMapping(value = "/category/{name}")
+	public ResponseEntity<Response> getProductByCategoryName(@PathVariable("name") String name) {
+
+		if (serviceImp.findByNameCategory(name) != null) {
+			return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
+					.data(Map.of("products", serviceImp.findByNameCategory(name)))
+					.message("Get product with category called: " + name).status(HttpStatus.OK)
+					.statusCode(HttpStatus.OK.value()).build());
+
+		} else {
+			return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
+					.message("The product with category called " + name + " does not exist")
+					.status(HttpStatus.BAD_REQUEST).statusCode(HttpStatus.BAD_REQUEST.value()).build());
+		}
+
+	}
 }

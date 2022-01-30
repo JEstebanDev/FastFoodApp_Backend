@@ -1,10 +1,11 @@
 package JEstebanC.FastFoodApp.model;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 
 import JEstebanC.FastFoodApp.enumeration.Status;
 
@@ -24,13 +25,19 @@ public class Client {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long idClient;
-    @NotEmpty(message = "name cannot be empty or null")
+    @NotNull(message = "name cannot be empty or null")
+    @Column(length = 50)
     private String name;
+    private String urlImage;
+    @Column(length = 15)
     private int phone;
-    @NotEmpty(message = "email cannot be empty or null")
+    @NotNull(message = "email cannot be empty or null")
+    @Column(length = 50)
     private String email;
-    @NotEmpty(message = "password cannot be empty or null")
+    @NotNull(message = "password cannot be empty or null")
+    @Column(length = 30)
     private String password;
     private int discountPoint;
     private Status status;
+    
 }
