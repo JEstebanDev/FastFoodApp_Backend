@@ -4,8 +4,9 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 
 import JEstebanC.FastFoodApp.enumeration.Status;
 
@@ -27,15 +28,17 @@ public class Orders {
     private Long idOrder;
 
     @ManyToOne
-    private Bill fkIdBill;
+    @NotNull(message = "IdBill cannot be empty or null")
+    @JoinColumn(name = "IdBill")
+    private Bill IdBill;
 
     @ManyToOne
-    private Product fkIdProduct;
-
-    @NotEmpty(message = "name cannot be empty or null")
+    @NotNull(message = "IdProduct cannot be empty or null")
+    @JoinColumn(name = "IdProduct")
+    private Product IdProduct;
+    
+    @NotNull(message = "amount cannot be empty or null")
     private int amount;
-
-    @NotEmpty(message = "name cannot be empty or null")
     private int price;
 
     private Status status;

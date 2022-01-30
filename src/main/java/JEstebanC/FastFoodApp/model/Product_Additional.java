@@ -6,7 +6,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 
 import JEstebanC.FastFoodApp.enumeration.Status;
 
@@ -21,18 +21,20 @@ import lombok.NoArgsConstructor;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-public class Ingredient {
+public class Product_Additional {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long idIngredient;
-    @NotEmpty(message = "name cannot be empty or null")
-    private String name;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long idProductAdditional;
+    @ManyToOne
+    @NotNull(message = "IdProduct cannot be empty or null")
+    @JoinColumn(name = "IdAdditional")
+    private Additional IdAdditional;
 
     @ManyToOne
-    @JoinColumn(name = "idCategoryIngredient")
-    private CategoryIngredient idCategoryIngredient;
+    @NotNull(message = "IdProduct cannot be empty or null")
+    @JoinColumn(name = "IdProduct")
+    private Product IdProduct;
 
     private Status status;
-
 }

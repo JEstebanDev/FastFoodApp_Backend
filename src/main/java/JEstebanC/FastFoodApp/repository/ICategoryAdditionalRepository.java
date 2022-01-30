@@ -6,7 +6,7 @@ package JEstebanC.FastFoodApp.repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import JEstebanC.FastFoodApp.model.PayMode;
+import JEstebanC.FastFoodApp.model.CategoryAdditional;
 
 /**
  * @author Juan Esteban Castaño Holguin
@@ -14,6 +14,6 @@ import JEstebanC.FastFoodApp.model.PayMode;
  * 2022-01-24
  */
 @Repository
-public interface IPayModeRepository extends JpaRepository<PayMode, Long>{
-	PayMode findByName(String name);
+public interface ICategoryAdditionalRepository extends JpaRepository<CategoryAdditional, Long>{
+	CategoryAdditional findByName(String name);
 }

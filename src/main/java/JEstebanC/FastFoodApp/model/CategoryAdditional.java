@@ -1,11 +1,11 @@
 package JEstebanC.FastFoodApp.model;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
+import javax.validation.constraints.NotNull;
 
 import JEstebanC.FastFoodApp.enumeration.Status;
 
@@ -16,22 +16,19 @@ import lombok.NoArgsConstructor;
 /**
  * @author Juan Esteban Castaño Holguin castanoesteban9@gmail.com 2022-01-22
  */
+
 @Data
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-public class Product_Ingredient {
+public class CategoryAdditional {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long idProductIngredient;
-    @ManyToOne
-    @JoinColumn(name = "IdIngredient")
-    private Ingredient IdIngredient;
-
-    @ManyToOne
-    @JoinColumn(name = "IdProduct")
-    private Product IdProduct;
-
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long idCategoryAdditional;
+    @NotNull(message = "name cannot be empty or null")
+    @Column(length = 30)
+    private String name;
     private Status status;
+
 }

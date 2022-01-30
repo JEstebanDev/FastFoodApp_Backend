@@ -20,9 +20,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import JEstebanC.FastFoodApp.model.CategoryIngredient;
+import JEstebanC.FastFoodApp.model.CategoryAdditional;
 import JEstebanC.FastFoodApp.model.Response;
-import JEstebanC.FastFoodApp.service.CategoryIngredientServiceImp;
+import JEstebanC.FastFoodApp.service.CategoryAdditionalServiceImp;
 import lombok.RequiredArgsConstructor;
 
 /**
@@ -30,70 +30,70 @@ import lombok.RequiredArgsConstructor;
  */
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/category-ingredient")
-public class CategoryIngredientController {
+@RequestMapping("/category-additional")
+public class CategoryAdditionalController {
 
 	@Autowired
-	private final CategoryIngredientServiceImp serviceImp;
+	private final CategoryAdditionalServiceImp serviceImp;
 
 //	CREATE
 	@PostMapping()
-	public ResponseEntity<Response> saveCategoryIngredient(@RequestBody @Valid CategoryIngredient categoryIngredient) {
+	public ResponseEntity<Response> saveCategoryAdditional(@RequestBody @Valid CategoryAdditional categoryAdditional) {
 		return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
-				.data(Map.of("categoryIngredient", serviceImp.create(categoryIngredient)))
-				.message("Create category ingredient").status(HttpStatus.OK).statusCode(HttpStatus.OK.value()).build());
+				.data(Map.of("categoryAdditional", serviceImp.create(categoryAdditional)))
+				.message("Create category additional").status(HttpStatus.OK).statusCode(HttpStatus.OK.value()).build());
 	}
 
 //  READ
 	@GetMapping(value = "/list")
-	public ResponseEntity<Response> getCategoryIngredient() {
+	public ResponseEntity<Response> getCategoryAdditional() {
 		return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
-				.data(Map.of("categoryIngredient", serviceImp.list())).message("List categories ingredients")
+				.data(Map.of("categoryAdditional", serviceImp.list())).message("List categories additionals")
 				.status(HttpStatus.OK).statusCode(HttpStatus.OK.value()).build());
 	}
 
 //	UPDATE
 	@PutMapping(value = "/{id}")
-	public ResponseEntity<Response> updateCategoryIngredient(@PathVariable("id") Long id,
-			@RequestBody @Valid CategoryIngredient categoryIngredient) {
+	public ResponseEntity<Response> updateCategoryAdditional(@PathVariable("id") Long id,
+			@RequestBody @Valid CategoryAdditional categoryAdditional) {
 		if (serviceImp.exist(id)) {
 			return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
-					.data(Map.of("categoryIngredient", serviceImp.update(categoryIngredient)))
-					.message("Update category ingredient with id:" + id).status(HttpStatus.OK)
+					.data(Map.of("categoryAdditional", serviceImp.update(categoryAdditional)))
+					.message("Update category additional with id:" + id).status(HttpStatus.OK)
 					.statusCode(HttpStatus.OK.value()).build());
 		} else {
 			return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
-					.message("The category ingredient with id:" + id + " does not exist").status(HttpStatus.BAD_REQUEST)
+					.message("The category additional with id:" + id + " does not exist").status(HttpStatus.BAD_REQUEST)
 					.statusCode(HttpStatus.BAD_REQUEST.value()).build());
 		}
 	}
 
 //	DELETE
 	@DeleteMapping(value = "/{id}")
-	public ResponseEntity<Response> deleteCategoryIngredient(@PathVariable("id") Long id) {
+	public ResponseEntity<Response> deleteCategoryAdditional(@PathVariable("id") Long id) {
 		if (serviceImp.exist(id)) {
 			return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
-					.data(Map.of("categoryIngredient", serviceImp.delete(id)))
-					.message("Delete category ingredient with id: " + id).status(HttpStatus.OK)
+					.data(Map.of("categoryAdditional", serviceImp.delete(id)))
+					.message("Delete category additional with id: " + id).status(HttpStatus.OK)
 					.statusCode(HttpStatus.OK.value()).build());
 		} else {
 			return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
-					.message("The category ingredient " + id + " does not exist").status(HttpStatus.BAD_REQUEST)
+					.message("The category additional " + id + " does not exist").status(HttpStatus.BAD_REQUEST)
 					.statusCode(HttpStatus.BAD_REQUEST.value()).build());
 		}
 	}
 
 //	SEARCH BY NAME
 	@GetMapping(value = "/{name}")
-	public ResponseEntity<Response> getCategoryIngredientByName(@PathVariable("name") String name) {
+	public ResponseEntity<Response> getCategoryAdditionalByName(@PathVariable("name") String name) {
 		if (serviceImp.findByName(name) != null) {
 			return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
-					.data(Map.of("categoryIngredient", serviceImp.findByName(name)))
-					.message("Get category ingredient by name: " + name).status(HttpStatus.OK)
+					.data(Map.of("categoryAdditional", serviceImp.findByName(name)))
+					.message("Get category additional by name: " + name).status(HttpStatus.OK)
 					.statusCode(HttpStatus.OK.value()).build());
 		} else {
 			return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
-					.message("The category ingredient called" + name + " does not exist").status(HttpStatus.BAD_REQUEST)
+					.message("The category additional called" + name + " does not exist").status(HttpStatus.BAD_REQUEST)
 					.statusCode(HttpStatus.BAD_REQUEST.value()).build());
 		}
 
