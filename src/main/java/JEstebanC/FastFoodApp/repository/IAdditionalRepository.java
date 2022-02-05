@@ -3,6 +3,7 @@
  */
 package JEstebanC.FastFoodApp.repository;
 
+
 import java.util.Collection;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -17,6 +18,9 @@ import JEstebanC.FastFoodApp.model.Additional;
 @Repository
 public interface IAdditionalRepository extends JpaRepository<Additional, Long> {
 	
+	Additional findByIdAdditional(Long idAdditional);
+	
 	@Query(value = "SELECT * FROM additional WHERE name like ?%", nativeQuery = true)
 	Collection<Additional> findByName(String name);
 }
+

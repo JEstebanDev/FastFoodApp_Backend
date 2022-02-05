@@ -18,7 +18,10 @@ import JEstebanC.FastFoodApp.model.Client;
 public interface IClientRepository extends JpaRepository<Client, Long> {
 	@Query(value = "SELECT * FROM client WHERE name like ?%", nativeQuery = true)
 	Collection<Client> findByName(String name);
-
+	
+	@Query(value = "SELECT * FROM client WHERE username = ?", nativeQuery = true)
+	Client findbyUsername(String username);
+	
 	Client findByEmail(String email);
 
 }

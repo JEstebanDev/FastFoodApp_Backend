@@ -9,6 +9,6 @@ import JEstebanC.FastFoodApp.model.Role;
 
 @Repository
 public interface IRoleRepository extends JpaRepository<Role, Long> {
-	
+	Role findByIdRol(Long idRol);
 	Collection<Role> findByDescription(String description);
 }

@@ -10,7 +10,9 @@ import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import JEstebanC.FastFoodApp.model.Additional;
 import JEstebanC.FastFoodApp.model.Product;
+import JEstebanC.FastFoodApp.repository.IAdditionalRepository;
 import JEstebanC.FastFoodApp.repository.ICategoryRepository;
 import JEstebanC.FastFoodApp.repository.IProductRepository;
 
@@ -30,6 +32,8 @@ public class ProductServiceImp implements IProductService {
 	private final IProductRepository productRepository;
 	@Autowired
 	private final ICategoryRepository categoryRepository;
+	@Autowired
+	private final IAdditionalRepository additionalRepository;
 
 	@Override
 	public Product create(Product product) {
@@ -39,6 +43,17 @@ public class ProductServiceImp implements IProductService {
 			return productRepository.save(product);
 		} else {
 			return null;
+		}
+	}
+
+	@Override
+	public Boolean addAdditionalToProduct(Long idProduct, Additional additional) {
+		if (additionalRepository.existsById(additional.getIdAdditional())) {
+			Additional newAdditional = additionalRepository.findByIdAdditional(additional.getIdAdditional());
+			productRepository.getById(idProduct).getAdditional().add(newAdditional);
+			return true;
+		} else {
+			return false;
 		}
 	}
 

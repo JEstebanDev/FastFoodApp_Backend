@@ -1,11 +1,15 @@
 package JEstebanC.FastFoodApp.model;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.validation.constraints.NotNull;
 
@@ -42,5 +46,8 @@ public class Product {
     @NotNull(message = "idCategory cannot be empty or null")
     @JoinColumn(name = "idCategory")
     private Category idCategory;
+    
+    @ManyToMany
+	private Collection<Additional> additional = new ArrayList<>();
     private Status status;
 }

@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import JEstebanC.FastFoodApp.model.Additional;
 import JEstebanC.FastFoodApp.model.Product;
 import JEstebanC.FastFoodApp.model.Response;
 import JEstebanC.FastFoodApp.service.ProductServiceImp;
@@ -45,6 +46,17 @@ public class ProductController {
 					.developerMessage("Please check if exist any category").message("Cannot create the product")
 					.status(HttpStatus.OK).statusCode(HttpStatus.OK.value()).build());
 		}
+	}
+
+//	CREATE ADDITIONAL
+	@PostMapping(value = "/additional/{idProduct}")
+	public ResponseEntity<Response> saveAdditional(@PathVariable("idProduct") Long idProduct,
+			@RequestBody @Valid Additional additional) {
+		return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
+				.data(Map.of("product", serviceImp.addAdditionalToProduct(idProduct, additional)))
+				.message("Added additional to product with id: " + idProduct).status(HttpStatus.OK)
+				.statusCode(HttpStatus.OK.value()).build());
+
 	}
 
 //	READ

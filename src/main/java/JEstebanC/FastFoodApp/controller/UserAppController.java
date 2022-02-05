@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import JEstebanC.FastFoodApp.model.Response;
+import JEstebanC.FastFoodApp.model.Role;
 import JEstebanC.FastFoodApp.model.UserApp;
 import JEstebanC.FastFoodApp.service.UserAppServiceImp;
 import lombok.RequiredArgsConstructor;
@@ -42,6 +43,16 @@ public class UserAppController {
 		return ResponseEntity
 				.ok(Response.builder().timeStamp(Instant.now()).data(Map.of("userApp", serviceImp.create(userApp)))
 						.message("Create userApp").status(HttpStatus.OK).statusCode(HttpStatus.OK.value()).build());
+	}
+
+//	CREATE
+	@PostMapping(value = "/role/{idUserApp}")
+	public ResponseEntity<Response> saveCategory(@PathVariable("idUserApp") Long idUserApp,
+			@RequestBody @Valid Role role) {
+		return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
+				.data(Map.of("userApp", serviceImp.addRoleToUserApp(idUserApp, role)))
+				.message("Adding role to userApp with id: " + idUserApp).status(HttpStatus.OK)
+				.statusCode(HttpStatus.OK.value()).build());
 	}
 
 //  READ
