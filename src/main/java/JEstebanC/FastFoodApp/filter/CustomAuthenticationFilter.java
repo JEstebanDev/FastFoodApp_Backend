@@ -27,12 +27,9 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import lombok.extern.slf4j.Slf4j;
-
 /**
  * @author Juan Esteban Castaño Holguin castanoesteban9@gmail.com 2022-02-02
  */
-@Slf4j
 public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
 	private final AuthenticationManager authenticationManager;
@@ -47,8 +44,6 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
 
 		String username = request.getParameter("username");
 		String password = request.getParameter("password");
-
-		log.info("Username is " + username + " Password is " + password);
 		UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(username,
 				password);
 

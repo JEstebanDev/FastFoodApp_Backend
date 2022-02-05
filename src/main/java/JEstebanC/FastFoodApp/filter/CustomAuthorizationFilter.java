@@ -40,7 +40,7 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
 		// All the logic to filter the request and determine if the user has permission
-		if (request.getServletPath().equals("/api/v1/login") || request.getServletPath().equals("/api/v1/client/token/refresh")) {
+		if (request.getServletPath().equals("/api/v1/login") || request.getServletPath().equals("/api/v1/loginAdmin") || request.getServletPath().equals("/api/v1/token-refresh")) {
 			filterChain.doFilter(request, response);
 		} else {
 			// here is where I start to check if the user has permission

@@ -5,7 +5,6 @@ package JEstebanC.FastFoodApp.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -46,24 +45,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		 * values. 3. Disable CSRF filtering 4. Indicate that login does not require
 		 * authentication. 5. The rest of the URLs are secured.
 		 */
-//		CustomAuthenticationFilter customAuthenticationFilter = new CustomAuthenticationFilter(authenticationManagerBean());
-//		customAuthenticationFilter.setFilterProcessesUrl("/api/v1/login");
 		http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 		http.csrf().disable();
-//		http.authorizeRequests().antMatchers(HttpMethod.POST, "/api/v1/login").permitAll().anyRequest();
-		http.authorizeRequests().antMatchers("/api/v1/login/**", "/api/v1/client/token/refresh/**").permitAll();
-		authorizeRequest(http);
+		http.authorizeRequests().antMatchers("/api/v1/login/","/api/v1/loginAdmin/", "/api/v1/token-refresh/").hasAnyRole();
 		http.addFilter(new CustomAuthenticationFilter(authenticationManagerBean()));
 		http.addFilterBefore(new CustomAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class);
-		
-	}
 
-	private void authorizeRequest(HttpSecurity http) throws Exception {
-
-		http.authorizeRequests().antMatchers(HttpMethod.GET, "/api/v1/product/**").hasAuthority("ROLE_CLIENT");
-		http.authorizeRequests().antMatchers(HttpMethod.GET, "/api/v1/category/**").hasAuthority("ROLE_CLIENT");
-		http.authorizeRequests().antMatchers(HttpMethod.GET, "/api/v1/orders/**").hasAuthority("ROLE_CLIENT");
-		http.authorizeRequests().antMatchers(HttpMethod.GET, "/api/v1/product/**").hasAuthority("ROLE_CLIENT");
 	}
 
 	@Bean
