@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 
 import JEstebanC.FastFoodApp.model.Bill;
 import JEstebanC.FastFoodApp.repository.IBillRepository;
-import JEstebanC.FastFoodApp.repository.IClientRepository;
+import JEstebanC.FastFoodApp.repository.IUserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -28,7 +28,7 @@ public class BillServiceImp implements IBillService {
 	@Autowired
 	private IBillRepository billRepository;
 	@Autowired
-	private IClientRepository clientRepository;
+	private IUserRepository userRepository;
 
 	@Override
 	public Bill create(Bill bill) {
@@ -65,12 +65,12 @@ public class BillServiceImp implements IBillService {
 		return billRepository.existsById(idBill);
 	}
 
-	public Collection<Bill> findByIdClient(Long idClient) {
-		log.info("Searching bills by client called: " + idClient);
+	public Collection<Bill> findByIdUser(Long idUser) {
+		log.info("Searching bills by user called: " + idUser);
 
-		if (clientRepository.existsById(idClient)) {
-			
-			return !billRepository.findByIdClient(idClient).isEmpty() ? billRepository.findByIdClient(idClient) : null;
+		if (userRepository.existsById(idUser)) {
+
+			return !billRepository.findByIdUser(idUser).isEmpty() ? billRepository.findByIdUser(idUser) : null;
 		} else {
 			return null;
 		}

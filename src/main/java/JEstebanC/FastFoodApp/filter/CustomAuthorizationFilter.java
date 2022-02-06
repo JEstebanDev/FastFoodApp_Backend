@@ -40,7 +40,7 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
 		// All the logic to filter the request and determine if the user has permission
-		if (request.getServletPath().equals("/api/v1/login") || request.getServletPath().equals("/api/v1/loginAdmin") || request.getServletPath().equals("/api/v1/token-refresh")) {
+		if (request.getServletPath().equals("/api/v1/login") || request.getServletPath().equals("/api/v1/token-refresh")) {
 			filterChain.doFilter(request, response);
 		} else {
 			// here is where I start to check if the user has permission
@@ -49,7 +49,7 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
 				try {
 					// Remove the word Bearer, because we just want the token
 					String token = authorizationHeader.substring("Bearer ".length());
-					// Reference to the keyValue
+					// Reference to the keyValue	
 					Algorithm algorithm = Algorithm.HMAC256(OperationUtil.keyValue().getBytes());
 					JWTVerifier verifier = JWT.require(algorithm).build();
 					DecodedJWT decodeJWT = verifier.verify(token);

@@ -5,6 +5,7 @@ package JEstebanC.FastFoodApp.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -47,9 +48,17 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		 */
 		http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 		http.csrf().disable();
-		http.authorizeRequests().antMatchers("/api/v1/login/","/api/v1/loginAdmin/", "/api/v1/token-refresh/").hasAnyRole();
 		http.addFilter(new CustomAuthenticationFilter(authenticationManagerBean()));
 		http.addFilterBefore(new CustomAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class);
+//		Da todos los permisos
+//		http.authorizeRequests().antMatchers("/api/v1/login/**", "/api/v1/token-refresh/").permitAll(); 
+
+		http.authorizeRequests().antMatchers("/api/v1/login/", "/api/v1/token-refresh/").hasAnyRole();
+//		http.authorizeRequests().antMatchers("/api/v1/category-additional/list/").hasAnyAuthority("ROLE_CLIENT").anyRequest().authenticated();
+		
+	
+//		http.authorizeRequests().antMatchers("/api/v1/category-additional/list/").hasAnyAuthority("CLIENT").and().formLogin();
+		
 
 	}
 

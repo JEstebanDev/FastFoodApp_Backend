@@ -34,7 +34,7 @@ public class Additional {
     @ManyToOne
     @NotNull(message = "idCategoryAdditional cannot be empty or null")
     @JoinColumn(name = "idCategoryAdditional")
-    private CategoryAdditional idCategoryAdditional;
+    private CategoryAdditional CategoryAdditional;
 
     private Status status;
 

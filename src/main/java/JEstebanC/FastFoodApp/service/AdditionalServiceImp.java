@@ -31,7 +31,7 @@ public class AdditionalServiceImp implements IAdditionalService {
 
 	@Override
 	public Additional create(Additional additional) {
-		if (categoryAdditionalRepository.exist(additional.getIdCategoryAdditional().getIdCategoryAdditional())) {
+		if (categoryAdditionalRepository.exist(additional.getCategoryAdditional().getIdCategoryAdditional())) {
 			log.info("Saving new additional: " + additional.getName());
 			return additionalRepository.save(additional);
 		} else {
@@ -42,7 +42,7 @@ public class AdditionalServiceImp implements IAdditionalService {
 
 	@Override
 	public Additional update(Additional additional) {
-		if (categoryAdditionalRepository.exist(additional.getIdCategoryAdditional().getIdCategoryAdditional())) {
+		if (categoryAdditionalRepository.exist(additional.getCategoryAdditional().getIdCategoryAdditional())) {
 			log.info("Updating additional with id:" + additional.getIdAdditional());
 			return additionalRepository.save(additional);
 		} else {

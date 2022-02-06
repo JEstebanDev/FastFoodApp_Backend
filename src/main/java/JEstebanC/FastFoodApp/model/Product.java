@@ -45,7 +45,7 @@ public class Product {
     @ManyToOne
     @NotNull(message = "idCategory cannot be empty or null")
     @JoinColumn(name = "idCategory")
-    private Category idCategory;
+    private Category Category;
     
     @ManyToMany
 	private Collection<Additional> additional = new ArrayList<>();

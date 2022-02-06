@@ -75,19 +75,20 @@ public class BillController {
 							.status(HttpStatus.BAD_REQUEST).statusCode(HttpStatus.BAD_REQUEST.value()).build());
 		}
 	}
+
 //  SEARCH BY CLIENT
 	@GetMapping(value = "/client/{id}")
 	public ResponseEntity<Response> getBill(@PathVariable("id") Long id) {
-		
-		if(serviceImp.findByIdClient(id)!=null) {
-			return ResponseEntity.ok(Response.builder().timeStamp(Instant.now()).data(Map.of("bill", serviceImp.findByIdClient(id)))
-					.message("List bills").status(HttpStatus.OK).statusCode(HttpStatus.OK.value()).build());
-		}else{
+
+		if (serviceImp.findByIdUser(id) != null) {
 			return ResponseEntity
-					.ok(Response.builder().timeStamp(Instant.now()).message("The bill with id client: " + id + " does not exist")
-							.status(HttpStatus.BAD_REQUEST).statusCode(HttpStatus.BAD_REQUEST.value()).build());
+					.ok(Response.builder().timeStamp(Instant.now()).data(Map.of("bill", serviceImp.findByIdUser(id)))
+							.message("List bills").status(HttpStatus.OK).statusCode(HttpStatus.OK.value()).build());
+		} else {
+			return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
+					.message("The bill with id client: " + id + " does not exist").status(HttpStatus.BAD_REQUEST)
+					.statusCode(HttpStatus.BAD_REQUEST.value()).build());
 		}
-		
-		
+
 	}
 }

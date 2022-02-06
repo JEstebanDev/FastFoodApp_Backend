@@ -11,6 +11,7 @@ import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -45,6 +46,7 @@ public class CategoryAdditionalController {
 	}
 
 //  READ
+	@PostAuthorize("hasRole('ROLE_CLIENT')")
 	@GetMapping(value = "/list")
 	public ResponseEntity<Response> getCategoryAdditional() {
 		return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())

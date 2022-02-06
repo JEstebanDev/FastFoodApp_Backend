@@ -38,7 +38,7 @@ public class ProductServiceImp implements IProductService {
 	@Override
 	public Product create(Product product) {
 
-		if (categoryRepository.existsById(product.getIdCategory().getIdCategory())) {
+		if (categoryRepository.existsById(product.getCategory().getIdCategory())) {
 			log.info("Saving new product: " + product.getName());
 			return productRepository.save(product);
 		} else {
@@ -59,7 +59,7 @@ public class ProductServiceImp implements IProductService {
 
 	@Override
 	public Product update(Product product) {
-		if (categoryRepository.existsById(product.getIdCategory().getIdCategory())) {
+		if (categoryRepository.existsById(product.getCategory().getIdCategory())) {
 			log.info("Updating product with id: " + product.getName());
 			return productRepository.save(product);
 		} else {

@@ -30,14 +30,14 @@ public class Bill {
     private Long idBill;
     private Date date;
     @ManyToOne
-    @NotNull(message = "idClient cannot be empty or null")
-    @JoinColumn(name = "idClient")
-    private Client idClient;
+    @NotNull(message = "idUser cannot be empty or null")
+    @JoinColumn(name = "idUser")
+    private User User;
 
     @OneToOne
     @NotNull(message = "idPayMode cannot be empty or null")
     @JoinColumn(name = "idPayMode")
-    private PayMode idPayMode;
+    private PayMode PayMode;
 
     private Status status;
 }

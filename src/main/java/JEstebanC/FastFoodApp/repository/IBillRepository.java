@@ -18,6 +18,6 @@ import JEstebanC.FastFoodApp.model.Bill;
  */
 @Repository
 public interface IBillRepository extends JpaRepository<Bill, Long>{
-	@Query(value = "SELECT * FROM bill where id_client = ?",nativeQuery = true)
-	Collection<Bill> findByIdClient(Long idClient);
+	@Query(value = "SELECT * FROM bill where id_user = ?",nativeQuery = true)
+	Collection<Bill> findByIdUser(Long idUser);
 }

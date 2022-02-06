@@ -11,6 +11,7 @@ import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -36,7 +37,9 @@ public class AdditionalController {
 	@Autowired
 	private final AdditionalServiceImp serviceImp;
 
+	
 //	CREATE
+	@PreAuthorize("hasRole('ROLE_ADMIN')")
 	@PostMapping()
 	public ResponseEntity<Response> saveAdditional(@RequestBody @Valid Additional addiotional) {
 		return ResponseEntity
@@ -52,6 +55,7 @@ public class AdditionalController {
 	}
 
 //	UPDATE
+	@PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_WAITER') or hasRole('ROLE_CHEF')")
 	@PutMapping(value = "/{id}")
 	public ResponseEntity<Response> updateAdditional(@PathVariable("id") Long id, @RequestBody @Valid Additional addiotional) {
 		if (serviceImp.exist(id)) {
@@ -66,6 +70,7 @@ public class AdditionalController {
 	}
 
 //	DELETE
+	@PreAuthorize("hasRole('ROLE_ADMIN')")
 	@DeleteMapping(value = "/{id}")
 	public ResponseEntity<Response> deleteAdditional(@PathVariable("id") Long id) {
 		if (serviceImp.exist(id)) {

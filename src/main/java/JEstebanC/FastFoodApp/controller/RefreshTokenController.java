@@ -26,8 +26,8 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import JEstebanC.FastFoodApp.filter.OperationUtil;
-import JEstebanC.FastFoodApp.model.Client;
-import JEstebanC.FastFoodApp.service.ClientServiceImp;
+import JEstebanC.FastFoodApp.model.User;
+import JEstebanC.FastFoodApp.service.UserServiceImp;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -43,7 +43,7 @@ import lombok.extern.slf4j.Slf4j;
 public class RefreshTokenController {
 	
 	@Autowired
-	private final ClientServiceImp serviceImp;
+	private final UserServiceImp serviceImp;
 	
 	@GetMapping()
 	public void refreshToken(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -58,8 +58,8 @@ public class RefreshTokenController {
 				JWTVerifier verifier = JWT.require(algorithm).build();
 				DecodedJWT decodeJWT = verifier.verify(refresh_token);
 				String username = decodeJWT.getSubject();
-				if (serviceImp.findbyUsername(username) != null) {
-					Client client = serviceImp.findbyUsername(username);
+				if (serviceImp.findByUsername(username) != null) {
+					User client = serviceImp.findByUsername(username);
 
 					String access_token = JWT.create().withSubject(client.getUsername())
 							.withExpiresAt(new Date(System.currentTimeMillis() + 10 * 60 * 1000))

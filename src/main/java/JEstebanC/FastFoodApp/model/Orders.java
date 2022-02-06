@@ -30,12 +30,12 @@ public class Orders {
     @ManyToOne
     @NotNull(message = "IdBill cannot be empty or null")
     @JoinColumn(name = "IdBill")
-    private Bill IdBill;
+    private Bill Bill;
 
     @ManyToOne
     @NotNull(message = "IdProduct cannot be empty or null")
     @JoinColumn(name = "IdProduct")
-    private Product IdProduct;
+    private Product Product;
     
     @NotNull(message = "amount cannot be empty or null")
     private int amount;
