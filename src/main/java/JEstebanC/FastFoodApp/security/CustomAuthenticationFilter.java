@@ -1,7 +1,5 @@
-/**
- * 
- */
-package JEstebanC.FastFoodApp.filter;
+
+package JEstebanC.FastFoodApp.security;
 
 import java.io.IOException;
 import java.util.Date;
@@ -27,9 +25,12 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * @author Juan Esteban Castaño Holguin castanoesteban9@gmail.com 2022-02-02
  */
+@Slf4j
 public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
 	private final AuthenticationManager authenticationManager;
@@ -44,6 +45,8 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
 
 		String username = request.getParameter("username");
 		String password = request.getParameter("password");
+
+		log.info("Username is " + username + " Password is " + password);
 		UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(username,
 				password);
 
@@ -57,15 +60,15 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
 		// Reference to the keyValue
 		Algorithm algorithm = Algorithm.HMAC256(OperationUtil.keyValue().getBytes());
 		String access_token = JWT.create().withSubject(user.getUsername())
-				//adding 15 minutes the token
-				.withExpiresAt(new Date(System.currentTimeMillis() + 15 * 60 * 1000))
+				//give 10 minutes for the token to expire
+				.withExpiresAt(new Date(System.currentTimeMillis() + 20 * 60 * 1000))
 				.withIssuer(request.getRequestURL().toString())
 				.withClaim("roles",
 						user.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()))
 				.sign(algorithm);
 
 		String refresh_token = JWT.create().withSubject(user.getUsername())
-				//adding 30 minutes the token
+				//give 30 minutes for the token to expire
 				.withExpiresAt(new Date(System.currentTimeMillis() + 30 * 60 * 1000))
 				.withIssuer(request.getRequestURL().toString())
 				.withClaim("roles",

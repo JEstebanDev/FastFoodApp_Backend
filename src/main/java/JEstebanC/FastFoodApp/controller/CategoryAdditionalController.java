@@ -11,7 +11,7 @@ import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -31,6 +31,7 @@ import lombok.RequiredArgsConstructor;
  */
 @RestController
 @RequiredArgsConstructor
+@PreAuthorize("authenticated")
 @RequestMapping("/category-additional")
 public class CategoryAdditionalController {
 
@@ -38,6 +39,7 @@ public class CategoryAdditionalController {
 	private final CategoryAdditionalServiceImp serviceImp;
 
 //	CREATE
+	@PreAuthorize("hasRole('ROLE_ADMIN')")
 	@PostMapping()
 	public ResponseEntity<Response> saveCategoryAdditional(@RequestBody @Valid CategoryAdditional categoryAdditional) {
 		return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
@@ -46,7 +48,7 @@ public class CategoryAdditionalController {
 	}
 
 //  READ
-	@PostAuthorize("hasRole('ROLE_CLIENT')")
+	@PreAuthorize("hasRole('ROLE_ADMIN') OR hasRole('ROLE_EMPLOYEE')")
 	@GetMapping(value = "/list")
 	public ResponseEntity<Response> getCategoryAdditional() {
 		return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
@@ -55,12 +57,13 @@ public class CategoryAdditionalController {
 	}
 
 //	UPDATE
+	@PreAuthorize("hasRole('ROLE_ADMIN') OR hasRole('ROLE_EMPLOYEE')")
 	@PutMapping(value = "/{id}")
 	public ResponseEntity<Response> updateCategoryAdditional(@PathVariable("id") Long id,
 			@RequestBody @Valid CategoryAdditional categoryAdditional) {
 		if (serviceImp.exist(id)) {
 			return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
-					.data(Map.of("categoryAdditional", serviceImp.update(categoryAdditional)))
+					.data(Map.of("categoryAdditional", serviceImp.update(id,categoryAdditional)))
 					.message("Update category additional with id:" + id).status(HttpStatus.OK)
 					.statusCode(HttpStatus.OK.value()).build());
 		} else {
@@ -71,6 +74,7 @@ public class CategoryAdditionalController {
 	}
 
 //	DELETE
+	@PreAuthorize("hasRole('ROLE_ADMIN')")
 	@DeleteMapping(value = "/{id}")
 	public ResponseEntity<Response> deleteCategoryAdditional(@PathVariable("id") Long id) {
 		if (serviceImp.exist(id)) {
@@ -86,6 +90,7 @@ public class CategoryAdditionalController {
 	}
 
 //	SEARCH BY NAME
+	@PreAuthorize("hasRole('ROLE_ADMIN') OR hasRole('ROLE_EMPLOYEE')")
 	@GetMapping(value = "/{name}")
 	public ResponseEntity<Response> getCategoryAdditionalByName(@PathVariable("name") String name) {
 		if (serviceImp.findByName(name) != null) {

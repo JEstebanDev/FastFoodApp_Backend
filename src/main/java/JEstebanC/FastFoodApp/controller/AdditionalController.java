@@ -55,12 +55,12 @@ public class AdditionalController {
 	}
 
 //	UPDATE
-	@PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_WAITER') or hasRole('ROLE_CHEF')")
+	@PreAuthorize("hasRole('ROLE_ADMIN') OR hasRole('ROLE_EMPLOYEE')")
 	@PutMapping(value = "/{id}")
 	public ResponseEntity<Response> updateAdditional(@PathVariable("id") Long id, @RequestBody @Valid Additional addiotional) {
 		if (serviceImp.exist(id)) {
 			return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
-					.data(Map.of("additional", serviceImp.update(addiotional))).message("Update additional with id:" + id)
+					.data(Map.of("additional", serviceImp.update(id,addiotional))).message("Update additional with id:" + id)
 					.status(HttpStatus.OK).statusCode(HttpStatus.OK.value()).build());
 		} else {
 			return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())

@@ -14,7 +14,7 @@ public interface IAdditionalService {
 
 	Additional create(Additional additional);
 
-	Additional update(Additional additional);
+	Additional update(Long id,Additional additional);
 
 	Boolean delete(Long id_Additional);
 

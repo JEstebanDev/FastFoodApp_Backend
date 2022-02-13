@@ -1,7 +1,7 @@
 /**
  * 
  */
-package JEstebanC.FastFoodApp.filter;
+package JEstebanC.FastFoodApp.security;
 
 /**
  * @author Juan Esteban Castaño Holguin castanoesteban9@gmail.com 2022-02-03

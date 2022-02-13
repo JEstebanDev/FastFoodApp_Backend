@@ -3,8 +3,7 @@
  */
 package JEstebanC.FastFoodApp.service;
 
-import java.util.Collection;
-
+import JEstebanC.FastFoodApp.dto.UserDTO;
 import JEstebanC.FastFoodApp.model.User;
 
 /**
@@ -12,13 +11,11 @@ import JEstebanC.FastFoodApp.model.User;
  */
 public interface IUserService {
 
-	User create(User idUser);
+	User create(User user);
 
-	User update(User idUser);
+	UserDTO update(User user);
 
 	Boolean delete(Long idUser);
-
-	Collection<User> list();
 
 	Boolean exist(Long idUser);
 

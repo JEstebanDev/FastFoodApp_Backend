@@ -58,9 +58,9 @@ public class ProductServiceImp implements IProductService {
 	}
 
 	@Override
-	public Product update(Product product) {
+	public Product update(Long id, Product product) {
 		if (categoryRepository.existsById(product.getCategory().getIdCategory())) {
-			log.info("Updating product with id: " + product.getName());
+			log.info("Updating product with id: " + id);
 			return productRepository.save(product);
 		} else {
 			return null;
@@ -74,15 +74,15 @@ public class ProductServiceImp implements IProductService {
 		return true;
 	}
 
-	@Override
-	public Collection<Product> list() {
+	public Collection<Product> list(Long page) {
 		log.info("List all products");
-		return productRepository.findAll();
+		return productRepository.list(page * 10);
 	}
 
 	public Collection<Product> findByName(String name) {
 		log.info("Searching product by name: " + name);
-		return productRepository.findByName(name) != null ? productRepository.findByName(name) : null;
+		return productRepository.findByNameStartsWith(name) != null ? productRepository.findByNameStartsWith(name)
+				: null;
 	}
 
 	public Collection<Product> findByNameCategory(String name) {

@@ -11,6 +11,7 @@ import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -37,6 +38,7 @@ public class CategoryController {
 	private final CategoryServiceImp serviceImp;
 
 //	CREATE
+	@PreAuthorize("hasRole('ROLE_ADMIN')")
 	@PostMapping()
 	public ResponseEntity<Response> saveCategory(@RequestBody @Valid Category category) {
 		return ResponseEntity
@@ -52,11 +54,12 @@ public class CategoryController {
 	}
 
 //	UPDATE
+	@PreAuthorize("hasRole('ROLE_ADMIN') OR hasRole('ROLE_EMPLOYEE')")
 	@PutMapping(value = "/{id}")
 	public ResponseEntity<Response> updateCategory(@PathVariable("id") Long id, @RequestBody @Valid Category category) {
 		if (serviceImp.exist(id)) {
 			return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
-					.data(Map.of("category", serviceImp.update(category))).message("Update category with id:" + id)
+					.data(Map.of("category", serviceImp.update(id,category))).message("Update category with id:" + id)
 					.status(HttpStatus.OK).statusCode(HttpStatus.OK.value()).build());
 		} else {
 			return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
@@ -64,7 +67,7 @@ public class CategoryController {
 					.statusCode(HttpStatus.BAD_REQUEST.value()).build());
 		}
 	}
-
+	@PreAuthorize("hasRole('ROLE_ADMIN')")
 //	DELETE
 	@DeleteMapping(value = "/{id}")
 	public ResponseEntity<Response> deleteCategory(@PathVariable("id") Long id) {

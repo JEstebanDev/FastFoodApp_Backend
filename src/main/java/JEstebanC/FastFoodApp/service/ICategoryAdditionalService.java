@@ -14,7 +14,7 @@ public interface ICategoryAdditionalService {
 
     CategoryAdditional create(CategoryAdditional categoryAdditional);
 
-    CategoryAdditional update(CategoryAdditional categoryAdditional);
+    CategoryAdditional update(Long id,CategoryAdditional categoryAdditional);
 
     Boolean delete(Long idCategoryAdditional);
 

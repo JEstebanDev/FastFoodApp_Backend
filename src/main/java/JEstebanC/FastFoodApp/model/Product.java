@@ -41,6 +41,7 @@ public class Product {
     @NotNull(message = "price cannot be empty or null")
     private int price;
     private String ImageUrl;
+    private String duration;
     private int discountPoint;
     @ManyToOne
     @NotNull(message = "idCategory cannot be empty or null")

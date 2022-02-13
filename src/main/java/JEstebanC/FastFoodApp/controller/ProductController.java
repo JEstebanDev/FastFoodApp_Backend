@@ -8,6 +8,7 @@ import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -29,7 +30,6 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-//@PreAuthorize("authenticated")
 @RequestMapping("/product")
 public class ProductController {
 
@@ -37,7 +37,7 @@ public class ProductController {
 	private final ProductServiceImp serviceImp;
 
 //	CREATE
-//	@PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_ADMIN')")
+	@PreAuthorize("hasRole('ROLE_ADMIN')")
 	@PostMapping()
 	public ResponseEntity<Response> saveProduct(@RequestBody @Valid Product product) {
 		if (serviceImp.create(product) != null) {
@@ -52,6 +52,7 @@ public class ProductController {
 	}
 
 //	CREATE ADDITIONAL
+	@PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_EMPLOYEE')")
 	@PostMapping(value = "/additional/{idProduct}")
 	public ResponseEntity<Response> saveAdditional(@PathVariable("idProduct") Long idProduct,
 			@RequestBody @Valid Additional additional) {
@@ -62,18 +63,19 @@ public class ProductController {
 
 	}
 //	READ
-	@GetMapping(value = "/list")
-	public ResponseEntity<Response> getProduct() {
-		return ResponseEntity.ok(Response.builder().timeStamp(Instant.now()).data(Map.of("products", serviceImp.list()))
+	@GetMapping(value = "/list/{page}")
+	public ResponseEntity<Response> getProduct(@PathVariable(name = "page") Long page) {
+		return ResponseEntity.ok(Response.builder().timeStamp(Instant.now()).data(Map.of("products", serviceImp.list(page)))
 				.message("List products").status(HttpStatus.OK).statusCode(HttpStatus.OK.value()).build());
 	}
 
 //	UPDATE
+	@PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_EMPLOYEE')")
 	@PutMapping(value = "/{id}")
 	public ResponseEntity<Response> updateProduct(@PathVariable("id") Long id, @RequestBody @Valid Product product) {
 		if (serviceImp.exist(id)) {
 			return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
-					.data(Map.of("product", serviceImp.update(product))).message("Update product with id:" + id)
+					.data(Map.of("product", serviceImp.update(id,product))).message("Update product with id:" + id)
 					.status(HttpStatus.OK).statusCode(HttpStatus.OK.value()).build());
 		} else {
 			return ResponseEntity.ok(
@@ -83,6 +85,7 @@ public class ProductController {
 	}
 
 //	DELETE
+	@PreAuthorize("hasRole('ROLE_ADMIN')")
 	@DeleteMapping(value = "/{id}")
 	public ResponseEntity<Response> deleteProduct(@PathVariable("id") Long id) {
 		if (serviceImp.exist(id)) {

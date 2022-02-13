@@ -5,23 +5,22 @@ package JEstebanC.FastFoodApp.service;
 
 import java.util.Collection;
 
+import JEstebanC.FastFoodApp.dto.BillOrdersDTO;
 import JEstebanC.FastFoodApp.model.Orders;
 
 /**
- * @author Juan Esteban Castaño Holguin
- * castanoesteban9@gmail.com
- * 2022-01-27
+ * @author Juan Esteban Castaño Holguin castanoesteban9@gmail.com 2022-01-27
  */
 public interface IOrdersService {
 
-	Orders create(Orders orders);
+	BillOrdersDTO create(Orders orders);
 
-	Orders update(Orders orders);
+	BillOrdersDTO update(Long id, Orders orders);
 
 	Boolean delete(Long idOrders);
 
-	Collection<Orders> list();
+	Collection<BillOrdersDTO> list();
 
-    Boolean exist(Long idOrders);
+	Boolean exist(Long idOrders);
 
 }

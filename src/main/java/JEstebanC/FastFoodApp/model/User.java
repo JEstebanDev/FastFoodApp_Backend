@@ -1,16 +1,14 @@
 package JEstebanC.FastFoodApp.model;
 
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
+import JEstebanC.FastFoodApp.enumeration.AppUserRole;
 import JEstebanC.FastFoodApp.enumeration.Status;
 
 import lombok.AllArgsConstructor;
@@ -34,7 +32,7 @@ public class User {
 	@Column(length = 50)
 	private String name;
 	@NotNull(message = "username cannot be empty or null")
-	@Column(length = 50)
+	@Column(length = 50,unique = true)
 	private String username;
 	private String urlImage;
 	@Column(length = 15)
@@ -46,10 +44,7 @@ public class User {
 	private String password;
 	private int discountPoint;
 
-	@ManyToOne
-	@NotNull(message = "idRole cannot be empty or null")
-	@JoinColumn(name = "idRole")
-	private Role role;
+	private AppUserRole userRoles;
 
 	private Status status;
 

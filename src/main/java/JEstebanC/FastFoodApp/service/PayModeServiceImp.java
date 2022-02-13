@@ -31,7 +31,7 @@ public class PayModeServiceImp implements IPayModeService {
 	}
 
 	@Override
-	public PayMode update(PayMode payMode) {
+	public PayMode update(Long id, PayMode payMode) {
 		log.info("Updating category: " + payMode.getName());
 		return payModeRepository.save(payMode);
 	}

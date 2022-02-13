@@ -16,9 +16,14 @@ import JEstebanC.FastFoodApp.model.Product;
  */
 @Repository
 public interface IProductRepository extends JpaRepository<Product, Long> {
-	@Query(value = "SELECT * FROM product where name like ?%  ", nativeQuery = true)
-	Collection<Product> findByName(String name);
+	Collection<Product> findByNameStartsWith(String name);
 
+	@Query(value = "SELECT * FROM product order by name OFFSET ? ROWS FETCH NEXT 10 ROWS ONLY", nativeQuery = true)
+	Collection<Product> list(Long page);
+	
 	@Query(value = "SELECT pro.* FROM product pro join category ca on ca.id_category=pro.id_category  WHERE ca.name = ?", nativeQuery = true)
 	Collection<Product> findByNameCategory(String name);
+	
+//	@Query(value = "SELECT * FROM product WHERE id_product=?", nativeQuery = true)
+	Product findByIdProduct(Long idProduct);
 }
