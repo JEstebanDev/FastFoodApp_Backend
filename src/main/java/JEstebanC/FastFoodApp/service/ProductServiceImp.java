@@ -10,7 +10,9 @@ import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import JEstebanC.FastFoodApp.model.Additional;
 import JEstebanC.FastFoodApp.model.Product;
+import JEstebanC.FastFoodApp.repository.IAdditionalRepository;
 import JEstebanC.FastFoodApp.repository.ICategoryRepository;
 import JEstebanC.FastFoodApp.repository.IProductRepository;
 
@@ -30,11 +32,13 @@ public class ProductServiceImp implements IProductService {
 	private final IProductRepository productRepository;
 	@Autowired
 	private final ICategoryRepository categoryRepository;
+	@Autowired
+	private final IAdditionalRepository additionalRepository;
 
 	@Override
 	public Product create(Product product) {
 
-		if (categoryRepository.existsById(product.getIdCategory().getIdCategory())) {
+		if (categoryRepository.existsById(product.getCategory().getIdCategory())) {
 			log.info("Saving new product: " + product.getName());
 			return productRepository.save(product);
 		} else {
@@ -43,9 +47,20 @@ public class ProductServiceImp implements IProductService {
 	}
 
 	@Override
-	public Product update(Product product) {
-		if (categoryRepository.existsById(product.getIdCategory().getIdCategory())) {
-			log.info("Updating product with id: " + product.getName());
+	public Boolean addAdditionalToProduct(Long idProduct, Additional additional) {
+		if (additionalRepository.existsById(additional.getIdAdditional())) {
+			Additional newAdditional = additionalRepository.findByIdAdditional(additional.getIdAdditional());
+			productRepository.getById(idProduct).getAdditional().add(newAdditional);
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	@Override
+	public Product update(Long id, Product product) {
+		if (categoryRepository.existsById(product.getCategory().getIdCategory())) {
+			log.info("Updating product with id: " + id);
 			return productRepository.save(product);
 		} else {
 			return null;
@@ -59,15 +74,15 @@ public class ProductServiceImp implements IProductService {
 		return true;
 	}
 
-	@Override
-	public Collection<Product> list() {
+	public Collection<Product> list(Long page) {
 		log.info("List all products");
-		return productRepository.findAll();
+		return productRepository.list(page * 10);
 	}
 
-	public Product findByName(String name) {
+	public Collection<Product> findByName(String name) {
 		log.info("Searching product by name: " + name);
-		return productRepository.findByName(name) != null ? productRepository.findByName(name) : null;
+		return productRepository.findByNameStartsWith(name) != null ? productRepository.findByNameStartsWith(name)
+				: null;
 	}
 
 	public Collection<Product> findByNameCategory(String name) {

@@ -3,6 +3,8 @@
  */
 package JEstebanC.FastFoodApp.repository;
 
+import java.util.Collection;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -13,5 +15,8 @@ import JEstebanC.FastFoodApp.model.Additional;
  */
 @Repository
 public interface IAdditionalRepository extends JpaRepository<Additional, Long> {
-	Additional findByName(String name);
+
+	Additional findByIdAdditional(Long idAdditional);
+
+	Collection<Additional> findByNameStartsWith(String name);
 }

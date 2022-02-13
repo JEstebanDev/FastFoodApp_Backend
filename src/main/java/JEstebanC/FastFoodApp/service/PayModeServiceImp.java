@@ -31,7 +31,7 @@ public class PayModeServiceImp implements IPayModeService {
 	}
 
 	@Override
-	public PayMode update(PayMode payMode) {
+	public PayMode update(Long id, PayMode payMode) {
 		log.info("Updating category: " + payMode.getName());
 		return payModeRepository.save(payMode);
 	}
@@ -57,11 +57,6 @@ public class PayModeServiceImp implements IPayModeService {
 	public Boolean exist(Long idPayMode) {
 		log.info("Searching category by id: " + idPayMode);
 		return payModeRepository.existsById(idPayMode);
-	}
-
-	public PayMode findByName(String name) {
-		log.info("Searching category by name: " + name);
-		return payModeRepository.findByName(name);
 	}
 
 }

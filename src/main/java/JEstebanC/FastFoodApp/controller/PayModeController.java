@@ -11,6 +11,7 @@ import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -30,6 +31,7 @@ import lombok.RequiredArgsConstructor;
  */
 @RestController
 @RequiredArgsConstructor
+@PreAuthorize("hasRole('ROLE_ADMIN')")
 @RequestMapping("/pay-mode")
 public class PayModeController {
 
@@ -45,6 +47,7 @@ public class PayModeController {
 	}
 
 //  READ
+	@PreAuthorize("hasRole('ROLE_ADMIN') OR hasRole('ROLE_EMPLOYEE') OR hasRole('ROLE_CLIENT') ")
 	@GetMapping(value = "/list")
 	public ResponseEntity<Response> getPayMode() {
 		return ResponseEntity.ok(Response.builder().timeStamp(Instant.now()).data(Map.of("payMode", serviceImp.list()))
@@ -56,7 +59,7 @@ public class PayModeController {
 	public ResponseEntity<Response> updatePayMode(@PathVariable("id") Long id, @RequestBody @Valid PayMode payMode) {
 		if (serviceImp.exist(id)) {
 			return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
-					.data(Map.of("payMode", serviceImp.update(payMode))).message("Update payMode with id:" + id)
+					.data(Map.of("payMode", serviceImp.update(id,payMode))).message("Update payMode with id:" + id)
 					.status(HttpStatus.OK).statusCode(HttpStatus.OK.value()).build());
 		} else {
 			return ResponseEntity.ok(
@@ -77,21 +80,5 @@ public class PayModeController {
 					.ok(Response.builder().timeStamp(Instant.now()).message("The payMode " + id + " does not exist")
 							.status(HttpStatus.BAD_REQUEST).statusCode(HttpStatus.BAD_REQUEST.value()).build());
 		}
-	}
-
-//	SEARCH BY NAME
-	@GetMapping(value = "/{name}")
-	public ResponseEntity<Response> getPayModeByName(@PathVariable("name") String name) {
-		if (serviceImp.findByName(name) != null) {
-			return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
-					.data(Map.of("payMode", serviceImp.findByName(name))).message("Get payMode by name: " + name)
-					.status(HttpStatus.OK).statusCode(HttpStatus.OK.value()).build());
-
-		} else {
-			return ResponseEntity.ok(
-					Response.builder().timeStamp(Instant.now()).message("The payMode called" + name + " does not exist")
-							.status(HttpStatus.BAD_REQUEST).statusCode(HttpStatus.BAD_REQUEST.value()).build());
-		}
-
 	}
 }

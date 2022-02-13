@@ -31,8 +31,8 @@ public class CategoryServiceImp implements ICategoryService {
 	}
 
 	@Override
-	public Category update(Category category) {
-		log.info("Updating category with id: " + category.getIdCategory());
+	public Category update(Long id,Category category) {
+		log.info("Updating category with id: " +id);
 		return categoryRepository.save(category);
 	}
 
@@ -59,9 +59,9 @@ public class CategoryServiceImp implements ICategoryService {
 		return categoryRepository.existsById(idCategory);
 	}
 
-	public Category findByName(String name) {
+	public Collection<Category> findByName(String name) {
 		log.info("Searching category by name: " + name);
-		return categoryRepository.findByName(name);
+		return categoryRepository.findAllByNameStartsWith(name);
 	}
 
 }

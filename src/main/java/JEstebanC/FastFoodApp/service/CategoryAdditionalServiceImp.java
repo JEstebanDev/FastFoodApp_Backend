@@ -31,8 +31,8 @@ public class CategoryAdditionalServiceImp implements ICategoryAdditionalService 
 	}
 
 	@Override
-	public CategoryAdditional update(CategoryAdditional categoryAdditional) {
-		log.info("Updating category additional with id: " + categoryAdditional.getIdCategoryAdditional());
+	public CategoryAdditional update(Long id,CategoryAdditional categoryAdditional) {
+		log.info("Updating category additional with id: " +  id);
 		return categoryAdditionalRepository.save(categoryAdditional);
 	}
 
@@ -59,9 +59,9 @@ public class CategoryAdditionalServiceImp implements ICategoryAdditionalService 
 		return categoryAdditionalRepository.existsById(idCategory);
 	}
 
-	public CategoryAdditional findByName(String name) {
+	public Collection<CategoryAdditional> findByName(String name) {
 		log.info("Searching category additional by name: " + name);
-		return categoryAdditionalRepository.findByName(name);
+		return categoryAdditionalRepository.findByNameStartsWith(name);
 	}
 
 }

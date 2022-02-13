@@ -3,8 +3,7 @@
  */
 package JEstebanC.FastFoodApp.service;
 
-import java.util.Collection;
-
+import JEstebanC.FastFoodApp.model.Additional;
 import JEstebanC.FastFoodApp.model.Product;
 
 /**
@@ -12,14 +11,14 @@ import JEstebanC.FastFoodApp.model.Product;
  */
 public interface IProductService {
 
-    Product create(Product product);
+	Product create(Product product);
 
-    Product update(Product product);
+	Product update(Long id, Product product);
 
-    Boolean delete(Long idProduct);
+	Boolean delete(Long idProduct);
 
-    Collection<Product> list();
+	Boolean addAdditionalToProduct(Long idProduct, Additional additional);
 
-    Boolean exist(Long idProduct);
+	Boolean exist(Long idProduct);
 
 }

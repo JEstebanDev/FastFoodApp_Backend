@@ -12,14 +12,14 @@ import JEstebanC.FastFoodApp.model.PayMode;
  */
 public interface IPayModeService {
 
-    PayMode create(PayMode payMode);
+	PayMode create(PayMode payMode);
 
-    PayMode update(PayMode payMode);
+	PayMode update(Long id, PayMode payMode);
 
-    Boolean delete(Long idPayMode);
+	Boolean delete(Long idPayMode);
 
-    Collection<PayMode> list();
+	Collection<PayMode> list();
 
-    Boolean exist(Long idPayMode);
+	Boolean exist(Long idPayMode);
 
 }
