@@ -7,6 +7,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import JEstebanC.FastFoodApp.enumeration.StatusBill;
 import JEstebanC.FastFoodApp.model.PayMode;
+import JEstebanC.FastFoodApp.model.Additional;
 import JEstebanC.FastFoodApp.model.Product;
 import lombok.Data;
 
@@ -24,6 +25,9 @@ public class BillOrdersDTO {
 
 //	Product
 	private Collection<Product> product;
+	
+//	Additional
+	private Collection<Additional> Additional;
 
 //  Bill
 	private Long idBill;

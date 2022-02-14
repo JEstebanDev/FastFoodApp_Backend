@@ -30,11 +30,14 @@ public class Additional {
     @NotNull(message = "name cannot be empty or null")
     @Column(length = 30)
     private String name;
+    
+    @NotNull(message = "name cannot be empty or null")
+    private int price;
 
     @ManyToOne
-    @NotNull(message = "idCategoryAdditional cannot be empty or null")
-    @JoinColumn(name = "idCategoryAdditional")
-    private CategoryAdditional CategoryAdditional;
+    @NotNull(message = "idCategory cannot be empty or null")
+    @JoinColumn(name = "idCategory")
+    private Category Category;
 
     private Status status;
 

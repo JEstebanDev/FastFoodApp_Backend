@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import JEstebanC.FastFoodApp.enumeration.StatusBill;
 import JEstebanC.FastFoodApp.model.Bill;
 import JEstebanC.FastFoodApp.model.Response;
 import JEstebanC.FastFoodApp.service.BillServiceImp;
@@ -47,10 +48,10 @@ public class BillController {
 //  READ
 	@GetMapping(value = "/list")
 	public ResponseEntity<Response> getBill(@RequestParam(name = "startDate") String startDate,
-			@RequestParam(name = "endDate") String endDate) {
+			@RequestParam(name = "endDate") String endDate, @RequestParam(name = "statusBill") StatusBill statusBill) {
 
 		return ResponseEntity.ok(
-				Response.builder().timeStamp(Instant.now()).data(Map.of("bill", serviceImp.list(startDate, endDate)))
+				Response.builder().timeStamp(Instant.now()).data(Map.of("bill", serviceImp.list(startDate, endDate,statusBill)))
 						.message("List bills").status(HttpStatus.OK).statusCode(HttpStatus.OK.value()).build());
 	}
 

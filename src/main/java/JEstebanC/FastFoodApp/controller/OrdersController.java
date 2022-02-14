@@ -1,6 +1,5 @@
 package JEstebanC.FastFoodApp.controller;
 
-
 import java.time.Instant;
 import java.util.Map;
 
@@ -20,7 +19,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-
+import JEstebanC.FastFoodApp.model.Additional;
 import JEstebanC.FastFoodApp.model.Orders;
 import JEstebanC.FastFoodApp.model.Response;
 import JEstebanC.FastFoodApp.service.OrdersServiceImp;
@@ -47,6 +46,18 @@ public class OrdersController {
 						.message("Create order").status(HttpStatus.OK).statusCode(HttpStatus.OK.value()).build());
 	}
 
+//	CREATE ADDITIONAL
+	@PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_EMPLOYEE')")
+	@PostMapping(value = "/additional/{idOrder}")
+	public ResponseEntity<Response> saveAdditional(@PathVariable("idOrder") Long idOrder,
+			@RequestBody @Valid Additional additional) {
+		return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
+				.data(Map.of("order", serviceImp.addAdditionalToOrder(idOrder, additional)))
+				.message("Added additional to product with id: " + idOrder).status(HttpStatus.OK)
+				.statusCode(HttpStatus.OK.value()).build());
+
+	}
+
 //  READ
 	@PreAuthorize("hasRole('ROLE_ADMIN') OR hasRole('ROLE_EMPLOYEE')")
 	@GetMapping(value = "/list")
@@ -62,7 +73,7 @@ public class OrdersController {
 			HttpServletRequest request) {
 		if (serviceImp.exist(id)) {
 			return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
-					.data(Map.of("order", serviceImp.update(id,order))).message("Update order with id:" + id)
+					.data(Map.of("order", serviceImp.update(id, order))).message("Update order with id:" + id)
 					.status(HttpStatus.OK).statusCode(HttpStatus.OK.value()).build());
 		}
 		return ResponseEntity

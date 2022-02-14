@@ -2,8 +2,6 @@
  * 
  */
 package JEstebanC.FastFoodApp.service;
-
-import JEstebanC.FastFoodApp.model.Additional;
 import JEstebanC.FastFoodApp.model.Product;
 
 /**
@@ -16,8 +14,6 @@ public interface IProductService {
 	Product update(Long id, Product product);
 
 	Boolean delete(Long idProduct);
-
-	Boolean addAdditionalToProduct(Long idProduct, Additional additional);
 
 	Boolean exist(Long idProduct);
 
