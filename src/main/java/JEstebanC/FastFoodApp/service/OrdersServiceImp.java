@@ -16,9 +16,11 @@ import org.springframework.stereotype.Service;
 import JEstebanC.FastFoodApp.dto.BillOrdersDTO;
 import JEstebanC.FastFoodApp.dto.UserForBillDTO;
 import JEstebanC.FastFoodApp.enumeration.Status;
+import JEstebanC.FastFoodApp.model.Additional;
 import JEstebanC.FastFoodApp.model.Orders;
 import JEstebanC.FastFoodApp.model.PayMode;
 import JEstebanC.FastFoodApp.model.Product;
+import JEstebanC.FastFoodApp.repository.IAdditionalRepository;
 import JEstebanC.FastFoodApp.repository.IBillRepository;
 import JEstebanC.FastFoodApp.repository.IOrdersRepository;
 import JEstebanC.FastFoodApp.repository.IProductRepository;
@@ -35,11 +37,13 @@ import lombok.extern.slf4j.Slf4j;
 public class OrdersServiceImp implements IOrdersService {
 
 	@Autowired
-	IOrdersRepository ordersRepository;
+	private final IOrdersRepository ordersRepository;
 	@Autowired
-	IBillRepository billRepository;
+	private final IBillRepository billRepository;
 	@Autowired
-	IProductRepository productRepository;
+	private final IProductRepository productRepository;
+	@Autowired
+	private final IAdditionalRepository additionalRepository;
 
 	@Override
 	public BillOrdersDTO create(Orders orders) {
@@ -47,6 +51,20 @@ public class OrdersServiceImp implements IOrdersService {
 		Product product = productRepository.findByIdProduct(orders.getProduct().getIdProduct());
 		orders.setTotal(product.getPrice() * orders.getAmount());
 		return convertirOrderToDTO(ordersRepository.save(orders));
+	}
+
+	@Override
+	public Boolean addAdditionalToOrder(Long idOrder, Additional additional) {
+		if (additionalRepository.existsById(additional.getIdAdditional())) {
+			Additional newAdditional = additionalRepository.findByIdAdditional(additional.getIdAdditional());
+			ordersRepository.getById(idOrder).getAdditional().add(newAdditional);
+			Orders order = ordersRepository.getById(idOrder);
+			order.setTotal(order.getTotal() + (newAdditional.getPrice()));
+
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	@Override
@@ -106,6 +124,10 @@ public class OrdersServiceImp implements IOrdersService {
 		product.add(orders.getProduct());
 		billOrder.setProduct(product);
 
+		Collection<Additional> additional = new ArrayList<Additional>();
+		additional.addAll(orders.getAdditional());
+		billOrder.setAdditional(additional);
+
 		billOrder.setIdBill(orders.getBill().getIdBill());
 		billOrder.setDate(orders.getBill().getDate());
 		billOrder.setStatusBill(orders.getBill().getStatusBill());
@@ -126,4 +148,5 @@ public class OrdersServiceImp implements IOrdersService {
 
 		return billOrder;
 	}
+
 }

@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import JEstebanC.FastFoodApp.dto.BillUserDTO;
 import JEstebanC.FastFoodApp.dto.UserForBillDTO;
+import JEstebanC.FastFoodApp.enumeration.StatusBill;
 import JEstebanC.FastFoodApp.model.Bill;
 import JEstebanC.FastFoodApp.model.PayMode;
 import JEstebanC.FastFoodApp.repository.IBillRepository;
@@ -62,12 +63,12 @@ public class BillServiceImp implements IBillService {
 	}
 
 	@Override
-	public Collection<BillUserDTO> list(String startDate, String endDate) {
+	public Collection<BillUserDTO> list(String startDate, String endDate,StatusBill statusBill) {
 		log.info("List all bills");
 		try {
 			return billRepository
-					.findByDateBetween(new SimpleDateFormat("yyyy-MM-dd").parse(startDate),
-							new SimpleDateFormat("yyyy-MM-dd").parse(endDate))
+					.findByDateBetweenAndStatusBill(new SimpleDateFormat("yyyy-MM-dd").parse(startDate),
+							new SimpleDateFormat("yyyy-MM-dd").parse(endDate),statusBill)
 					.stream().map(this::convertirBillToDTO).collect(Collectors.toList());
 		} catch (ParseException e) {
 			// TODO Auto-generated catch block

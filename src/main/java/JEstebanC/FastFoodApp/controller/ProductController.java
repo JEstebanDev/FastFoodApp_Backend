@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import JEstebanC.FastFoodApp.model.Additional;
 import JEstebanC.FastFoodApp.model.Product;
 import JEstebanC.FastFoodApp.model.Response;
 import JEstebanC.FastFoodApp.service.ProductServiceImp;
@@ -51,22 +50,12 @@ public class ProductController {
 		}
 	}
 
-//	CREATE ADDITIONAL
-	@PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_EMPLOYEE')")
-	@PostMapping(value = "/additional/{idProduct}")
-	public ResponseEntity<Response> saveAdditional(@PathVariable("idProduct") Long idProduct,
-			@RequestBody @Valid Additional additional) {
-		return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
-				.data(Map.of("product", serviceImp.addAdditionalToProduct(idProduct, additional)))
-				.message("Added additional to product with id: " + idProduct).status(HttpStatus.OK)
-				.statusCode(HttpStatus.OK.value()).build());
-
-	}
 //	READ
 	@GetMapping(value = "/list/{page}")
 	public ResponseEntity<Response> getProduct(@PathVariable(name = "page") Long page) {
-		return ResponseEntity.ok(Response.builder().timeStamp(Instant.now()).data(Map.of("products", serviceImp.list(page)))
-				.message("List products").status(HttpStatus.OK).statusCode(HttpStatus.OK.value()).build());
+		return ResponseEntity
+				.ok(Response.builder().timeStamp(Instant.now()).data(Map.of("products", serviceImp.list(page)))
+						.message("List products").status(HttpStatus.OK).statusCode(HttpStatus.OK.value()).build());
 	}
 
 //	UPDATE
@@ -75,7 +64,7 @@ public class ProductController {
 	public ResponseEntity<Response> updateProduct(@PathVariable("id") Long id, @RequestBody @Valid Product product) {
 		if (serviceImp.exist(id)) {
 			return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
-					.data(Map.of("product", serviceImp.update(id,product))).message("Update product with id:" + id)
+					.data(Map.of("product", serviceImp.update(id, product))).message("Update product with id:" + id)
 					.status(HttpStatus.OK).statusCode(HttpStatus.OK.value()).build());
 		} else {
 			return ResponseEntity.ok(

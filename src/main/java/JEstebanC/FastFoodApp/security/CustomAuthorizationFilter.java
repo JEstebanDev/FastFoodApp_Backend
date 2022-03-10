@@ -35,46 +35,55 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class CustomAuthorizationFilter extends OncePerRequestFilter {
 
+	
+	
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
 
-		// here is where I start to check if the user has permission
-		String authorizationHeader = request.getHeader(AUTHORIZATION);
-		if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-			try {
-				// Remove the word Bearer, because we just want the token
-				String token = authorizationHeader.substring("Bearer ".length());
-				// Reference to the keyValue
-				Algorithm algorithm = Algorithm.HMAC256(OperationUtil.keyValue().getBytes());
-				JWTVerifier verifier = JWT.require(algorithm).build();
-				DecodedJWT decodeJWT = verifier.verify(token);
-				
-				String username = decodeJWT.getSubject();
-				
-				String[] roles = decodeJWT.getClaim("roles").asArray(String.class);
-				
-				Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();
-				authorities.add(new SimpleGrantedAuthority(roles[0]));
-			
-				UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-						username, null,authorities);
-				SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-				filterChain.doFilter(request, response);
-
-			} catch (Exception e) {
-				log.error("Error logging in AuthorizationFilter: " + e.getMessage());
-				response.setHeader("Error", e.getMessage());
-				response.setStatus(403);
-				Map<String, String> error = new HashMap<>();
-				error.put("error_message", e.getMessage());
-				response.setContentType("application/json");
-				new ObjectMapper().writeValue(response.getOutputStream(), error);
-			}
-
-		} else {
+		if(request.getServletPath().equals("/api/v1/login/") || request.getServletPath().equals("/api/v1/token-refresh/")) {
 			filterChain.doFilter(request, response);
+		}else {
+			// here is where I start to check if the user has permission
+			String authorizationHeader = request.getHeader(AUTHORIZATION);
+			if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+				try {
+					// Remove the word Bearer, because we just want the token
+					String token = authorizationHeader.substring("Bearer ".length());
+					// Reference to the keyValue
+					Algorithm algorithm = Algorithm.HMAC256(OperationUtil.keyValue().getBytes());
+					JWTVerifier verifier = JWT.require(algorithm).build();
+					DecodedJWT decodeJWT = verifier.verify(token);
+					
+					String username = decodeJWT.getSubject();
+					
+					String[] roles = decodeJWT.getClaim("roles").asArray(String.class);
+					
+					Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();
+					authorities.add(new SimpleGrantedAuthority(roles[0]));
+					
+					UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
+							username, null,authorities);
+					SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+					filterChain.doFilter(request, response);
+
+				} catch (Exception e) {
+					log.error("Error logging in AuthorizationFilter: " + e.getMessage());
+					response.setHeader("Error", e.getMessage());
+					response.setStatus(401);
+					Map<String, String> error = new HashMap<>();
+					error.put("error_message", e.getMessage());
+					response.setContentType("application/json");
+					new ObjectMapper().writeValue(response.getOutputStream(), error);
+					
+				}
+
+			} else {
+				filterChain.doFilter(request, response);
+			}
 		}
+			
+		
 
 	}
 

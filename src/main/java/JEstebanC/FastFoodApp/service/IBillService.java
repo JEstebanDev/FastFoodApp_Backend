@@ -6,6 +6,7 @@ package JEstebanC.FastFoodApp.service;
 import java.util.Collection;
 
 import JEstebanC.FastFoodApp.dto.BillUserDTO;
+import JEstebanC.FastFoodApp.enumeration.StatusBill;
 import JEstebanC.FastFoodApp.model.Bill;
 
 /**
@@ -19,7 +20,7 @@ public interface IBillService {
 
 	BillUserDTO update(Long idBill,Bill bill);
 	
-	Collection<BillUserDTO> list(String startDate, String endDate);
+	Collection<BillUserDTO> list(String startDate, String endDate,StatusBill statusBill);
 
 	Boolean delete(Long idBill);
 

@@ -11,6 +11,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import JEstebanC.FastFoodApp.enumeration.StatusBill;
 import JEstebanC.FastFoodApp.model.Bill;
 
 /**
@@ -25,7 +26,7 @@ public interface IBillRepository extends JpaRepository<Bill, Long> {
 	@Query(value = "SELECT * FROM bill where id_user = ?", nativeQuery = true)
 	Bill findOneByIdUser(Long idUser);
 	
-	Collection<Bill> findByDateBetween(Date startDate,Date endDate);
+	Collection<Bill> findByDateBetweenAndStatusBill(Date startDate,Date endDate,StatusBill statusBill);
 	
 	Bill findByIdBill(Long idBill);
 	
