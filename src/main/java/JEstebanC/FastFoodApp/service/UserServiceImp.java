@@ -5,11 +5,16 @@ package JEstebanC.FastFoodApp.service;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.stream.Collectors;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -17,9 +22,15 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.JWTVerifier;
+import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.interfaces.DecodedJWT;
+
 import JEstebanC.FastFoodApp.dto.UserDTO;
 import JEstebanC.FastFoodApp.model.User;
 import JEstebanC.FastFoodApp.repository.IUserRepository;
+import JEstebanC.FastFoodApp.security.OperationUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -34,6 +45,8 @@ public class UserServiceImp implements IUserService, UserDetailsService {
 	@Autowired
 	private IUserRepository userRepository;
 	private final BCryptPasswordEncoder bCryptPasswordEncoder;
+	@Autowired
+	private JavaMailSender javaMailSender;
 
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -86,6 +99,27 @@ public class UserServiceImp implements IUserService, UserDetailsService {
 		userOld.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
 		userOld.setStatus(user.getStatus());
 		return userRepository.save(userOld);
+	}
+
+	public String validationToken(String token) {
+		try {
+			Algorithm algorithm = Algorithm.HMAC256(OperationUtil.keyValue().getBytes());
+			JWTVerifier verifier = JWT.require(algorithm).build();
+			DecodedJWT decodeJWT = verifier.verify(token);
+			String username = decodeJWT.getSubject();
+			return username;
+		} catch (Exception e) {
+			log.error("Error logging in AuthorizationFilter: " + e.getMessage());
+		}
+		return null;
+	}
+
+	public User updatePasswordClient(String username, String password) {
+		log.info("Updating password username: " + username);
+		User user = userRepository.findByUsername(username);
+
+		user.setPassword(bCryptPasswordEncoder.encode(password));
+		return userRepository.save(user);
 	}
 
 	@Override
@@ -151,6 +185,29 @@ public class UserServiceImp implements IUserService, UserDetailsService {
 		log.info("Searching user by username: " + username);
 		return userRepository.findByUsername(username) != null ? userRepository.findByUsername(username) : null;
 
+	}
+
+	public Boolean sendMail(HttpServletRequest request, HttpServletResponse response, String email, String userName,
+			String name) {
+
+		// Reference to the keyValue
+		Algorithm algorithm = Algorithm.HMAC256(OperationUtil.keyValue().getBytes());
+		String token = JWT.create().withSubject(userName)
+				// give 10 minutes for the token to expire
+				.withExpiresAt(new Date(System.currentTimeMillis() + 20 * 60 * 1000))
+				.withIssuer(request.getRequestURL().toString()).sign(algorithm);
+
+		SimpleMailMessage message = new SimpleMailMessage();
+		message.setTo(email);
+
+		message.setSubject("Burger App");
+		String html = "Hola " + name + "! \n" + "¿olvidaste tu contraseña? \n"
+				+ "Recibimos una petición para restablecer tu contraseña\n"
+				+ "Para restablecer tu contraseña por favor presiona clic en el siguiente enlace \n"
+				+ "http://localhost:8081/api/v1/reset-password?token=" + token;
+		message.setText(html);
+		javaMailSender.send(message);
+		return true;
 	}
 
 }

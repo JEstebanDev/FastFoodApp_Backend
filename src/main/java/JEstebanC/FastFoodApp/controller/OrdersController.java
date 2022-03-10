@@ -3,7 +3,6 @@ package JEstebanC.FastFoodApp.controller;
 import java.time.Instant;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,8 +68,7 @@ public class OrdersController {
 //	UPDATE
 	@PreAuthorize("hasRole('ROLE_ADMIN') OR hasRole('ROLE_EMPLOYEE')")
 	@PutMapping(value = "/{id}")
-	public ResponseEntity<Response> updateOrder(@PathVariable("id") Long id, @RequestBody @Valid Orders order,
-			HttpServletRequest request) {
+	public ResponseEntity<Response> updateOrder(@PathVariable("id") Long id, @RequestBody @Valid Orders order) {
 		if (serviceImp.exist(id)) {
 			return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
 					.data(Map.of("order", serviceImp.update(id, order))).message("Update order with id:" + id)

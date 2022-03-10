@@ -1,6 +1,4 @@
-/**
- * 
- */
+
 package JEstebanC.FastFoodApp.controller;
 
 import javax.servlet.http.HttpServletRequest;
@@ -60,14 +58,13 @@ public class RefreshTokenController {
 					User user = serviceImp.findByUsername(username);
 
 					String access_token = JWT.create().withSubject(user.getUsername())
-							.withExpiresAt(new Date(System.currentTimeMillis() + 15 * 60 * 1000))
+							.withExpiresAt(new Date(System.currentTimeMillis() + 30 * 60 * 1000))
 							.withIssuer(request.getRequestURL().toString())
 							.withClaim("roles",user.getUserRoles().getAuthority())
 							.sign(algorithm);
 
 					Map<String, String> tokens = new HashMap<>();
 					tokens.put("access_token", access_token);
-					tokens.put("refresh_token", refresh_token);
 					response.setContentType(MimeTypeUtils.APPLICATION_JSON_VALUE);
 					new ObjectMapper().writeValue(response.getOutputStream(), tokens);
 				} else {
@@ -77,10 +74,11 @@ public class RefreshTokenController {
 			} catch (Exception e) {
 				log.error("Error logging in AuthorizationFilter: " + e.getMessage());
 				response.setHeader("Error", e.getMessage());
-				response.setStatus(403);
+				response.setStatus(401);
 				Map<String, String> error = new HashMap<>();
 				error.put("error_message", e.getMessage());
 				response.setContentType(MimeTypeUtils.APPLICATION_JSON_VALUE);
+
 				new ObjectMapper().writeValue(response.getOutputStream(), error);
 			}
 

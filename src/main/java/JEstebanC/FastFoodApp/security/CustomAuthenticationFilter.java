@@ -25,12 +25,10 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author Juan Esteban Castaño Holguin castanoesteban9@gmail.com 2022-02-02
  */
-@Slf4j
 public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
 	private final AuthenticationManager authenticationManager;
@@ -45,11 +43,9 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
 
 		String username = request.getParameter("username");
 		String password = request.getParameter("password");
-
-		log.info("Username is " + username + " Password is " + password);
 		UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(username,
 				password);
-
+	
 		return authenticationManager.authenticate(authenticationToken);
 	}
 
@@ -61,7 +57,7 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
 		Algorithm algorithm = Algorithm.HMAC256(OperationUtil.keyValue().getBytes());
 		String access_token = JWT.create().withSubject(user.getUsername())
 				//give 10 minutes for the token to expire
-				.withExpiresAt(new Date(System.currentTimeMillis() + 30 * 60 * 1000))
+				.withExpiresAt(new Date(System.currentTimeMillis() + 10 * 60 * 1000))
 				.withIssuer(request.getRequestURL().toString())
 				.withClaim("roles",
 						user.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()))
@@ -69,7 +65,7 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
 
 		String refresh_token = JWT.create().withSubject(user.getUsername())
 				//give 30 minutes for the token to expire
-				.withExpiresAt(new Date(System.currentTimeMillis() + 40 * 60 * 1000))
+				.withExpiresAt(new Date(System.currentTimeMillis() + 30 * 60 * 1000))
 				.withIssuer(request.getRequestURL().toString())
 				.withClaim("roles",
 						user.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()))
@@ -80,6 +76,7 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
 		tokens.put("refresh_token", refresh_token);
 		response.setContentType(MimeTypeUtils.APPLICATION_JSON_VALUE);
 		new ObjectMapper().writeValue(response.getOutputStream(), tokens);
+		
 	}
 
 }
