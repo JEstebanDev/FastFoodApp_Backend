@@ -1,6 +1,7 @@
 package JEstebanC.FastFoodApp.controller;
 
 import java.time.Instant;
+import java.util.Collection;
 import java.util.Map;
 
 import javax.validation.Valid;
@@ -40,21 +41,17 @@ public class OrdersController {
 //	CREATE
 	@PostMapping()
 	public ResponseEntity<Response> saveOrder(@RequestBody @Valid Orders order) {
+		Collection<Additional> additionals = order.getAdditional();
+		for (Additional additional : additionals) {
+			if (additional.getIdAdditional()!=null && additional.getPrice()<=0) {
+				return ResponseEntity
+						.ok(Response.builder().timeStamp(Instant.now()).message("The order with id:" + order.getIdOrder() + " does not have the additional prices")
+								.status(HttpStatus.BAD_REQUEST).statusCode(HttpStatus.BAD_REQUEST.value()).build());
+			}
+		}
 		return ResponseEntity
 				.ok(Response.builder().timeStamp(Instant.now()).data(Map.of("order", serviceImp.create(order)))
 						.message("Create order").status(HttpStatus.OK).statusCode(HttpStatus.OK.value()).build());
-	}
-
-//	CREATE ADDITIONAL
-	@PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_EMPLOYEE')")
-	@PostMapping(value = "/additional/{idOrder}")
-	public ResponseEntity<Response> saveAdditional(@PathVariable("idOrder") Long idOrder,
-			@RequestBody @Valid Additional additional) {
-		return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
-				.data(Map.of("order", serviceImp.addAdditionalToOrder(idOrder, additional)))
-				.message("Added additional to product with id: " + idOrder).status(HttpStatus.OK)
-				.statusCode(HttpStatus.OK.value()).build());
-
 	}
 
 //  READ
@@ -70,9 +67,17 @@ public class OrdersController {
 	@PutMapping(value = "/{id}")
 	public ResponseEntity<Response> updateOrder(@PathVariable("id") Long id, @RequestBody @Valid Orders order) {
 		if (serviceImp.exist(id)) {
-			return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
-					.data(Map.of("order", serviceImp.update(id, order))).message("Update order with id:" + id)
-					.status(HttpStatus.OK).statusCode(HttpStatus.OK.value()).build());
+			Collection<Additional> additionals = order.getAdditional();
+			for (Additional additional : additionals) {
+				if (additional.getIdAdditional()!=null && additional.getPrice()<=0) {
+					return ResponseEntity
+							.ok(Response.builder().timeStamp(Instant.now()).message("The order with id:" +id + " does not have the additional prices")
+									.status(HttpStatus.BAD_REQUEST).statusCode(HttpStatus.BAD_REQUEST.value()).build());
+				}
+			}
+			return ResponseEntity
+					.ok(Response.builder().timeStamp(Instant.now()).data(Map.of("order", serviceImp.update(id,order)))
+							.message("Create order").status(HttpStatus.OK).statusCode(HttpStatus.OK.value()).build());
 		}
 		return ResponseEntity
 				.ok(Response.builder().timeStamp(Instant.now()).message("The order with id:" + id + " does not exist")

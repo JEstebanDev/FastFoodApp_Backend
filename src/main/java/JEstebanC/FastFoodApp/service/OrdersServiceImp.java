@@ -20,7 +20,6 @@ import JEstebanC.FastFoodApp.model.Additional;
 import JEstebanC.FastFoodApp.model.Orders;
 import JEstebanC.FastFoodApp.model.PayMode;
 import JEstebanC.FastFoodApp.model.Product;
-import JEstebanC.FastFoodApp.repository.IAdditionalRepository;
 import JEstebanC.FastFoodApp.repository.IBillRepository;
 import JEstebanC.FastFoodApp.repository.IOrdersRepository;
 import JEstebanC.FastFoodApp.repository.IProductRepository;
@@ -42,36 +41,33 @@ public class OrdersServiceImp implements IOrdersService {
 	private final IBillRepository billRepository;
 	@Autowired
 	private final IProductRepository productRepository;
-	@Autowired
-	private final IAdditionalRepository additionalRepository;
 
 	@Override
 	public BillOrdersDTO create(Orders orders) {
 		log.info("Saving new order: " + orders.getIdOrder());
 		Product product = productRepository.findByIdProduct(orders.getProduct().getIdProduct());
-		orders.setTotal(product.getPrice() * orders.getAmount());
-		return convertirOrderToDTO(ordersRepository.save(orders));
-	}
-
-	@Override
-	public Boolean addAdditionalToOrder(Long idOrder, Additional additional) {
-		if (additionalRepository.existsById(additional.getIdAdditional())) {
-			Additional newAdditional = additionalRepository.findByIdAdditional(additional.getIdAdditional());
-			ordersRepository.getById(idOrder).getAdditional().add(newAdditional);
-			Orders order = ordersRepository.getById(idOrder);
-			order.setTotal(order.getTotal() + (newAdditional.getPrice()));
-
-			return true;
-		} else {
-			return false;
+		Collection<Additional> additionals = orders.getAdditional();
+		int totalAdditional = 0;
+		for (Additional additional : additionals) {
+			totalAdditional += additional.getPrice();
 		}
+		orders.setTotal((product.getPrice() * orders.getAmount()) +( totalAdditional*orders.getAmount()));
+
+		return convertirOrderToDTO(ordersRepository.save(orders));
+		
 	}
 
 	@Override
 	public BillOrdersDTO update(Long id, Orders orders) {
 		log.info("Updating orders with id: " + id);
 		Product product = productRepository.findByIdProduct(orders.getProduct().getIdProduct());
-		orders.setTotal(product.getPrice() * orders.getAmount());
+		Collection<Additional> additionals = orders.getAdditional();
+		int totalAdditional = 0;
+		for (Additional additional : additionals) {
+			totalAdditional += additional.getPrice();
+		}
+		orders.setTotal((product.getPrice() * orders.getAmount()) +( totalAdditional*orders.getAmount()));
+
 		return convertirOrderToDTO(ordersRepository.save(orders));
 	}
 
@@ -134,6 +130,7 @@ public class OrdersServiceImp implements IOrdersService {
 
 		UserForBillDTO userForBill = new UserForBillDTO();
 		userForBill.setIdUser(orders.getBill().getUser().getIdUser());
+		userForBill.setUrlImage(orders.getBill().getUser().getUrlImage());
 		userForBill.setUsername(orders.getBill().getUser().getUsername());
 		userForBill.setName(orders.getBill().getUser().getName());
 

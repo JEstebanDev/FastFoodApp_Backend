@@ -16,12 +16,10 @@ import JEstebanC.FastFoodApp.model.Orders;
  */
 @Repository
 public interface IOrdersRepository extends JpaRepository<Orders, Long> {
+	
 	@Query(value = "SELECT ord.* FROM orders ord join bill bi on ord.id_bill=bi.id_bill where bi.id_bill=?", nativeQuery = true)
 	Collection<Orders> findByIdBill(Long idBill);
 
-	@Query(value = "select bi.id_user from orders ord join bill bi on bi.id_bill=ord.id_bill where ord.id_order=?", nativeQuery = true)
-	String findByUser(Long idOrder);
+	
 
-	@Query(value = "SELECT * FROM orders WHERE id_bill=?", nativeQuery = true)
-	Orders findOnlyOneIdBill(Long idBill);
 }

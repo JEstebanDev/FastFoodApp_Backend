@@ -6,7 +6,6 @@ package JEstebanC.FastFoodApp.service;
 import java.util.Collection;
 
 import JEstebanC.FastFoodApp.dto.BillOrdersDTO;
-import JEstebanC.FastFoodApp.model.Additional;
 import JEstebanC.FastFoodApp.model.Orders;
 
 /**
@@ -19,8 +18,6 @@ public interface IOrdersService {
 	BillOrdersDTO update(Long id, Orders orders);
 
 	Boolean delete(Long idOrders);
-	
-	Boolean addAdditionalToOrder(Long idOrder, Additional additional);
 
 	Collection<BillOrdersDTO> list();
 

@@ -3,6 +3,8 @@ package JEstebanC.FastFoodApp.model;
 import java.util.Date;
 
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -19,7 +21,6 @@ import lombok.NoArgsConstructor;
 /**
  * @author Juan Esteban Castaño Holguin castanoesteban9@gmail.com 2022-01-22
  */
-
 @Data
 @Entity
 @NoArgsConstructor
@@ -27,6 +28,7 @@ import lombok.NoArgsConstructor;
 public class Bill {
 
 	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long idBill;
 	@DateTimeFormat(iso = DateTimeFormat.ISO.DATE, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSX")
 	private Date date;
