@@ -41,9 +41,9 @@ public class AdditionalController {
 //	CREATE
 	@PreAuthorize("hasRole('ROLE_ADMIN')")
 	@PostMapping()
-	public ResponseEntity<Response> saveAdditional(@RequestBody @Valid Additional addiotional) {
+	public ResponseEntity<Response> saveAdditional(@RequestBody @Valid Additional additional) {
 		return ResponseEntity
-				.ok(Response.builder().timeStamp(Instant.now()).data(Map.of("additional", serviceImp.create(addiotional)))
+				.ok(Response.builder().timeStamp(Instant.now()).data(Map.of("additional", serviceImp.create(additional)))
 						.message("Create additional").status(HttpStatus.OK).statusCode(HttpStatus.OK.value()).build());
 	}
 

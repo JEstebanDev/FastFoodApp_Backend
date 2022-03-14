@@ -1,12 +1,16 @@
 package JEstebanC.FastFoodApp.model;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.validation.constraints.NotNull;
 
 import JEstebanC.FastFoodApp.enumeration.Status;
@@ -25,19 +29,20 @@ import lombok.NoArgsConstructor;
 public class Additional {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long idAdditional;
     @NotNull(message = "name cannot be empty or null")
     @Column(length = 30)
     private String name;
-    
+    private String imageUrl;
     @NotNull(message = "name cannot be empty or null")
     private int price;
-
-    @ManyToOne
-    @NotNull(message = "idCategory cannot be empty or null")
-    @JoinColumn(name = "idCategory")
-    private Category Category;
+    
+    @ManyToMany
+	@JoinColumn(name = "idCategory")
+	@JoinTable(joinColumns = @JoinColumn(name = "idAdditional"), 
+	           inverseJoinColumns = @JoinColumn(name = "idCategory"))
+	private Collection<Category> category = new ArrayList<>();
 
     private Status status;
 

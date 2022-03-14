@@ -1,3 +1,6 @@
+/**
+ * 
+ */
 package JEstebanC.FastFoodApp.dto;
 
 import java.util.Collection;
@@ -12,23 +15,11 @@ import JEstebanC.FastFoodApp.model.Product;
 import lombok.Data;
 
 /**
- * @author Juan Esteban Castaño Holguin castanoesteban9@gmail.com 2022-02-08
+ * @author Juan Esteban Castaño Holguin castanoesteban9@gmail.com 2022-03-14
  */
 @Data
 public class BillOrdersDTO {
-
-//	Order
-	private Long idOrder;
-	private int amount;
-	private int noTable;
-	private int total;
-
-//	Product
-	private Collection<Product> product;
 	
-//	Additional
-	private Collection<Additional> Additional;
-
 //  Bill
 	private Long idBill;
 	@DateTimeFormat(iso = DateTimeFormat.ISO.DATE, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSX")
@@ -39,4 +30,18 @@ public class BillOrdersDTO {
 	private PayMode payMode;
 
 	private StatusBill statusBill;
+
+//	Order
+	private Long idOrder;
+	private int amount;
+	private int noTable;
+	private int total;
+
+//	Product
+	private Collection<Product> product;
+
+//	Additional
+	private Collection<Additional> Additional;
+
+
 }

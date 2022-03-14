@@ -19,4 +19,6 @@ public interface IAdditionalRepository extends JpaRepository<Additional, Long> {
 	Additional findByIdAdditional(Long idAdditional);
 
 	Collection<Additional> findByNameStartsWith(String name);
+	
+	Additional findByName(String name);
 }

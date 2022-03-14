@@ -26,13 +26,11 @@ public class AdditionalServiceImp implements IAdditionalService {
 
 	@Autowired
 	private IAdditionalRepository additionalRepository;
-	@Autowired
-	private ICategoryService categoryRepository;
 
 	@Override
 	public Additional create(Additional additional) {
-		if (categoryRepository.exist(additional.getCategory().getIdCategory())) {
-			log.info("Saving new additional: " + additional.getName());
+		log.info("Saving new additional: " + additional.getName());
+		if (additional.getCategory() != null) {
 			return additionalRepository.save(additional);
 		} else {
 			return null;
@@ -40,9 +38,9 @@ public class AdditionalServiceImp implements IAdditionalService {
 	}
 
 	@Override
-	public Additional update(Long id,Additional additional) {
-		if (categoryRepository.exist(additional.getCategory().getIdCategory())) {
-			log.info("Updating additional with id:" +id);
+	public Additional update(Long id, Additional additional) {
+		log.info("Updating additional: " + additional.getName());
+		if (additional.getCategory() != null) {
 			return additionalRepository.save(additional);
 		} else {
 			return null;

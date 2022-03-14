@@ -13,6 +13,7 @@ import lombok.Data;
 @Data
 public class UserForBillDTO {
 	private Long idUser;
+	private String urlImage;
 	private String username;
 	private String name;
 }
