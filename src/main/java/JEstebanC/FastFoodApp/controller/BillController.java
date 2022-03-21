@@ -47,7 +47,7 @@ public class BillController {
 
 //  READ SEARCH BY PARAMS
 	@PreAuthorize("hasRole('ROLE_ADMIN') OR hasRole('ROLE_EMPLOYEE')")
-	@GetMapping(value = "/user/new/")
+	@GetMapping(value = "/list")
 	public ResponseEntity<Response> listByParams(@Param(value = "idBill") Long idBill,
 			@Param(value = "idUser") Long idUser, @Param(value = "statusBill") StatusBill statusBill,
 			@Param(value = "startDate") String startDate, @Param(value = "endDate") String endDate) {
