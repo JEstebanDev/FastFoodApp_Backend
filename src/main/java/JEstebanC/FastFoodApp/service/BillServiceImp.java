@@ -74,6 +74,85 @@ public class BillServiceImp implements IBillService {
 		return billRepository.existsById(idBill);
 	}
 
+	@Override
+	public UserBillOrdersDTO findByIdBill(Long idBill) {
+		return convertirBillOrderToDTO(billRepository.findByIdBill(idBill));
+	}
+
+	@Override
+	public Collection<UserBillOrdersDTO> findByNewIdUser(Long idUser, StatusBill statusBill, String startDate,
+			String endDate) {
+		if (idUser != null && statusBill != null && startDate != null && endDate != null) {
+			try {
+				log.info("Searching bills by User StatusBill DateBetween");
+				return billRepository
+						.findByIdUserAndStatusBillAndDateBetween(idUser, statusBill.ordinal(),
+								new SimpleDateFormat("yyyy-MM-dd").parse(startDate),
+								new SimpleDateFormat("yyyy-MM-dd").parse(endDate))
+						.stream().map(this::convertirBillOrderToDTO).collect(Collectors.toList());
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+		}
+		if (idUser == null && statusBill == null && startDate == null && endDate == null) {
+			log.info("Searching bills");
+			return billRepository.findAll().stream().map(this::convertirBillOrderToDTO).collect(Collectors.toList());
+		}
+		if (idUser != null && statusBill == null && startDate == null && endDate == null) {
+			log.info("Searching bills by Usern");
+			return billRepository.findByIdUser(idUser).stream().map(this::convertirBillOrderToDTO)
+					.collect(Collectors.toList());
+		}
+		if (idUser == null && statusBill != null && startDate == null && endDate == null) {
+			log.info("Searching bills by StatusBill");
+			return billRepository.findByStatusBill(statusBill).stream().map(this::convertirBillOrderToDTO)
+					.collect(Collectors.toList());
+		}
+		if (idUser != null && statusBill != null && startDate == null && endDate == null) {
+			log.info("Searching bills by User StatusBill");
+			return billRepository.findByIdUserAndStatusBill(idUser, statusBill.ordinal()).stream()
+					.map(this::convertirBillOrderToDTO).collect(Collectors.toList());
+		}
+		if (idUser == null && statusBill == null && startDate != null && endDate != null) {
+			try {
+				log.info("Searching bills by DateBetween");
+				return billRepository
+
+						.findByDateBetween(new SimpleDateFormat("yyyy-MM-dd").parse(startDate),
+								new SimpleDateFormat("yyyy-MM-dd").parse(endDate))
+						.stream().map(this::convertirBillOrderToDTO).collect(Collectors.toList());
+			} catch (ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		if (idUser != null && statusBill == null && startDate != null && endDate != null) {
+			try {
+				log.info("Searching bills by User DateBetween");
+				return billRepository
+						.findByDateBetweenAndIdUser(new SimpleDateFormat("yyyy-MM-dd").parse(startDate),
+								new SimpleDateFormat("yyyy-MM-dd").parse(endDate), idUser)
+						.stream().map(this::convertirBillOrderToDTO).collect(Collectors.toList());
+			} catch (ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		if (idUser == null && statusBill != null && startDate != null && endDate != null) {
+			try {
+				log.info("Searching bills by StatusBill DateBetween");
+				return billRepository
+						.findByDateBetweenAndStatusBill(new SimpleDateFormat("yyyy-MM-dd").parse(startDate),
+								new SimpleDateFormat("yyyy-MM-dd").parse(endDate), statusBill)
+						.stream().map(this::convertirBillOrderToDTO).collect(Collectors.toList());
+			} catch (ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		return null;
+	}
+
 	private BillUserDTO convertirBillToDTO(Bill bill) {
 		BillUserDTO billUser = new BillUserDTO();
 		billUser.setIdBill(bill.getIdBill());
@@ -99,12 +178,9 @@ public class BillServiceImp implements IBillService {
 		return billUser;
 	}
 
-	// ----------------------------------------
-
 	private UserBillOrdersDTO convertirBillOrderToDTO(Bill bill) {
 		UserBillOrdersDTO billOrder = new UserBillOrdersDTO();
 
-		// -----------------------------
 		BillUserDTO billUser = new BillUserDTO();
 		billUser.setIdBill(bill.getIdBill());
 
@@ -125,8 +201,6 @@ public class BillServiceImp implements IBillService {
 
 		billUser.setDate(bill.getDate());
 		billUser.setStatusBill(bill.getStatusBill());
-
-		// -------------------------------
 
 		Collection<OrdersDTO> orders = ordersRepository.findByIdBill(bill.getIdBill()).stream()
 				.map(this::convertirOrderToDTO).collect(Collectors.toList());
@@ -153,89 +227,6 @@ public class BillServiceImp implements IBillService {
 		billOrder.setAdditional(additional);
 
 		return billOrder;
-	}
-
-	@Override
-	public UserBillOrdersDTO findByIdBill(Long idBill) {
-		return convertirBillOrderToDTO(billRepository.findByIdBill(idBill));
-	}
-
-	@Override
-	public Collection<UserBillOrdersDTO> findByNewIdUser(Long idUser, StatusBill statusBill, String startDate,
-			String endDate) {
-
-		if (idUser != null && statusBill != null && startDate != null && endDate != null) {
-			try {
-				return billRepository
-						.findByIdUserAndStatusBillAndDateBetween(idUser, statusBill.ordinal(),
-								new SimpleDateFormat("yyyy-MM-dd").parse(startDate),
-								new SimpleDateFormat("yyyy-MM-dd").parse(endDate))
-						.stream().map(this::convertirBillOrderToDTO).collect(Collectors.toList());
-			} catch (ParseException e) {
-				e.printStackTrace();
-			}
-		}
-		if (idUser == null && statusBill == null && startDate == null && endDate == null) {
-
-			return billRepository.findAll().stream().map(this::convertirBillOrderToDTO).collect(Collectors.toList());
-
-		}
-		if (idUser != null && statusBill == null && startDate == null && endDate == null) {
-
-			return billRepository.findByIdUser(idUser).stream().map(this::convertirBillOrderToDTO)
-					.collect(Collectors.toList());
-
-		}
-		if (idUser == null && statusBill != null && startDate == null && endDate == null) {
-
-			return billRepository.findByStatusBill(statusBill).stream().map(this::convertirBillOrderToDTO)
-					.collect(Collectors.toList());
-
-		}
-		if (idUser != null && statusBill != null && startDate == null && endDate == null) {
-			return billRepository.findByIdUserAndStatusBill(idUser, statusBill.ordinal()).stream()
-					.map(this::convertirBillOrderToDTO).collect(Collectors.toList());
-		}
-		if (idUser == null && statusBill == null && startDate != null && endDate != null) {
-
-			try {
-				return billRepository
-						.findByDateBetween(new SimpleDateFormat("yyyy-MM-dd").parse(startDate),
-								new SimpleDateFormat("yyyy-MM-dd").parse(endDate))
-						.stream().map(this::convertirBillOrderToDTO).collect(Collectors.toList());
-			} catch (ParseException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-
-		}
-		if (idUser != null && statusBill == null && startDate != null && endDate != null) {
-
-			try {
-				return billRepository
-						.findByDateBetweenAndIdUser(new SimpleDateFormat("yyyy-MM-dd").parse(startDate),
-								new SimpleDateFormat("yyyy-MM-dd").parse(endDate), idUser)
-						.stream().map(this::convertirBillOrderToDTO).collect(Collectors.toList());
-			} catch (ParseException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-
-		}
-		if (idUser == null && statusBill != null && startDate != null && endDate != null) {
-
-			try {
-				return billRepository
-						.findByDateBetweenAndStatusBill(new SimpleDateFormat("yyyy-MM-dd").parse(startDate),
-								new SimpleDateFormat("yyyy-MM-dd").parse(endDate), statusBill)
-						.stream().map(this::convertirBillOrderToDTO).collect(Collectors.toList());
-			} catch (ParseException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-
-		}
-		return null;
 	}
 
 }
