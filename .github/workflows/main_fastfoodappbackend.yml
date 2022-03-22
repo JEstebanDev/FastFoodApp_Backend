@@ -49,5 +49,5 @@ jobs:
         with:
           app-name: 'FastFoodAppBackEnd'
           slot-name: 'Production'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_DD5C4A82F37349B4BA794C5EF88EB034 }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_AA9145C44DA84727A458E07521693FEF }}
           package: '*.jar'
