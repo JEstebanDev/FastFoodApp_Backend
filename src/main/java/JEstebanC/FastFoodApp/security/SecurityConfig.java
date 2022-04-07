@@ -59,19 +59,19 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	public AuthenticationManager authenticationManagerBean() throws Exception {
 		return super.authenticationManagerBean();
 	}
-	
-	@Bean
-	 CorsConfigurationSource corsConfigurationSource() {
-	  CorsConfiguration cc = new CorsConfiguration();
-	                cc.setAllowedHeaders(Arrays.asList("Origin,Accept", "X-Requested-With", "Content-Type", "Access-Control-Request-Method", "Access-Control-Request-Headers","Authorization"));
-	                cc.setExposedHeaders(Arrays.asList("Access-Control-Allow-Origin", "Access-Control-Allow-Credentials"));                
-	  cc.setAllowedOrigins(Arrays.asList("/*"));
-	  cc.setAllowedMethods(Arrays.asList("GET", "POST", "DELETE", "PUT","PATCH"));
-	                cc.addAllowedOrigin("*");
-	                cc.setMaxAge(Duration.ZERO);
-	                cc.setAllowCredentials(Boolean.TRUE);
-	  UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-	  source.registerCorsConfiguration("/**", cc);
-	  return (CorsConfigurationSource) source;
-	 }
+//	
+//	@Bean
+//	 CorsConfigurationSource corsConfigurationSource() {
+//	  CorsConfiguration cc = new CorsConfiguration();
+//	                cc.setAllowedHeaders(Arrays.asList("Origin,Accept", "X-Requested-With", "Content-Type", "Access-Control-Request-Method", "Access-Control-Request-Headers","Authorization"));
+//	                cc.setExposedHeaders(Arrays.asList("Access-Control-Allow-Origin", "Access-Control-Allow-Credentials"));                
+//	  cc.setAllowedOrigins(Arrays.asList("/*"));
+//	  cc.setAllowedMethods(Arrays.asList("GET", "POST", "DELETE", "PUT","PATCH"));
+//	                cc.addAllowedOrigin("*");
+//	                cc.setMaxAge(Duration.ZERO);
+//	                cc.setAllowCredentials(Boolean.TRUE);
+//	  UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+//	  source.registerCorsConfiguration("/**", cc);
+//	  return (CorsConfigurationSource) source;
+//	 }
 }
