@@ -4,11 +4,13 @@
 package JEstebanC.FastFoodApp.service;
 
 import java.util.Collection;
+import java.util.Optional;
 
 import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import JEstebanC.FastFoodApp.model.Product;
 import JEstebanC.FastFoodApp.repository.ICategoryRepository;
@@ -30,12 +32,15 @@ public class ProductServiceImp implements IProductService {
 	private final IProductRepository productRepository;
 	@Autowired
 	private final ICategoryRepository categoryRepository;
+	@Autowired
+	private final FileStorageService fileStorageService;
 	
 	@Override
-	public Product create(Product product) {
+	public Product create(Product product, MultipartFile file) {
 
 		if (categoryRepository.existsById(product.getCategory().getIdCategory())) {
 			log.info("Saving new product: " + product.getName());
+			product.setImageUrl(fileStorageService.uploadAndDownloadFile(file, "productimage"));
 			return productRepository.save(product);
 		} else {
 			return null;
@@ -43,9 +48,16 @@ public class ProductServiceImp implements IProductService {
 	}
 
 	@Override
-	public Product update(Long id, Product product) {
+	public Product update(Long id, Product product, MultipartFile file) {
 		if (categoryRepository.existsById(product.getCategory().getIdCategory())) {
 			log.info("Updating product with id: " + id);
+			Optional<Product> oldProduct = productRepository.findById(id);
+			product.setIdProduct(id);
+			if (file != null) {
+				product.setImageUrl(fileStorageService.uploadAndDownloadFile(file, "productimage"));
+			} else {
+				product.setImageUrl(oldProduct.get().getImageUrl());
+			}
 			return productRepository.save(product);
 		} else {
 			return null;

@@ -2,6 +2,8 @@
  * 
  */
 package JEstebanC.FastFoodApp.service;
+import org.springframework.web.multipart.MultipartFile;
+
 import JEstebanC.FastFoodApp.model.Product;
 
 /**
@@ -9,9 +11,9 @@ import JEstebanC.FastFoodApp.model.Product;
  */
 public interface IProductService {
 
-	Product create(Product product);
+	Product create(Product product, MultipartFile file);
 
-	Product update(Long id, Product product);
+	Product update(Long id, Product product, MultipartFile file);
 
 	Boolean delete(Long idProduct);
 

@@ -21,6 +21,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
@@ -47,6 +48,8 @@ public class UserServiceImp implements IUserService, UserDetailsService {
 	private final BCryptPasswordEncoder bCryptPasswordEncoder;
 	@Autowired
 	private JavaMailSender javaMailSender;
+	@Autowired
+	private final FileStorageService fileStorageService;
 
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -64,41 +67,47 @@ public class UserServiceImp implements IUserService, UserDetailsService {
 	}
 
 	@Override
-	public User create(User user) {
+	public User create(User user, MultipartFile file) {
 		log.info("Saving new user: " + user.getName());
+		user.setUrlImage(fileStorageService.uploadAndDownloadFile(file, "userimage"));
 		user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
 		return userRepository.save(user);
 	}
 
 	@Override
-	public UserDTO update(User user) {
+	public UserDTO update(Long id, User user, MultipartFile file) {
 		log.info("Updating user with id: " + user.getIdUser());
-		user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
-		return convertirUserToDTO(userRepository.save(user));
+		User userOld = userRepository.findByIdUser(id);
+		userOld.setName(user.getName());
+		userOld.setUsername(user.getUsername());
+		userOld.setPhone(user.getPhone());
+		userOld.setEmail(user.getEmail());
+		userOld.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
+		userOld.setDiscountPoint(user.getDiscountPoint());
+		userOld.setUrlImage(fileStorageService.uploadAndDownloadFile(file, "profileimage"));
+		userOld.setStatus(user.getStatus());
+		return convertirUserToDTO(userRepository.save(userOld));
 	}
 
 	public UserDTO updateEmployee(User user, long id) {
 		log.info("Updating user with id: " + id);
 		User userOld = userRepository.findByIdUser(id);
-		userOld.setName(user.getName());
-		userOld.setUrlImage(user.getUrlImage());
 		userOld.setPhone(user.getPhone());
 		userOld.setEmail(user.getEmail());
-		userOld.setStatus(user.getStatus());
 		return convertirUserToDTO(userRepository.save(userOld));
 	}
 
-	public User updateClient(User user, long id) {
+	public UserDTO updateClient(User user, long id, MultipartFile file) {
 		log.info("Updating user with id: " + id);
 		User userOld = userRepository.findByIdUser(id);
 
 		userOld.setName(user.getName());
-		userOld.setUrlImage(user.getUrlImage());
+		userOld.setUrlImage(fileStorageService.uploadAndDownloadFile(file, "profileimage"));
 		userOld.setPhone(user.getPhone());
 		userOld.setEmail(user.getEmail());
 		userOld.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
 		userOld.setStatus(user.getStatus());
-		return userRepository.save(userOld);
+		return convertirUserToDTO(userRepository.save(userOld));
 	}
 
 	public String validationToken(String token) {

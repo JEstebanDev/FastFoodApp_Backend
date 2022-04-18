@@ -5,6 +5,8 @@ package JEstebanC.FastFoodApp.service;
 
 import java.util.Collection;
 
+import org.springframework.web.multipart.MultipartFile;
+
 import JEstebanC.FastFoodApp.model.Additional;
 
 /**
@@ -12,9 +14,9 @@ import JEstebanC.FastFoodApp.model.Additional;
  */
 public interface IAdditionalService {
 
-	Additional create(Additional additional);
+	Additional create(Additional additional, MultipartFile file);
 
-	Additional update(Long id,Additional additional);
+	Additional update(Long id,Additional additional,MultipartFile file);
 
 	Boolean delete(Long id_Additional);
 

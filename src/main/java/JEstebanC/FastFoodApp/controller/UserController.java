@@ -14,20 +14,24 @@ import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.Nullable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import JEstebanC.FastFoodApp.model.User;
 import JEstebanC.FastFoodApp.security.OperationUtil;
@@ -50,15 +54,25 @@ public class UserController {
 
 //	CREATE
 	@PostMapping()
-	public ResponseEntity<Response> saveUser(@RequestBody @Valid User user) {
-		if (serviceImp.findByUsername(user.getUsername()) == null) {
-			return ResponseEntity
-					.ok(Response.builder().timeStamp(Instant.now()).data(Map.of("user", serviceImp.create(user)))
-							.message("Create user").status(HttpStatus.OK).statusCode(HttpStatus.OK.value()).build());
-		} else {
-			return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
-					.message("The username: " + user.getUsername() + " already exist").status(HttpStatus.BAD_REQUEST)
-					.statusCode(HttpStatus.BAD_REQUEST.value()).build());
+	public ResponseEntity<Response> saveUser(@RequestParam("request") @Valid String strUser,
+			@RequestParam("userimage") @Nullable MultipartFile file) {
+
+		try {
+			User user = new ObjectMapper().readValue(strUser, User.class);
+			if (serviceImp.findByUsername(user.getUsername()) == null) {
+				return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
+						.data(Map.of("user", serviceImp.create(user,file))).message("Create user").status(HttpStatus.OK)
+						.statusCode(HttpStatus.OK.value()).build());
+			} else {
+				return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
+						.message("The username: " + user.getUsername() + " already exist")
+						.status(HttpStatus.BAD_REQUEST).statusCode(HttpStatus.BAD_REQUEST.value()).build());
+			}
+
+		} catch (JsonProcessingException e) {
+			return ResponseEntity.ok(
+					Response.builder().timeStamp(Instant.now()).message("Error creating the user: " + e.getMessage())
+							.status(HttpStatus.BAD_REQUEST).statusCode(HttpStatus.BAD_REQUEST.value()).build());
 		}
 
 	}
@@ -74,9 +88,20 @@ public class UserController {
 //	UPDATE
 	@PreAuthorize("hasRole('ROLE_ADMIN') OR hasRole('ROLE_EMPLOYEE') OR hasRole('ROLE_CLIENT')")
 	@PutMapping(value = "/{id}")
-	public ResponseEntity<Response> updateUser(@PathVariable("id") Long id, @RequestBody @Valid User user,
+	public ResponseEntity<Response> updateUser(@PathVariable("id") Long id,
+			@RequestParam("request") @Valid String strUser, @RequestParam("userimage") @Nullable MultipartFile file,
 			HttpServletRequest request) {
-		return actionForRole(id, user, request);
+
+		try {
+			User user = new ObjectMapper().readValue(strUser, User.class);
+			return actionForRole(id, user, request,file);
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+			return ResponseEntity.ok(
+					Response.builder().timeStamp(Instant.now()).message("Error creating the user: " + e.getMessage())
+							.status(HttpStatus.BAD_REQUEST).statusCode(HttpStatus.BAD_REQUEST.value()).build());
+		}
+
 	}
 
 //	DELETE
@@ -126,7 +151,7 @@ public class UserController {
 		}
 	}
 
-	private ResponseEntity<Response> actionForRole(Long id, @Valid User user, HttpServletRequest request) {
+	private ResponseEntity<Response> actionForRole(Long id, @Valid User user, HttpServletRequest request,MultipartFile file) {
 
 		if (request.isUserInRole("ROLE_CLIENT")) {
 			String authorizationHeader = request.getHeader(AUTHORIZATION);
@@ -144,7 +169,7 @@ public class UserController {
 
 						if (serviceImp.findByIdUser(username, id)) {
 							return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
-									.data(Map.of("user", serviceImp.updateClient(user, id)))
+									.data(Map.of("user", serviceImp.updateClient(user, id, file)))
 									.message("Update user with id:" + id).status(HttpStatus.OK)
 									.statusCode(HttpStatus.OK.value()).build());
 						} else {
@@ -152,7 +177,6 @@ public class UserController {
 									.message("Does not have permission").status(HttpStatus.BAD_REQUEST)
 									.statusCode(HttpStatus.BAD_REQUEST.value()).build());
 						}
-
 					} else {
 						return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
 								.message("The user with id:" + id + " does not exist").status(HttpStatus.BAD_REQUEST)
@@ -182,7 +206,7 @@ public class UserController {
 			if (serviceImp.exist(id)) {
 
 				return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
-						.data(Map.of("user", serviceImp.update(user))).message("Update user with id:" + id)
+						.data(Map.of("user", serviceImp.update(id, user, file))).message("Update user with id:" + id)
 						.status(HttpStatus.OK).statusCode(HttpStatus.OK.value()).build());
 			} else {
 				return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
