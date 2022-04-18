@@ -30,11 +30,10 @@ import java.time.OffsetDateTime;
 public class FileStorageService {
 	private final BlobServiceClient blobServiceClient;
 
-
 	public String Permiso() {
 		String connString = "DefaultEndpointsProtocol=https;AccountName=fastfoodimage;AccountKey=ojh9bLmM7+RTDC2K87yoIc6pI0NxZ3766DgnCxvVIahgeW3U3YdtZl+Eof7EtABlqeqLXDHOHCRc+ASt0iDETw==;EndpointSuffix=core.windows.net";
-        String containerName = "categoryimage";
-        String blobName = "plate.jpg";
+		String containerName = "categoryimage";
+		String blobName = "plate.jpg";
 		BlobServiceClient client = new BlobServiceClientBuilder().connectionString(connString).buildClient();
 		BlobClient blobClient = client.getBlobContainerClient(containerName).getBlobClient(blobName);
 
@@ -48,24 +47,25 @@ public class FileStorageService {
 		return blobClient.getBlobUrl() + "?" + blobClient.generateSas(values);
 	}
 
-	public Boolean uploadAndDownloadFile(@NonNull MultipartFile file, String containerName) {
-		boolean isSuccess = true;
+	public String uploadAndDownloadFile(@NonNull MultipartFile file, String containerName) {
 		BlobContainerClient blobContainerClient = getBlobContainerClient(containerName);
 		String filename = file.getOriginalFilename();
 		BlockBlobClient blockBlobClient = blobContainerClient.getBlobClient(filename).getBlockBlobClient();
 		try {
-			// delete file if already exists in that container
-			if (blockBlobClient.exists()) {
-				blockBlobClient.delete();
+			// delete file if already exists in that container OPTIONAL
+			if (!blockBlobClient.exists()) {
+//				blockBlobClient.delete();
+				// upload file to azure blob storage
+				blockBlobClient.upload(new BufferedInputStream(file.getInputStream()), file.getSize(), true);	
 			}
-			// upload file to azure blob storage
-			blockBlobClient.upload(new BufferedInputStream(file.getInputStream()), file.getSize(), true);
-			String tempFilePath =  blockBlobClient.getBlobUrl();
+			
+			
+
 		} catch (IOException e) {
-			isSuccess = false;
 			log.error("Error while processing file {}", e.getLocalizedMessage());
 		}
-		return isSuccess;
+		String urlImage = blockBlobClient.getBlobUrl();
+		return urlImage;
 	}
 
 	private @NonNull BlobContainerClient getBlobContainerClient(@NonNull String containerName) {

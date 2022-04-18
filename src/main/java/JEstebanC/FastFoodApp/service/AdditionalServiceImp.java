@@ -4,11 +4,13 @@
 package JEstebanC.FastFoodApp.service;
 
 import java.util.Collection;
+import java.util.Optional;
 
 import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import JEstebanC.FastFoodApp.model.Additional;
 import JEstebanC.FastFoodApp.repository.IAdditionalRepository;
@@ -26,11 +28,14 @@ public class AdditionalServiceImp implements IAdditionalService {
 
 	@Autowired
 	private IAdditionalRepository additionalRepository;
+	@Autowired
+	private final FileStorageService fileStorageService;
 
 	@Override
-	public Additional create(Additional additional) {
+	public Additional create(Additional additional, MultipartFile file) {
 		log.info("Saving new additional: " + additional.getName());
 		if (additional.getCategory() != null) {
+			additional.setImageUrl(fileStorageService.uploadAndDownloadFile(file, "additionalimage"));
 			return additionalRepository.save(additional);
 		} else {
 			return null;
@@ -38,9 +43,16 @@ public class AdditionalServiceImp implements IAdditionalService {
 	}
 
 	@Override
-	public Additional update(Long id, Additional additional) {
+	public Additional update(Long id, Additional additional, MultipartFile file) {
 		log.info("Updating additional: " + additional.getName());
+		Optional<Additional> oldAdditional = additionalRepository.findById(id);
+		additional.setIdAdditional(id);
 		if (additional.getCategory() != null) {
+			if (file != null) {
+				additional.setImageUrl(fileStorageService.uploadAndDownloadFile(file, "additionalimage"));
+			} else {
+				additional.setImageUrl(oldAdditional.get().getImageUrl());
+			}
 			return additionalRepository.save(additional);
 		} else {
 			return null;

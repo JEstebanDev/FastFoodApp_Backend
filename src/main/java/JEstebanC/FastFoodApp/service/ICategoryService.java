@@ -5,6 +5,8 @@ package JEstebanC.FastFoodApp.service;
 
 import java.util.Collection;
 
+import org.springframework.web.multipart.MultipartFile;
+
 import JEstebanC.FastFoodApp.model.Category;
 
 /**
@@ -12,9 +14,9 @@ import JEstebanC.FastFoodApp.model.Category;
  */
 public interface ICategoryService {
 
-    Category create(Category category);
+    Category create(Category category, MultipartFile file);
 
-    Category update(Long id,Category category);
+    Category update(Long id,Category category, MultipartFile file);
 
     Boolean delete(Long idCategory);
 

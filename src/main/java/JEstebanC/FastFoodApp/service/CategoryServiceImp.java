@@ -1,11 +1,13 @@
 package JEstebanC.FastFoodApp.service;
 
 import java.util.Collection;
+import java.util.Optional;
 
 import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import JEstebanC.FastFoodApp.model.Category;
 import JEstebanC.FastFoodApp.repository.ICategoryRepository;
@@ -24,15 +26,28 @@ public class CategoryServiceImp implements ICategoryService {
 	@Autowired
 	private final ICategoryRepository categoryRepository;
 
+	@Autowired
+	private final FileStorageService fileStorageService;
+
 	@Override
-	public Category create(Category category) {
+	public Category create(Category category, MultipartFile file) {
 		log.info("Saving new category: " + category.getName());
+
+		category.setImageUrl(fileStorageService.uploadAndDownloadFile(file, "categoryimage"));
+
 		return categoryRepository.save(category);
 	}
 
 	@Override
-	public Category update(Long id,Category category) {
-		log.info("Updating category with id: " +id);
+	public Category update(Long id, Category category, MultipartFile file) {
+		log.info("Updating category with id: " + id);
+		Optional<Category> oldCategory = categoryRepository.findById(id);
+		category.setIdCategory(id);
+		if (file != null) {
+			category.setImageUrl(fileStorageService.uploadAndDownloadFile(file, "categoryimage"));
+		} else {
+			category.setImageUrl(oldCategory.get().getImageUrl());
+		}
 		return categoryRepository.save(category);
 	}
 
