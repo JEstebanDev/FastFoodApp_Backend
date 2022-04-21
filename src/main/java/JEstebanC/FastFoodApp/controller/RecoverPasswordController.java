@@ -39,7 +39,7 @@ public class RecoverPasswordController {
 		UserDTO user = serviceImp.findByEmail(email);
 		if (user != null) {
 			return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
-					.data(Map.of("product",
+					.data(Map.of("user",
 							serviceImp.sendMail(request, response, email, user.getUsername(), user.getName())))
 					.message("Mail sent").status(HttpStatus.OK).statusCode(HttpStatus.OK.value()).build());
 		} else {
@@ -56,9 +56,15 @@ public class RecoverPasswordController {
 		if (newPassword.equals(repeatNewPassword)) {
 			String username = serviceImp.validationToken(token);
 			if (username != null) {
-				return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
-						.data(Map.of("product", serviceImp.updatePasswordClient(username, newPassword)))
-						.message("Create product").status(HttpStatus.OK).statusCode(HttpStatus.OK.value()).build());
+				if (serviceImp.findByUsername(username) != null) {
+					return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
+							.data(Map.of("user", serviceImp.updatePasswordClient(username, newPassword)))
+							.message("Updating user").status(HttpStatus.OK).statusCode(HttpStatus.OK.value()).build());
+				} else {
+					return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
+							.message("The user: " + username + " not exist!").status(HttpStatus.UNAUTHORIZED)
+							.statusCode(HttpStatus.UNAUTHORIZED.value()).build());
+				}
 			} else {
 				return ResponseEntity.ok(
 						Response.builder().timeStamp(Instant.now()).message("The Token's Signature resulted invalid!")

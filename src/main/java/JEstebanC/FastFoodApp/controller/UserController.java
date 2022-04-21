@@ -31,20 +31,22 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import JEstebanC.FastFoodApp.model.User;
 import JEstebanC.FastFoodApp.security.OperationUtil;
+import JEstebanC.FastFoodApp.dto.update.UserClientDTO;
+import JEstebanC.FastFoodApp.dto.update.UserEmployeeDTO;
+import JEstebanC.FastFoodApp.enumeration.AppUserRole;
 import JEstebanC.FastFoodApp.model.Response;
 import JEstebanC.FastFoodApp.service.UserServiceImp;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author Juan Esteban Castaño Holguin castanoesteban9@gmail.com 2022-01-26
  */
 @RestController
-@Slf4j
 @RequiredArgsConstructor
 @RequestMapping("/user")
 public class UserController {
@@ -60,9 +62,15 @@ public class UserController {
 		try {
 			User user = new ObjectMapper().readValue(strUser, User.class);
 			if (serviceImp.findByUsername(user.getUsername()) == null) {
-				return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
-						.data(Map.of("user", serviceImp.create(user,file))).message("Create user").status(HttpStatus.OK)
-						.statusCode(HttpStatus.OK.value()).build());
+				if (serviceImp.findByEmail(user.getEmail()) == null) {
+					return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
+							.data(Map.of("user", serviceImp.create(user, file))).message("Create user")
+							.status(HttpStatus.OK).statusCode(HttpStatus.OK.value()).build());
+				} else {
+					return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
+							.message("The email: " + user.getEmail() + " already exist").status(HttpStatus.BAD_REQUEST)
+							.statusCode(HttpStatus.BAD_REQUEST.value()).build());
+				}
 			} else {
 				return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
 						.message("The username: " + user.getUsername() + " already exist")
@@ -89,19 +97,55 @@ public class UserController {
 	@PreAuthorize("hasRole('ROLE_ADMIN') OR hasRole('ROLE_EMPLOYEE') OR hasRole('ROLE_CLIENT')")
 	@PutMapping(value = "/{id}")
 	public ResponseEntity<Response> updateUser(@PathVariable("id") Long id,
-			@RequestParam("request") @Valid String strUser, @RequestParam("userimage") @Nullable MultipartFile file,
+			@RequestParam("request") @Valid String strUser, @RequestParam("profileimage") @Nullable MultipartFile file,
 			HttpServletRequest request) {
+		User userOld = serviceImp.findById(id);
+		if (userOld != null) {
+			AppUserRole userRole = userOld.getUserRoles();
+			if (request.isUserInRole("ROLE_CLIENT")
+					&& (userRole.getAuthority() == "ROLE_ADMIN" || userRole.getAuthority() == "ROLE_EMPLOYEE")) {
+				return ResponseEntity.ok(
+						Response.builder().timeStamp(Instant.now()).message(("Error user without permission to update"))
+								.status(HttpStatus.BAD_REQUEST).statusCode(HttpStatus.BAD_REQUEST.value()).build());
+			}
+			if (request.isUserInRole("ROLE_EMPLOYEE") && (userRole.getAuthority() == "ROLE_ADMIN")) {
+				return ResponseEntity.ok(
+						Response.builder().timeStamp(Instant.now()).message(("Error user without permission to update"))
+								.status(HttpStatus.BAD_REQUEST).statusCode(HttpStatus.BAD_REQUEST.value()).build());
+			}
 
-		try {
-			User user = new ObjectMapper().readValue(strUser, User.class);
-			return actionForRole(id, user, request,file);
-		} catch (JsonProcessingException e) {
-			e.printStackTrace();
-			return ResponseEntity.ok(
-					Response.builder().timeStamp(Instant.now()).message("Error creating the user: " + e.getMessage())
+			String authorizationHeader = request.getHeader(AUTHORIZATION);
+			if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+				try {
+					String token = authorizationHeader.substring("Bearer ".length());
+					Algorithm algorithm = Algorithm.HMAC256(OperationUtil.keyValue().getBytes());
+					JWTVerifier verifier = JWT.require(algorithm).build();
+					DecodedJWT decodeJWT = verifier.verify(token);
+
+					if (request.isUserInRole("ROLE_CLIENT") && userRole.getAuthority() == "ROLE_CLIENT") {
+						if (userOld.getUsername().equals(decodeJWT.getSubject().toString())) {
+							UserClientDTO userClientDTO = new ObjectMapper().readValue(strUser, UserClientDTO.class);
+							return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
+									.data(Map.of("user", serviceImp.updateClient(userClientDTO, id, file)))
+									.message("Update user with id:" + id).status(HttpStatus.OK)
+									.statusCode(HttpStatus.OK.value()).build());
+						} else {
+							return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
+									.message(("Error updating user, you can not update other clients"))
+									.status(HttpStatus.BAD_REQUEST).statusCode(HttpStatus.BAD_REQUEST.value()).build());
+						}
+					}
+					return actionForRole(id, strUser, request, file);
+				} catch (Exception e) {
+					return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
+							.message(("Error updating user by client: " + e.getMessage()))
 							.status(HttpStatus.BAD_REQUEST).statusCode(HttpStatus.BAD_REQUEST.value()).build());
+				}
+			}
 		}
-
+		return ResponseEntity
+				.ok(Response.builder().timeStamp(Instant.now()).message("The user with id:" + id + " does not exist")
+						.status(HttpStatus.BAD_REQUEST).statusCode(HttpStatus.BAD_REQUEST.value()).build());
 	}
 
 //	DELETE
@@ -151,72 +195,22 @@ public class UserController {
 		}
 	}
 
-	private ResponseEntity<Response> actionForRole(Long id, @Valid User user, HttpServletRequest request,MultipartFile file) {
+	private ResponseEntity<Response> actionForRole(Long id, String strUser, HttpServletRequest request,
+			MultipartFile file) throws JsonMappingException, JsonProcessingException {
+		if (request.isUserInRole("ROLE_EMPLOYEE")) {
+			UserEmployeeDTO userEmployeeDTO = new ObjectMapper().readValue(strUser, UserEmployeeDTO.class);
+			return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
+					.data(Map.of("user", serviceImp.updateEmployee(userEmployeeDTO, id)))
+					.message("Update user with id:" + id).status(HttpStatus.OK).statusCode(HttpStatus.OK.value())
+					.build());
 
-		if (request.isUserInRole("ROLE_CLIENT")) {
-			String authorizationHeader = request.getHeader(AUTHORIZATION);
-			if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-				try {
-					// Remove the word Bearer, because we just want the token
-					String token = authorizationHeader.substring("Bearer ".length());
-					// Reference to the keyValue
-					Algorithm algorithm = Algorithm.HMAC256(OperationUtil.keyValue().getBytes());
-					JWTVerifier verifier = JWT.require(algorithm).build();
-					DecodedJWT decodeJWT = verifier.verify(token);
-					String username = decodeJWT.getSubject();
-
-					if (serviceImp.exist(id)) {
-
-						if (serviceImp.findByIdUser(username, id)) {
-							return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
-									.data(Map.of("user", serviceImp.updateClient(user, id, file)))
-									.message("Update user with id:" + id).status(HttpStatus.OK)
-									.statusCode(HttpStatus.OK.value()).build());
-						} else {
-							return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
-									.message("Does not have permission").status(HttpStatus.BAD_REQUEST)
-									.statusCode(HttpStatus.BAD_REQUEST.value()).build());
-						}
-					} else {
-						return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
-								.message("The user with id:" + id + " does not exist").status(HttpStatus.BAD_REQUEST)
-								.statusCode(HttpStatus.BAD_REQUEST.value()).build());
-					}
-
-				} catch (Exception e) {
-					log.error("Error updateOrder: " + e.getMessage());
-				}
-			}
-		} else if (request.isUserInRole("ROLE_EMPLOYEE")) {
-			String authorizationHeader = request.getHeader(AUTHORIZATION);
-			if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-
-				if (serviceImp.exist(id)) {
-					return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
-							.data(Map.of("user", serviceImp.updateEmployee(user, id)))
-							.message("Update user with id:" + id).status(HttpStatus.OK)
-							.statusCode(HttpStatus.OK.value()).build());
-				} else {
-					return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
-							.message("The user with id:" + id + " does not exist").status(HttpStatus.BAD_REQUEST)
-							.statusCode(HttpStatus.BAD_REQUEST.value()).build());
-				}
-			}
-		} else {
-			if (serviceImp.exist(id)) {
-
-				return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
-						.data(Map.of("user", serviceImp.update(id, user, file))).message("Update user with id:" + id)
-						.status(HttpStatus.OK).statusCode(HttpStatus.OK.value()).build());
-			} else {
-				return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
-						.message("The user with id:" + id + " does not exist").status(HttpStatus.BAD_REQUEST)
-						.statusCode(HttpStatus.BAD_REQUEST.value()).build());
-			}
+		} else if (request.isUserInRole("ROLE_ADMIN")) {
+			User user = new ObjectMapper().readValue(strUser, User.class);
+			return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
+					.data(Map.of("user", serviceImp.update(id, user, file))).message("Update user with id:" + id)
+					.status(HttpStatus.OK).statusCode(HttpStatus.OK.value()).build());
 		}
-
-		return ResponseEntity.ok(Response.builder().timeStamp(Instant.now()).message("Error with the authorization")
-				.status(HttpStatus.BAD_REQUEST).statusCode(HttpStatus.BAD_REQUEST.value()).build());
+		return null;
 	}
 
 }

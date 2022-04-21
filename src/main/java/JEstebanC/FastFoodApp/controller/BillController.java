@@ -1,8 +1,11 @@
 package JEstebanC.FastFoodApp.controller;
 
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+
 import java.time.Instant;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,11 +22,21 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.JWTVerifier;
+import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.interfaces.DecodedJWT;
+
+import JEstebanC.FastFoodApp.dto.UserBillOrdersDTO;
 import JEstebanC.FastFoodApp.enumeration.StatusBill;
 import JEstebanC.FastFoodApp.model.Bill;
 import JEstebanC.FastFoodApp.model.Response;
+import JEstebanC.FastFoodApp.model.User;
+import JEstebanC.FastFoodApp.security.OperationUtil;
 import JEstebanC.FastFoodApp.service.BillServiceImp;
+import JEstebanC.FastFoodApp.service.UserServiceImp;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author Juan Esteban Castaño Holguin castanoesteban9@gmail.com 2022-01-26
@@ -32,10 +45,13 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @PreAuthorize("authenticated")
 @RequestMapping("/bill")
+@Slf4j
 public class BillController {
 
 	@Autowired
 	private final BillServiceImp serviceImp;
+	@Autowired
+	private final UserServiceImp serviceImpUser;
 
 //	CREATE
 	@PostMapping()
@@ -46,21 +62,76 @@ public class BillController {
 	}
 
 //  READ SEARCH BY PARAMS
-	@PreAuthorize("hasRole('ROLE_ADMIN') OR hasRole('ROLE_EMPLOYEE')")
+	@PreAuthorize("hasRole('ROLE_ADMIN') OR hasRole('ROLE_EMPLOYEE') OR hasRole('ROLE_CLIENT')")
 	@GetMapping(value = "/list")
 	public ResponseEntity<Response> listByParams(@Param(value = "idBill") Long idBill,
 			@Param(value = "idUser") Long idUser, @Param(value = "statusBill") StatusBill statusBill,
-			@Param(value = "startDate") String startDate, @Param(value = "endDate") String endDate) {
+			@Param(value = "startDate") String startDate, @Param(value = "endDate") String endDate,
+			HttpServletRequest request) {
+		if (request.isUserInRole("ROLE_CLIENT")) {
+			log.info("ENTRA CLIENTE");
+			String authorizationHeader = request.getHeader(AUTHORIZATION);
+			if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+				try {
+					String token = authorizationHeader.substring("Bearer ".length());
+					Algorithm algorithm = Algorithm.HMAC256(OperationUtil.keyValue().getBytes());
+					JWTVerifier verifier = JWT.require(algorithm).build();
+					DecodedJWT decodeJWT = verifier.verify(token);
+					
 
+					if (idBill != null) {
+						log.info("ENTRA CLIENTE BILL");
+						UserBillOrdersDTO userBillOrdersCLient = serviceImp.findByIdBill(idBill);
+						if (userBillOrdersCLient.getBillUserDTO().getUserForBill().getUsername()
+								.equals(decodeJWT.getSubject().toString())) {
+							return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
+									.data(Map.of("bill", serviceImp.findByIdBill(idBill))).message("bill")
+									.status(HttpStatus.OK).statusCode(HttpStatus.OK.value()).build());
+						}else {
+							return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
+									.message(("Error seeing the bill, you have not the permissions"))
+									.status(HttpStatus.BAD_REQUEST).statusCode(HttpStatus.BAD_REQUEST.value()).build());
+						}
+					}
+					if (idUser!=null) {
+						User userOld = serviceImpUser.findById(idUser);
+						if (userOld.getUsername().equals(decodeJWT.getSubject().toString())) {
+							log.info("ENTRA CLIENTE SIN BILL");
+							return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
+									.data(Map.of("bill",
+											serviceImp.findByNewIdUser(userOld.getIdUser(), statusBill, startDate,
+													endDate)))
+									.message("bill").status(HttpStatus.OK).statusCode(HttpStatus.OK.value()).build());
+						} else {
+							log.info("ENTRA CLIENTE ERROR");
+							return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
+									.message(("Error seeing the bill, you have not the permissions"))
+									.status(HttpStatus.BAD_REQUEST).statusCode(HttpStatus.BAD_REQUEST.value()).build());
+						}
+					}else {
+						return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
+								.message(("Error seeing the bill, you have not the permissions"))
+								.status(HttpStatus.BAD_REQUEST).statusCode(HttpStatus.BAD_REQUEST.value()).build());
+					}
+					
+
+				} catch (Exception e) {
+					return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
+							.message(("Error validating bill by client: " + e.getMessage()))
+							.status(HttpStatus.BAD_REQUEST).statusCode(HttpStatus.BAD_REQUEST.value()).build());
+				}
+			}
+
+		}
 		if (idBill != null) {
 			return ResponseEntity.ok(
 					Response.builder().timeStamp(Instant.now()).data(Map.of("bill", serviceImp.findByIdBill(idBill)))
 							.message("bill").status(HttpStatus.OK).statusCode(HttpStatus.OK.value()).build());
-		} else {
-			return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
-					.data(Map.of("bill", serviceImp.findByNewIdUser(idUser, statusBill, startDate, endDate)))
-					.message("bill").status(HttpStatus.OK).statusCode(HttpStatus.OK.value()).build());
+
 		}
+		return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
+				.data(Map.of("bill", serviceImp.findByNewIdUser(idUser, statusBill, startDate, endDate)))
+				.message("bill").status(HttpStatus.OK).statusCode(HttpStatus.OK.value()).build());
 
 	}
 

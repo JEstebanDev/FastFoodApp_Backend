@@ -1,11 +1,13 @@
 /**
  * 
  */
-package JEstebanC.FastFoodApp.service;
+package JEstebanC.FastFoodApp.service.interfaces;
 
 import org.springframework.web.multipart.MultipartFile;
 
 import JEstebanC.FastFoodApp.dto.UserDTO;
+import JEstebanC.FastFoodApp.dto.update.UserClientDTO;
+import JEstebanC.FastFoodApp.dto.update.UserEmployeeDTO;
 import JEstebanC.FastFoodApp.model.User;
 
 /**
@@ -17,9 +19,9 @@ public interface IUserService {
 
 	UserDTO update(Long id, User user, MultipartFile file);
 
-	UserDTO updateEmployee(User user, long id);
+	UserDTO updateEmployee(UserEmployeeDTO userEmployeeDTO, long id);
 
-	UserDTO updateClient(User user, long id, MultipartFile file);
+	UserDTO updateClient(UserClientDTO userClientDTO, long id, MultipartFile file);
 
 	Boolean delete(Long idUser);
 

@@ -20,6 +20,7 @@ import JEstebanC.FastFoodApp.dto.ReportPayModeDTO;
 import JEstebanC.FastFoodApp.dto.ReportProductDTO;
 import JEstebanC.FastFoodApp.dto.ReportSalesDTO;
 import JEstebanC.FastFoodApp.repository.IReportRepository;
+import JEstebanC.FastFoodApp.service.interfaces.IReportService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 

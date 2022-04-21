@@ -23,6 +23,7 @@ import JEstebanC.FastFoodApp.model.Product;
 import JEstebanC.FastFoodApp.repository.IBillRepository;
 import JEstebanC.FastFoodApp.repository.IOrdersRepository;
 import JEstebanC.FastFoodApp.repository.IProductRepository;
+import JEstebanC.FastFoodApp.service.interfaces.IOrdersService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 

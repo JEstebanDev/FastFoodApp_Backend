@@ -1,7 +1,7 @@
 /**
  * 
  */
-package JEstebanC.FastFoodApp.service;
+package JEstebanC.FastFoodApp.service.interfaces;
 import org.springframework.web.multipart.MultipartFile;
 
 import JEstebanC.FastFoodApp.model.Product;

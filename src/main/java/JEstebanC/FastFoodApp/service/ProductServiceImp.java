@@ -15,7 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 import JEstebanC.FastFoodApp.model.Product;
 import JEstebanC.FastFoodApp.repository.ICategoryRepository;
 import JEstebanC.FastFoodApp.repository.IProductRepository;
-
+import JEstebanC.FastFoodApp.service.interfaces.IProductService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -40,7 +40,9 @@ public class ProductServiceImp implements IProductService {
 
 		if (categoryRepository.existsById(product.getCategory().getIdCategory())) {
 			log.info("Saving new product: " + product.getName());
+			if (file != null) {
 			product.setImageUrl(fileStorageService.uploadAndDownloadFile(file, "productimage"));
+			}
 			return productRepository.save(product);
 		} else {
 			return null;

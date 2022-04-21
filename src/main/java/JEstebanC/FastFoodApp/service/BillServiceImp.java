@@ -26,6 +26,7 @@ import JEstebanC.FastFoodApp.model.PayMode;
 import JEstebanC.FastFoodApp.model.Product;
 import JEstebanC.FastFoodApp.repository.IBillRepository;
 import JEstebanC.FastFoodApp.repository.IOrdersRepository;
+import JEstebanC.FastFoodApp.service.interfaces.IBillService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 

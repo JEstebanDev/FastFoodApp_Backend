@@ -11,6 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import JEstebanC.FastFoodApp.model.Category;
 import JEstebanC.FastFoodApp.repository.ICategoryRepository;
+import JEstebanC.FastFoodApp.service.interfaces.ICategoryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -30,10 +31,11 @@ public class CategoryServiceImp implements ICategoryService {
 	private final FileStorageService fileStorageService;
 
 	@Override
-	public Category create(Category category, MultipartFile file) {
+	public Category create(Category category,MultipartFile file) {
 		log.info("Saving new category: " + category.getName());
-
-		category.setImageUrl(fileStorageService.uploadAndDownloadFile(file, "categoryimage"));
+		if (file!=null) {
+			category.setImageUrl(fileStorageService.uploadAndDownloadFile(file, "categoryimage"));
+		}
 
 		return categoryRepository.save(category);
 	}
