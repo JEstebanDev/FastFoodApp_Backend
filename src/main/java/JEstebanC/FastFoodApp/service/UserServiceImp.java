@@ -29,9 +29,12 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 
 import JEstebanC.FastFoodApp.dto.UserDTO;
+import JEstebanC.FastFoodApp.dto.update.UserClientDTO;
+import JEstebanC.FastFoodApp.dto.update.UserEmployeeDTO;
 import JEstebanC.FastFoodApp.model.User;
 import JEstebanC.FastFoodApp.repository.IUserRepository;
 import JEstebanC.FastFoodApp.security.OperationUtil;
+import JEstebanC.FastFoodApp.service.interfaces.IUserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -69,14 +72,16 @@ public class UserServiceImp implements IUserService, UserDetailsService {
 	@Override
 	public User create(User user, MultipartFile file) {
 		log.info("Saving new user: " + user.getName());
-		user.setUrlImage(fileStorageService.uploadAndDownloadFile(file, "userimage"));
+		if (file != null) {
+			user.setUrlImage(fileStorageService.uploadAndDownloadFile(file, "userimage"));
+		}
 		user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
 		return userRepository.save(user);
 	}
 
 	@Override
 	public UserDTO update(Long id, User user, MultipartFile file) {
-		log.info("Updating user with id: " + user.getIdUser());
+		log.info("Updating user with id: " + id);
 		User userOld = userRepository.findByIdUser(id);
 		userOld.setName(user.getName());
 		userOld.setUsername(user.getUsername());
@@ -84,29 +89,35 @@ public class UserServiceImp implements IUserService, UserDetailsService {
 		userOld.setEmail(user.getEmail());
 		userOld.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
 		userOld.setDiscountPoint(user.getDiscountPoint());
-		userOld.setUrlImage(fileStorageService.uploadAndDownloadFile(file, "profileimage"));
+		userOld.setUrlImage(user.getUrlImage());
+		if (file != null) {
+			userOld.setUrlImage(fileStorageService.uploadAndDownloadFile(file, "profileimage"));
+		}
 		userOld.setStatus(user.getStatus());
 		return convertirUserToDTO(userRepository.save(userOld));
 	}
 
-	public UserDTO updateEmployee(User user, long id) {
+	public UserDTO updateEmployee(UserEmployeeDTO userEmployeeDTO, long id) {
 		log.info("Updating user with id: " + id);
 		User userOld = userRepository.findByIdUser(id);
-		userOld.setPhone(user.getPhone());
-		userOld.setEmail(user.getEmail());
+		userOld.setPhone(userEmployeeDTO.getPhone());
+		userOld.setEmail(userEmployeeDTO.getEmail());
 		return convertirUserToDTO(userRepository.save(userOld));
+
 	}
 
-	public UserDTO updateClient(User user, long id, MultipartFile file) {
+	public UserDTO updateClient(UserClientDTO userClientDTO, long id, MultipartFile file) {
 		log.info("Updating user with id: " + id);
 		User userOld = userRepository.findByIdUser(id);
-
-		userOld.setName(user.getName());
-		userOld.setUrlImage(fileStorageService.uploadAndDownloadFile(file, "profileimage"));
-		userOld.setPhone(user.getPhone());
-		userOld.setEmail(user.getEmail());
-		userOld.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
-		userOld.setStatus(user.getStatus());
+		userOld.setName(userClientDTO.getName());
+		userOld.setPhone(userClientDTO.getPhone());
+		userOld.setEmail(userClientDTO.getEmail());
+		userOld.setPassword(bCryptPasswordEncoder.encode(userClientDTO.getPassword()));
+		userOld.setStatus(userClientDTO.getStatus());
+		userOld.setUrlImage(userClientDTO.getUrlImage());
+		if (file != null) {
+			userOld.setUrlImage(fileStorageService.uploadAndDownloadFile(file, "profileimage"));
+		}
 		return convertirUserToDTO(userRepository.save(userOld));
 	}
 
@@ -126,7 +137,6 @@ public class UserServiceImp implements IUserService, UserDetailsService {
 	public User updatePasswordClient(String username, String password) {
 		log.info("Updating password username: " + username);
 		User user = userRepository.findByUsername(username);
-
 		user.setPassword(bCryptPasswordEncoder.encode(password));
 		return userRepository.save(user);
 	}
@@ -188,6 +198,11 @@ public class UserServiceImp implements IUserService, UserDetailsService {
 		}
 		return null;
 
+	}
+
+	public User findById(Long id) {
+		log.info("Searching user by id: " + id);
+		return userRepository.findByIdUser(id);
 	}
 
 	public User findByUsername(String username) {

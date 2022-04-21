@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import JEstebanC.FastFoodApp.model.PayMode;
 import JEstebanC.FastFoodApp.repository.IPayModeRepository;
+import JEstebanC.FastFoodApp.service.interfaces.IPayModeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 

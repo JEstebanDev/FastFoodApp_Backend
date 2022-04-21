@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import JEstebanC.FastFoodApp.model.Subscriber;
 import JEstebanC.FastFoodApp.repository.ISubscriberRepository;
+import JEstebanC.FastFoodApp.service.interfaces.ISubscriberService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 

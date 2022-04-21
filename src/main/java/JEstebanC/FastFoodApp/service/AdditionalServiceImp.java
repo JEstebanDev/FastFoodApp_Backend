@@ -14,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import JEstebanC.FastFoodApp.model.Additional;
 import JEstebanC.FastFoodApp.repository.IAdditionalRepository;
+import JEstebanC.FastFoodApp.service.interfaces.IAdditionalService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -35,7 +36,9 @@ public class AdditionalServiceImp implements IAdditionalService {
 	public Additional create(Additional additional, MultipartFile file) {
 		log.info("Saving new additional: " + additional.getName());
 		if (additional.getCategory() != null) {
-			additional.setImageUrl(fileStorageService.uploadAndDownloadFile(file, "additionalimage"));
+			if (file!=null) {
+				additional.setImageUrl(fileStorageService.uploadAndDownloadFile(file, "additionalimage"));				
+			}
 			return additionalRepository.save(additional);
 		} else {
 			return null;
