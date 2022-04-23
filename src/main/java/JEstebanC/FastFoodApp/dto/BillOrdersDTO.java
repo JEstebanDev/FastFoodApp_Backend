@@ -8,7 +8,9 @@ import java.util.Date;
 
 import org.springframework.format.annotation.DateTimeFormat;
 
+import JEstebanC.FastFoodApp.dto.validation.UserForBillDTO;
 import JEstebanC.FastFoodApp.enumeration.StatusBill;
+import JEstebanC.FastFoodApp.enumeration.StatusOrder;
 import JEstebanC.FastFoodApp.model.PayMode;
 import JEstebanC.FastFoodApp.model.Additional;
 import JEstebanC.FastFoodApp.model.Product;
@@ -33,6 +35,7 @@ public class BillOrdersDTO {
 
 //	Order
 	private Long idOrder;
+	private StatusOrder statusOrder;
 	private int amount;
 	private int noTable;
 	private int total;

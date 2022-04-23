@@ -5,6 +5,7 @@ package JEstebanC.FastFoodApp.dto;
 
 import java.util.Collection;
 
+import JEstebanC.FastFoodApp.enumeration.StatusOrder;
 import JEstebanC.FastFoodApp.model.Additional;
 import JEstebanC.FastFoodApp.model.Product;
 import lombok.Data;
@@ -19,6 +20,7 @@ public class OrdersDTO {
 
 //	Order
 	private Long idOrder;
+	private StatusOrder statusOrder;
 	private int amount;
 	private int noTable;
 	private int total;

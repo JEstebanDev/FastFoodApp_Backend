@@ -5,7 +5,6 @@ package JEstebanC.FastFoodApp.service;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.transaction.Transactional;
@@ -14,8 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import JEstebanC.FastFoodApp.dto.BillOrdersDTO;
-import JEstebanC.FastFoodApp.dto.UserForBillDTO;
-import JEstebanC.FastFoodApp.enumeration.Status;
+import JEstebanC.FastFoodApp.dto.validation.UserForBillDTO;
+import JEstebanC.FastFoodApp.enumeration.StatusOrder;
 import JEstebanC.FastFoodApp.model.Additional;
 import JEstebanC.FastFoodApp.model.Orders;
 import JEstebanC.FastFoodApp.model.PayMode;
@@ -52,6 +51,7 @@ public class OrdersServiceImp implements IOrdersService {
 		for (Additional additional : additionals) {
 			totalAdditional += additional.getPrice();
 		}
+		orders.setStatusOrder(StatusOrder.NEW);
 		orders.setTotal((product.getPrice() * orders.getAmount()) +( totalAdditional*orders.getAmount()));
 
 		return convertirOrderToDTO(ordersRepository.save(orders));
@@ -76,9 +76,7 @@ public class OrdersServiceImp implements IOrdersService {
 	public Boolean delete(Long idOrders) {
 		log.info("Deleting the order with id: " + idOrders);
 		if (ordersRepository.existsById(idOrders)) {
-
-			Optional<Orders> orders = ordersRepository.findById(idOrders);
-			orders.get().setStatus(Status.INACTIVO);
+			ordersRepository.deleteById(idOrders);
 			return true;
 		} else {
 			return false;
@@ -113,6 +111,7 @@ public class OrdersServiceImp implements IOrdersService {
 
 		BillOrdersDTO billOrder = new BillOrdersDTO();
 		billOrder.setIdOrder(orders.getIdOrder());
+		billOrder.setStatusOrder(orders.getStatusOrder());
 		billOrder.setAmount(orders.getAmount());
 		billOrder.setNoTable(orders.getNoTable());
 		billOrder.setTotal(orders.getTotal());

@@ -8,6 +8,7 @@ import java.util.Collection;
 import JEstebanC.FastFoodApp.dto.BillUserDTO;
 import JEstebanC.FastFoodApp.dto.UserBillOrdersDTO;
 import JEstebanC.FastFoodApp.enumeration.StatusBill;
+import JEstebanC.FastFoodApp.enumeration.StatusOrder;
 import JEstebanC.FastFoodApp.model.Bill;
 
 /**
@@ -21,6 +22,8 @@ public interface IBillService {
 
 	Collection<UserBillOrdersDTO> findByNewIdUser(Long idUser, StatusBill statusBill, String startDate, String endDate);
 
+	Collection<UserBillOrdersDTO> findByOrder(StatusOrder statusOrder, String startDate, String endDate);
+	
 	BillUserDTO update(Long idBill, Bill bill);
 
 	Boolean delete(Long idBill);

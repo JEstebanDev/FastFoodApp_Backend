@@ -29,6 +29,7 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 
 import JEstebanC.FastFoodApp.dto.UserBillOrdersDTO;
 import JEstebanC.FastFoodApp.enumeration.StatusBill;
+import JEstebanC.FastFoodApp.enumeration.StatusOrder;
 import JEstebanC.FastFoodApp.model.Bill;
 import JEstebanC.FastFoodApp.model.Response;
 import JEstebanC.FastFoodApp.model.User;
@@ -66,8 +67,8 @@ public class BillController {
 	@GetMapping(value = "/list")
 	public ResponseEntity<Response> listByParams(@Param(value = "idBill") Long idBill,
 			@Param(value = "idUser") Long idUser, @Param(value = "statusBill") StatusBill statusBill,
-			@Param(value = "startDate") String startDate, @Param(value = "endDate") String endDate,
-			HttpServletRequest request) {
+			@Param(value = "statusOrder") StatusOrder statusOrder, @Param(value = "startDate") String startDate,
+			@Param(value = "endDate") String endDate, HttpServletRequest request) {
 		if (request.isUserInRole("ROLE_CLIENT")) {
 			log.info("ENTRA CLIENTE");
 			String authorizationHeader = request.getHeader(AUTHORIZATION);
@@ -77,7 +78,6 @@ public class BillController {
 					Algorithm algorithm = Algorithm.HMAC256(OperationUtil.keyValue().getBytes());
 					JWTVerifier verifier = JWT.require(algorithm).build();
 					DecodedJWT decodeJWT = verifier.verify(token);
-					
 
 					if (idBill != null) {
 						log.info("ENTRA CLIENTE BILL");
@@ -87,13 +87,13 @@ public class BillController {
 							return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
 									.data(Map.of("bill", serviceImp.findByIdBill(idBill))).message("bill")
 									.status(HttpStatus.OK).statusCode(HttpStatus.OK.value()).build());
-						}else {
+						} else {
 							return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
 									.message(("Error seeing the bill, you have not the permissions"))
 									.status(HttpStatus.BAD_REQUEST).statusCode(HttpStatus.BAD_REQUEST.value()).build());
 						}
 					}
-					if (idUser!=null) {
+					if (idUser != null) {
 						User userOld = serviceImpUser.findById(idUser);
 						if (userOld.getUsername().equals(decodeJWT.getSubject().toString())) {
 							log.info("ENTRA CLIENTE SIN BILL");
@@ -108,12 +108,11 @@ public class BillController {
 									.message(("Error seeing the bill, you have not the permissions"))
 									.status(HttpStatus.BAD_REQUEST).statusCode(HttpStatus.BAD_REQUEST.value()).build());
 						}
-					}else {
+					} else {
 						return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
 								.message(("Error seeing the bill, you have not the permissions"))
 								.status(HttpStatus.BAD_REQUEST).statusCode(HttpStatus.BAD_REQUEST.value()).build());
 					}
-					
 
 				} catch (Exception e) {
 					return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
@@ -128,6 +127,11 @@ public class BillController {
 					Response.builder().timeStamp(Instant.now()).data(Map.of("bill", serviceImp.findByIdBill(idBill)))
 							.message("bill").status(HttpStatus.OK).statusCode(HttpStatus.OK.value()).build());
 
+		}
+		if (statusBill == null && statusOrder != null && startDate != null && endDate != null) {
+			return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
+					.data(Map.of("bill", serviceImp.findByOrder(statusOrder, startDate, endDate))).message("bill")
+					.status(HttpStatus.OK).statusCode(HttpStatus.OK.value()).build());
 		}
 		return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
 				.data(Map.of("bill", serviceImp.findByNewIdUser(idUser, statusBill, startDate, endDate)))

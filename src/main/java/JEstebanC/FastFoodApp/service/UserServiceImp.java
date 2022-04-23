@@ -31,6 +31,10 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import JEstebanC.FastFoodApp.dto.UserDTO;
 import JEstebanC.FastFoodApp.dto.update.UserClientDTO;
 import JEstebanC.FastFoodApp.dto.update.UserEmployeeDTO;
+import JEstebanC.FastFoodApp.dto.validation.UserEmailDTO;
+import JEstebanC.FastFoodApp.dto.validation.UsernameDTO;
+import JEstebanC.FastFoodApp.enumeration.AppUserRole;
+import JEstebanC.FastFoodApp.enumeration.Status;
 import JEstebanC.FastFoodApp.model.User;
 import JEstebanC.FastFoodApp.repository.IUserRepository;
 import JEstebanC.FastFoodApp.security.OperationUtil;
@@ -72,10 +76,16 @@ public class UserServiceImp implements IUserService, UserDetailsService {
 	@Override
 	public User create(User user, MultipartFile file) {
 		log.info("Saving new user: " + user.getName());
+		user.setIdUser(user.getIdUser());
 		if (file != null) {
 			user.setUrlImage(fileStorageService.uploadAndDownloadFile(file, "userimage"));
 		}
 		user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
+
+		// Seteo automatico de usuarios tipo cliente
+		user.setDiscountPoint(0);
+		user.setUserRoles(AppUserRole.ROLE_CLIENT);
+		user.setStatus(Status.ACTIVE);
 		return userRepository.save(user);
 	}
 
@@ -193,11 +203,20 @@ public class UserServiceImp implements IUserService, UserDetailsService {
 
 	public UserDTO findByEmail(String email) {
 		log.info("Searching user by email: " + email);
-		if (userRepository.findByEmail(email) != null) {
-			return convertirUserToDTO(userRepository.findByEmail(email));
-		}
-		return null;
+		return userRepository.findByEmail(email) != null ? convertirUserToDTO(userRepository.findByEmail(email)) : null;
 
+	}
+
+	public UserEmailDTO findByEmailValid(String email) {
+		log.info("Searching if the email " + email + " is valid");
+		return userRepository.findByEmail(email) != null ? convertirUserEmailToDTO(userRepository.findByEmail(email))
+				: null;
+	}
+
+	private UserEmailDTO convertirUserEmailToDTO(User user) {
+		UserEmailDTO userEmailDTO = new UserEmailDTO();
+		userEmailDTO.setEmail(user.getEmail());
+		return userEmailDTO;
 	}
 
 	public User findById(Long id) {
@@ -208,7 +227,19 @@ public class UserServiceImp implements IUserService, UserDetailsService {
 	public User findByUsername(String username) {
 		log.info("Searching user by username: " + username);
 		return userRepository.findByUsername(username) != null ? userRepository.findByUsername(username) : null;
+	}
 
+	public UsernameDTO findByUsernameValidation(String username) {
+		log.info("Searching user by username: " + username);
+		return userRepository.findByUsername(username) != null
+				? convertirUsernameToDTO(userRepository.findByUsername(username))
+				: null;
+	}
+
+	private UsernameDTO convertirUsernameToDTO(User user) {
+		UsernameDTO usernameDTO = new UsernameDTO();
+		usernameDTO.setUsername(user.getUsername());
+		return usernameDTO;
 	}
 
 	public Boolean sendMail(HttpServletRequest request, HttpServletResponse response, String email, String userName,

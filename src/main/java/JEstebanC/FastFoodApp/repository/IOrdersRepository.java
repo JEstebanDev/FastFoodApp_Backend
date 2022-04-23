@@ -20,6 +20,7 @@ public interface IOrdersRepository extends JpaRepository<Orders, Long> {
 	@Query(value = "SELECT ord.* FROM orders ord join bill bi on ord.id_bill=bi.id_bill where bi.id_bill=?", nativeQuery = true)
 	Collection<Orders> findByIdBill(Long idBill);
 
-	
+	@Query(value = "SELECT ord.* FROM orders ord join bill bi on ord.id_bill=bi.id_bill where ord.status_order=?", nativeQuery = true)
+	Collection<Orders> findByStatusOrder(int statusBill);
 
 }

@@ -13,8 +13,7 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.validation.constraints.NotNull;
 
-import JEstebanC.FastFoodApp.enumeration.Status;
-
+import JEstebanC.FastFoodApp.enumeration.StatusOrder;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -53,6 +52,6 @@ public class Orders {
 	private int noTable;
 	@NotNull(message = "total cannot be empty or null")
 	private int total;
-	private Status status;
+	private StatusOrder statusOrder;
 
 }

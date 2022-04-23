@@ -17,8 +17,9 @@ import org.springframework.stereotype.Service;
 import JEstebanC.FastFoodApp.dto.BillUserDTO;
 import JEstebanC.FastFoodApp.dto.OrdersDTO;
 import JEstebanC.FastFoodApp.dto.UserBillOrdersDTO;
-import JEstebanC.FastFoodApp.dto.UserForBillDTO;
+import JEstebanC.FastFoodApp.dto.validation.UserForBillDTO;
 import JEstebanC.FastFoodApp.enumeration.StatusBill;
+import JEstebanC.FastFoodApp.enumeration.StatusOrder;
 import JEstebanC.FastFoodApp.model.Additional;
 import JEstebanC.FastFoodApp.model.Bill;
 import JEstebanC.FastFoodApp.model.Orders;
@@ -78,6 +79,23 @@ public class BillServiceImp implements IBillService {
 	@Override
 	public UserBillOrdersDTO findByIdBill(Long idBill) {
 		return convertirBillOrderToDTO(billRepository.findByIdBill(idBill));
+	}
+
+	@Override
+	public Collection<UserBillOrdersDTO> findByOrder(StatusOrder statusOrder, String startDate, String endDate) {
+
+		try {
+			log.info("Searching bills by StatusOrder DateBetween");
+			return billRepository
+					.findByDateBetween(new SimpleDateFormat("yyyy-MM-dd").parse(startDate),
+							new SimpleDateFormat("yyyy-MM-dd").parse(endDate))
+					.stream().map(bill -> convertirBillByOrderToDTO(bill, statusOrder.ordinal()))
+					.collect(Collectors.toList());
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 	@Override
@@ -202,7 +220,6 @@ public class BillServiceImp implements IBillService {
 
 		billUser.setDate(bill.getDate());
 		billUser.setStatusBill(bill.getStatusBill());
-
 		Collection<OrdersDTO> orders = ordersRepository.findByIdBill(bill.getIdBill()).stream()
 				.map(this::convertirOrderToDTO).collect(Collectors.toList());
 
@@ -215,6 +232,7 @@ public class BillServiceImp implements IBillService {
 
 		OrdersDTO billOrder = new OrdersDTO();
 		billOrder.setIdOrder(orders.getIdOrder());
+		billOrder.setStatusOrder(orders.getStatusOrder());
 		billOrder.setAmount(orders.getAmount());
 		billOrder.setNoTable(orders.getNoTable());
 		billOrder.setTotal(orders.getTotal());
@@ -227,6 +245,37 @@ public class BillServiceImp implements IBillService {
 		additional.addAll(orders.getAdditional());
 		billOrder.setAdditional(additional);
 
+		return billOrder;
+	}
+
+	private UserBillOrdersDTO convertirBillByOrderToDTO(Bill bill, int statusBill) {
+		UserBillOrdersDTO billOrder = new UserBillOrdersDTO();
+
+		BillUserDTO billUser = new BillUserDTO();
+		billUser.setIdBill(bill.getIdBill());
+
+		UserForBillDTO userForBill = new UserForBillDTO();
+		userForBill.setIdUser(bill.getUser().getIdUser());
+		userForBill.setUrlImage(bill.getUser().getUrlImage());
+		userForBill.setUsername(bill.getUser().getUsername());
+		userForBill.setName(bill.getUser().getName());
+
+		billUser.setUserForBill(userForBill);
+
+		PayMode payMode = new PayMode();
+		payMode.setIdPayMode(bill.getPayMode().getIdPayMode());
+		payMode.setName(bill.getPayMode().getName());
+		payMode.setStatus(bill.getPayMode().getStatus());
+
+		billUser.setPayMode(payMode);
+
+		billUser.setDate(bill.getDate());
+		billUser.setStatusBill(bill.getStatusBill());
+		Collection<OrdersDTO> orders = ordersRepository.findByStatusOrder(statusBill).stream()
+				.map(this::convertirOrderToDTO).collect(Collectors.toList());
+
+		billOrder.setBillUserDTO(billUser);
+		billOrder.setOrdersDTO(orders);
 		return billOrder;
 	}
 
