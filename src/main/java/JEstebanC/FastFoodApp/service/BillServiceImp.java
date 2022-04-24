@@ -175,6 +175,8 @@ public class BillServiceImp implements IBillService {
 	private BillUserDTO convertirBillToDTO(Bill bill) {
 		BillUserDTO billUser = new BillUserDTO();
 		billUser.setIdBill(bill.getIdBill());
+		billUser.setNoTable(bill.getNoTable());
+		billUser.setTotalPrice(bill.getTotalPrice());
 
 		UserForBillDTO userForBill = new UserForBillDTO();
 		userForBill.setIdUser(bill.getUser().getIdUser());
@@ -202,6 +204,8 @@ public class BillServiceImp implements IBillService {
 
 		BillUserDTO billUser = new BillUserDTO();
 		billUser.setIdBill(bill.getIdBill());
+		billUser.setNoTable(bill.getNoTable());
+		billUser.setTotalPrice(bill.getTotalPrice());
 
 		UserForBillDTO userForBill = new UserForBillDTO();
 		userForBill.setIdUser(bill.getUser().getIdUser());
@@ -228,31 +232,13 @@ public class BillServiceImp implements IBillService {
 		return billOrder;
 	}
 
-	private OrdersDTO convertirOrderToDTO(Orders orders) {
-
-		OrdersDTO billOrder = new OrdersDTO();
-		billOrder.setIdOrder(orders.getIdOrder());
-		billOrder.setStatusOrder(orders.getStatusOrder());
-		billOrder.setAmount(orders.getAmount());
-		billOrder.setNoTable(orders.getNoTable());
-		billOrder.setTotal(orders.getTotal());
-
-		Collection<Product> product = new ArrayList<Product>();
-		product.add(orders.getProduct());
-		billOrder.setProduct(product);
-
-		Collection<Additional> additional = new ArrayList<Additional>();
-		additional.addAll(orders.getAdditional());
-		billOrder.setAdditional(additional);
-
-		return billOrder;
-	}
-
 	private UserBillOrdersDTO convertirBillByOrderToDTO(Bill bill, int statusBill) {
 		UserBillOrdersDTO billOrder = new UserBillOrdersDTO();
 
 		BillUserDTO billUser = new BillUserDTO();
 		billUser.setIdBill(bill.getIdBill());
+		billUser.setNoTable(bill.getNoTable());
+		billUser.setTotalPrice(bill.getTotalPrice());
 
 		UserForBillDTO userForBill = new UserForBillDTO();
 		userForBill.setIdUser(bill.getUser().getIdUser());
@@ -276,6 +262,25 @@ public class BillServiceImp implements IBillService {
 
 		billOrder.setBillUserDTO(billUser);
 		billOrder.setOrdersDTO(orders);
+		return billOrder;
+	}
+	
+	private OrdersDTO convertirOrderToDTO(Orders orders) {
+
+		OrdersDTO billOrder = new OrdersDTO();
+		billOrder.setIdOrder(orders.getIdOrder());
+		billOrder.setStatusOrder(orders.getStatusOrder());
+		billOrder.setAmount(orders.getAmount());
+		billOrder.setTotal(orders.getTotal());
+
+		Collection<Product> product = new ArrayList<Product>();
+		product.add(orders.getProduct());
+		billOrder.setProduct(product);
+
+		Collection<Additional> additional = new ArrayList<Additional>();
+		additional.addAll(orders.getAdditional());
+		billOrder.setAdditional(additional);
+
 		return billOrder;
 	}
 

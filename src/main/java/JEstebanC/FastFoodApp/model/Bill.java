@@ -41,6 +41,9 @@ public class Bill {
 	@NotNull(message = "idPayMode cannot be empty or null")
 	@JoinColumn(name = "idPayMode")
 	private PayMode PayMode;
-
+	@NotNull(message = "noTable cannot be empty or null")
+	private int noTable;
+	@NotNull(message = "total price cannot be empty or null")
+	private int totalPrice;
 	private StatusBill statusBill;
 }

@@ -49,7 +49,6 @@ public class Orders {
 
 	@NotNull(message = "amount cannot be empty or null")
 	private int amount;
-	private int noTable;
 	@NotNull(message = "total cannot be empty or null")
 	private int total;
 	private StatusOrder statusOrder;

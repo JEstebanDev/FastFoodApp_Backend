@@ -18,10 +18,12 @@ import lombok.Data;
 @Data
 public class BillUserDTO {
 	private Long idBill;
-	private UserForBillDTO userForBill;
-	private PayMode payMode;
-
 	@DateTimeFormat(iso = DateTimeFormat.ISO.DATE, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSX")
 	private Date date;
+	private int noTable;
+	private int totalPrice;
 	private StatusBill statusBill;
+	private PayMode payMode;
+	private UserForBillDTO userForBill;
+	
 }

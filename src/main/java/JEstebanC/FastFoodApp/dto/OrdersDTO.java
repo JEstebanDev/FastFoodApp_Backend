@@ -22,7 +22,6 @@ public class OrdersDTO {
 	private Long idOrder;
 	private StatusOrder statusOrder;
 	private int amount;
-	private int noTable;
 	private int total;
 
 //	Product
