@@ -87,8 +87,6 @@ public class OrdersServiceImp implements IOrdersService {
 					totalAdditional += additionalRequest.getPrice();
 				}
 			}
-
-			log.error("que pedo");
 			orders.setTotal((product.getPrice() * orders.getAmount()) + (totalAdditional * orders.getAmount()));
 		} else {
 			return null;

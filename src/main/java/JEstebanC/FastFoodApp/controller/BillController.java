@@ -27,6 +27,7 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 
+import JEstebanC.FastFoodApp.dto.BillUserDTO;
 import JEstebanC.FastFoodApp.dto.UserBillOrdersDTO;
 import JEstebanC.FastFoodApp.enumeration.StatusBill;
 import JEstebanC.FastFoodApp.enumeration.StatusOrder;
@@ -144,9 +145,24 @@ public class BillController {
 	@PutMapping(value = "/{id}")
 	public ResponseEntity<Response> updateBill(@PathVariable("id") Long id, @RequestBody @Valid Bill bill) {
 		if (serviceImp.exist(id)) {
-			return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
-					.data(Map.of("bill", serviceImp.update(id, bill))).message("Update bill with id:" + id)
-					.status(HttpStatus.OK).statusCode(HttpStatus.OK.value()).build());
+			if (bill.getUser() != null && bill.getStatusBill() != null) {
+				BillUserDTO billUserDTO=serviceImp.update(id, bill);
+				if (billUserDTO!=null) {
+					return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
+							.data(Map.of("bill", billUserDTO)).message("Update bill with id:" + id)
+							.status(HttpStatus.OK).statusCode(HttpStatus.OK.value()).build());
+				}else {
+					return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
+							.message("The user is not the same").status(HttpStatus.BAD_REQUEST)
+							.statusCode(HttpStatus.BAD_REQUEST.value()).build());
+				}
+			
+				
+			} else {
+				return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
+						.message("The bill does not have the mandatory information").status(HttpStatus.BAD_REQUEST)
+						.statusCode(HttpStatus.BAD_REQUEST.value()).build());
+			}
 		} else {
 			return ResponseEntity.ok(
 					Response.builder().timeStamp(Instant.now()).message("The bill with id:" + id + " does not exist")

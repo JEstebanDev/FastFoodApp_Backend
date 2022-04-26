@@ -45,5 +45,6 @@ public class Bill {
 	private int noTable;
 	@NotNull(message = "total price cannot be empty or null")
 	private int totalPrice;
+	@NotNull(message = "statusBill cannot be empty or null")
 	private StatusBill statusBill;
 }

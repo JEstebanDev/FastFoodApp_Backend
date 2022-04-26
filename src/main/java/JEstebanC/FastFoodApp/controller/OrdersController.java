@@ -56,7 +56,7 @@ public class OrdersController {
 					.statusCode(HttpStatus.BAD_REQUEST.value()).build());
 		}
 		return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
-				.message("The order with id:" + order.getIdOrder() + " does not created because the bill already paid")
+				.message("The order does not created because the bill already paid")
 				.status(HttpStatus.BAD_REQUEST).statusCode(HttpStatus.BAD_REQUEST.value()).build());
 	}
 
@@ -67,25 +67,34 @@ public class OrdersController {
 		UserBillOrdersDTO userBillOrdersDTO = serviceBillImp.findByIdBill(order.getBill().getIdBill());
 		if (userBillOrdersDTO != null) {
 			if (userBillOrdersDTO.getBillUserDTO().getStatusBill() != StatusBill.PAID) {
-				Orders orderRequest = serviceImp.findByIdOrder(id);
-				if (orderRequest != null) {
+				if (order.getIdOrder()!=null && order.getAmount()!=0 && order.getStatusOrder()!=null) {
+					Orders orderRequest = serviceImp.findByIdOrder(id);
+					if (orderRequest != null) {
+						return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
+								.data(Map.of("order", serviceImp.update(id, order))).message("Updating order with id: "+id)
+								.status(HttpStatus.OK).statusCode(HttpStatus.OK.value()).build());
+					} else {
+						return ResponseEntity.ok(
+								Response.builder().timeStamp(Instant.now()).message("The order " + id + " does not exist")
+										.status(HttpStatus.BAD_REQUEST).statusCode(HttpStatus.BAD_REQUEST.value()).build());
+					}
+				}else {
 					return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
-							.data(Map.of("order", serviceImp.update(id, order))).message("Updating order with id: "+id)
-							.status(HttpStatus.OK).statusCode(HttpStatus.OK.value()).build());
-				} else {
-					return ResponseEntity.ok(
-							Response.builder().timeStamp(Instant.now()).message("The order " + id + " does not exist")
-									.status(HttpStatus.BAD_REQUEST).statusCode(HttpStatus.BAD_REQUEST.value()).build());
+							.message("The order does not have the mandatory information")
+							.status(HttpStatus.BAD_REQUEST).statusCode(HttpStatus.BAD_REQUEST.value()).build());
 				}
+				
+			}else {
+				return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
+						.message("The order with id:" + order.getIdOrder() + " does not created because the bill already paid")
+						.status(HttpStatus.BAD_REQUEST).statusCode(HttpStatus.BAD_REQUEST.value()).build());
 			}
 		} else {
 			return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
 					.message("The bill " + order.getBill().getIdBill() + " does not exist")
 					.status(HttpStatus.BAD_REQUEST).statusCode(HttpStatus.BAD_REQUEST.value()).build());
 		}
-		return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
-				.message("The order with id:" + order.getIdOrder() + " does not created because the bill already paid")
-				.status(HttpStatus.BAD_REQUEST).statusCode(HttpStatus.BAD_REQUEST.value()).build());
+		
 	}
 
 	@PreAuthorize("hasRole('ROLE_ADMIN') OR hasRole('ROLE_EMPLOYEE')")

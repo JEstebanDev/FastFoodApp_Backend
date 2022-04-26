@@ -41,4 +41,9 @@ public interface IBillRepository extends JpaRepository<Bill, Long> {
 			@Param("idUser") Long idUser);
 
 	Collection<Bill> findByDateBetweenAndStatusBill(Date startDate, Date endDate, StatusBill statusBill);
+
+	@Query(value = "SELECT distinct(bi.*) FROM bill bi join orders ord on ord.id_bill=bi.id_bill where date BETWEEN :startDate AND :endDate and ord.status_order=:statusOrder", nativeQuery = true)
+	Collection<Bill> findByDateBetweenAndStatusOrder(@Param("startDate") Date startDate, @Param("endDate") Date endDate,
+			@Param("statusOrder") int statusOrder);
+
 }
