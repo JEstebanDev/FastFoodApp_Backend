@@ -25,7 +25,7 @@ public class OrdersDTO {
 	private int total;
 
 //	Product
-	private Collection<Product> product;
+	private Product product;
 	
 //	Additional
 	private Collection<Additional> Additional;

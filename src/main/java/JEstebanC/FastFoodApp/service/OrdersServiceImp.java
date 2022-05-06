@@ -97,10 +97,7 @@ public class OrdersServiceImp implements IOrdersService {
 		Order.setStatusOrder(orders.getStatusOrder());
 		Order.setAmount(orders.getAmount());
 		Order.setTotal(orders.getTotal());
-
-		Collection<Product> product = new ArrayList<Product>();
-		product.add(orders.getProduct());
-		Order.setProduct(product);
+		Order.setProduct(orders.getProduct());
 
 		Collection<Additional> additional = new ArrayList<Additional>();
 		additional.addAll(orders.getAdditional());

@@ -24,7 +24,6 @@ import JEstebanC.FastFoodApp.model.Additional;
 import JEstebanC.FastFoodApp.model.Bill;
 import JEstebanC.FastFoodApp.model.Orders;
 import JEstebanC.FastFoodApp.model.PayMode;
-import JEstebanC.FastFoodApp.model.Product;
 import JEstebanC.FastFoodApp.repository.IBillRepository;
 import JEstebanC.FastFoodApp.repository.IOrdersRepository;
 import JEstebanC.FastFoodApp.service.interfaces.IBillService;
@@ -130,7 +129,7 @@ public class BillServiceImp implements IBillService {
 			return billRepository.findAll().stream().map(this::convertirBillOrderToDTO).collect(Collectors.toList());
 		}
 		if (idUser != null && statusBill == null && startDate == null && endDate == null) {
-			log.info("Searching bills by Usern");
+			log.info("Searching bills by User");
 			return billRepository.findByIdUser(idUser).stream().map(this::convertirBillOrderToDTO)
 					.collect(Collectors.toList());
 		}
@@ -257,9 +256,7 @@ public class BillServiceImp implements IBillService {
 		billOrder.setAmount(orders.getAmount());
 		billOrder.setTotal(orders.getTotal());
 
-		Collection<Product> product = new ArrayList<Product>();
-		product.add(orders.getProduct());
-		billOrder.setProduct(product);
+		billOrder.setProduct(orders.getProduct());
 
 		Collection<Additional> additional = new ArrayList<Additional>();
 		additional.addAll(orders.getAdditional());

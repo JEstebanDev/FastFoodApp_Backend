@@ -1,4 +1,4 @@
-package JEstebanC.FastFoodApp.model;
+ package JEstebanC.FastFoodApp.model;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
