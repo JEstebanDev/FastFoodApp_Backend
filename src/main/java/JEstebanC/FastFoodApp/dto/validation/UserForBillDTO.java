@@ -1,7 +1,7 @@
 /**
  * 
  */
-package JEstebanC.FastFoodApp.dto;
+package JEstebanC.FastFoodApp.dto.validation;
 
 import lombok.Data;
 

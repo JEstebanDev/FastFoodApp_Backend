@@ -26,7 +26,7 @@ import lombok.NoArgsConstructor;
 public class User {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long idUser;
 	@NotNull(message = "name cannot be empty or null")
 	@Column(length = 50)

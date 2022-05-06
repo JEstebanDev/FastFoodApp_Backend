@@ -3,9 +3,8 @@
  */
 package JEstebanC.FastFoodApp.service.interfaces;
 
-import java.util.Collection;
 
-import JEstebanC.FastFoodApp.dto.BillOrdersDTO;
+import JEstebanC.FastFoodApp.dto.OrdersDTO;
 import JEstebanC.FastFoodApp.model.Orders;
 
 /**
@@ -13,13 +12,11 @@ import JEstebanC.FastFoodApp.model.Orders;
  */
 public interface IOrdersService {
 
-	BillOrdersDTO create(Orders orders);
+	OrdersDTO create(Orders orders);
 
-	BillOrdersDTO update(Long id, Orders orders);
+	OrdersDTO update(Long id, Orders orders);
 
 	Boolean delete(Long idOrders);
-
-	Collection<BillOrdersDTO> list();
 
 	Boolean exist(Long idOrders);
 

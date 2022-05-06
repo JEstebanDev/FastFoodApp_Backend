@@ -34,14 +34,14 @@ public class ProductServiceImp implements IProductService {
 	private final ICategoryRepository categoryRepository;
 	@Autowired
 	private final FileStorageService fileStorageService;
-	
+
 	@Override
 	public Product create(Product product, MultipartFile file) {
 
 		if (categoryRepository.existsById(product.getCategory().getIdCategory())) {
 			log.info("Saving new product: " + product.getName());
 			if (file != null) {
-			product.setImageUrl(fileStorageService.uploadAndDownloadFile(file, "productimage"));
+				product.setImageUrl(fileStorageService.uploadAndDownloadFile(file, "productimage"));
 			}
 			return productRepository.save(product);
 		} else {
@@ -78,10 +78,16 @@ public class ProductServiceImp implements IProductService {
 		return productRepository.list(page * 10);
 	}
 
+	public Product findById(Long id) {
+		log.info("Searching product by id: " + id);
+		Product products = productRepository.findById(id).get();
+		return products != null ? products : null;
+	}
+
 	public Collection<Product> findByName(String name) {
 		log.info("Searching product by name: " + name);
-		return productRepository.findByNameStartsWith(name) != null ? productRepository.findByNameStartsWith(name)
-				: null;
+		Collection<Product> listProducts = productRepository.findByNameStartsWith(name);
+		return listProducts != null ? listProducts : null;
 	}
 
 	public Collection<Product> findByNameCategory(String name) {

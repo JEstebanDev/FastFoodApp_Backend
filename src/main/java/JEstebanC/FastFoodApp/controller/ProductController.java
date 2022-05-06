@@ -48,10 +48,10 @@ public class ProductController {
 
 		try {
 			Product product = new ObjectMapper().readValue(strProduct, Product.class);
-			if (serviceImp.create(product, file) != null) {
-				return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
-						.data(Map.of("product", serviceImp.create(product, file))).message("Create product")
-						.status(HttpStatus.OK).statusCode(HttpStatus.OK.value()).build());
+			Product newProduct = serviceImp.create(product, file);
+			if (newProduct != null) {
+				return ResponseEntity.ok(Response.builder().timeStamp(Instant.now()).data(Map.of("product", newProduct))
+						.message("Create product").status(HttpStatus.OK).statusCode(HttpStatus.OK.value()).build());
 			} else {
 				return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
 						.developerMessage("Please check if exist any category").message("Cannot create the product")
@@ -115,6 +115,23 @@ public class ProductController {
 					.ok(Response.builder().timeStamp(Instant.now()).message("The product " + id + " does not exist")
 							.status(HttpStatus.BAD_REQUEST).statusCode(HttpStatus.BAD_REQUEST.value()).build());
 		}
+	}
+
+//	SEARCH BY ID
+	@GetMapping(value = "/id/{id}")
+	public ResponseEntity<Response> getProductById(@PathVariable("id") Long id) {
+		Product product = serviceImp.findById(id);
+		if (product != null) {
+			return ResponseEntity.ok(Response.builder().timeStamp(Instant.now()).data(Map.of("products", product))
+					.message("Get products by id: " + id).status(HttpStatus.OK).statusCode(HttpStatus.OK.value())
+					.build());
+
+		} else {
+			return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
+					.message("The product with id: " + id + " does not exist").status(HttpStatus.BAD_REQUEST)
+					.statusCode(HttpStatus.BAD_REQUEST.value()).build());
+		}
+
 	}
 
 //	SEARCH BY NAME

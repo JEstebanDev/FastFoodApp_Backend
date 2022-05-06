@@ -175,7 +175,7 @@ public class UserController {
 
 		} else {
 			return ResponseEntity.ok(
-					Response.builder().timeStamp(Instant.now()).message("The user called" + name + " does not exist")
+					Response.builder().timeStamp(Instant.now()).message("The user called " + name + " does not exist")
 							.status(HttpStatus.BAD_REQUEST).statusCode(HttpStatus.BAD_REQUEST.value()).build());
 		}
 	}
@@ -191,6 +191,37 @@ public class UserController {
 		} else {
 			return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
 					.message("The User with mail: " + email + " does not exist").status(HttpStatus.BAD_REQUEST)
+					.statusCode(HttpStatus.BAD_REQUEST.value()).build());
+		}
+	}
+
+//	SEARCH BY EMAIL VALIDATION
+	@GetMapping(value = "/is-valid-email/{email}")
+	public ResponseEntity<Response> getUserByEmailValidation(@PathVariable("email") String email) {
+		if (serviceImp.findByEmailValid(email) != null) {
+			return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
+					.data(Map.of("User", serviceImp.findByEmailValid(email))).message("Get user by email: " + email)
+					.status(HttpStatus.OK).statusCode(HttpStatus.OK.value()).build());
+		} else {
+			return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
+					.message("The User with mail: " + email + " does not exist").status(HttpStatus.BAD_REQUEST)
+					.statusCode(HttpStatus.BAD_REQUEST.value()).build());
+		}
+	}
+
+//	SEARCH BY USERNAME VALIDATION	
+	@GetMapping(value = "/is-valid-username/{username}")
+	public ResponseEntity<Response> getUserByNameValidation(@PathVariable("username") String username) {
+
+		if (serviceImp.findByUsernameValidation(username) != null) {
+			return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
+					.data(Map.of("User", serviceImp.findByUsernameValidation(username)))
+					.message("Get user by name: " + username).status(HttpStatus.OK).statusCode(HttpStatus.OK.value())
+					.build());
+
+		} else {
+			return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
+					.message("The user called " + username + " does not exist").status(HttpStatus.BAD_REQUEST)
 					.statusCode(HttpStatus.BAD_REQUEST.value()).build());
 		}
 	}

@@ -17,13 +17,13 @@ import org.springframework.stereotype.Service;
 import JEstebanC.FastFoodApp.dto.BillUserDTO;
 import JEstebanC.FastFoodApp.dto.OrdersDTO;
 import JEstebanC.FastFoodApp.dto.UserBillOrdersDTO;
-import JEstebanC.FastFoodApp.dto.UserForBillDTO;
+import JEstebanC.FastFoodApp.dto.validation.UserForBillDTO;
 import JEstebanC.FastFoodApp.enumeration.StatusBill;
+import JEstebanC.FastFoodApp.enumeration.StatusOrder;
 import JEstebanC.FastFoodApp.model.Additional;
 import JEstebanC.FastFoodApp.model.Bill;
 import JEstebanC.FastFoodApp.model.Orders;
 import JEstebanC.FastFoodApp.model.PayMode;
-import JEstebanC.FastFoodApp.model.Product;
 import JEstebanC.FastFoodApp.repository.IBillRepository;
 import JEstebanC.FastFoodApp.repository.IOrdersRepository;
 import JEstebanC.FastFoodApp.service.interfaces.IBillService;
@@ -53,9 +53,22 @@ public class BillServiceImp implements IBillService {
 	@Override
 	public BillUserDTO update(Long idBill, Bill bill) {
 		log.info("Updating bill with id: " + bill.getIdBill());
+		int totalOrder = 0;
 		Bill billOld = billRepository.findByIdBill(idBill);
-		billOld.setStatusBill(bill.getStatusBill());
-		return convertirBillToDTO(billRepository.save(billOld));
+		if (billOld.getUser().getIdUser().equals(bill.getUser().getIdUser())) {
+			if (bill.getStatusBill().equals(StatusBill.PAID)) {
+				Collection<Orders> orders = ordersRepository.findByIdBill(idBill);
+				for (Orders order : orders) {
+					totalOrder += order.getTotal();
+				}
+				billOld.setTotalPrice(totalOrder);
+			}
+
+			billOld.setStatusBill(bill.getStatusBill());
+			return convertirBillToDTO(billRepository.save(billOld));
+		} else {
+			return null;
+		}
 	}
 
 	@Override
@@ -81,6 +94,22 @@ public class BillServiceImp implements IBillService {
 	}
 
 	@Override
+	public Collection<UserBillOrdersDTO> findByOrder(StatusOrder statusOrder, String startDate, String endDate) {
+
+		try {
+			log.info("Searching bills by StatusOrder DateBetween");
+			return billRepository
+					.findByDateBetweenAndStatusOrder(new SimpleDateFormat("yyyy-MM-dd").parse(startDate),
+							new SimpleDateFormat("yyyy-MM-dd").parse(endDate), statusOrder.ordinal())
+					.stream().map(this::convertirBillOrderToDTO).collect(Collectors.toList());
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	@Override
 	public Collection<UserBillOrdersDTO> findByNewIdUser(Long idUser, StatusBill statusBill, String startDate,
 			String endDate) {
 		if (idUser != null && statusBill != null && startDate != null && endDate != null) {
@@ -100,7 +129,7 @@ public class BillServiceImp implements IBillService {
 			return billRepository.findAll().stream().map(this::convertirBillOrderToDTO).collect(Collectors.toList());
 		}
 		if (idUser != null && statusBill == null && startDate == null && endDate == null) {
-			log.info("Searching bills by Usern");
+			log.info("Searching bills by User");
 			return billRepository.findByIdUser(idUser).stream().map(this::convertirBillOrderToDTO)
 					.collect(Collectors.toList());
 		}
@@ -157,6 +186,8 @@ public class BillServiceImp implements IBillService {
 	private BillUserDTO convertirBillToDTO(Bill bill) {
 		BillUserDTO billUser = new BillUserDTO();
 		billUser.setIdBill(bill.getIdBill());
+		billUser.setNoTable(bill.getNoTable());
+		billUser.setTotalPrice(bill.getTotalPrice());
 
 		UserForBillDTO userForBill = new UserForBillDTO();
 		userForBill.setIdUser(bill.getUser().getIdUser());
@@ -184,6 +215,7 @@ public class BillServiceImp implements IBillService {
 
 		BillUserDTO billUser = new BillUserDTO();
 		billUser.setIdBill(bill.getIdBill());
+		billUser.setNoTable(bill.getNoTable());
 
 		UserForBillDTO userForBill = new UserForBillDTO();
 		userForBill.setIdUser(bill.getUser().getIdUser());
@@ -202,10 +234,15 @@ public class BillServiceImp implements IBillService {
 
 		billUser.setDate(bill.getDate());
 		billUser.setStatusBill(bill.getStatusBill());
-
 		Collection<OrdersDTO> orders = ordersRepository.findByIdBill(bill.getIdBill()).stream()
 				.map(this::convertirOrderToDTO).collect(Collectors.toList());
 
+		int totalPrice = 0;
+
+		for (OrdersDTO order : orders) {
+			totalPrice += order.getTotal();
+		}
+		billUser.setTotalPrice(totalPrice);
 		billOrder.setBillUserDTO(billUser);
 		billOrder.setOrdersDTO(orders);
 		return billOrder;
@@ -215,13 +252,11 @@ public class BillServiceImp implements IBillService {
 
 		OrdersDTO billOrder = new OrdersDTO();
 		billOrder.setIdOrder(orders.getIdOrder());
+		billOrder.setStatusOrder(orders.getStatusOrder());
 		billOrder.setAmount(orders.getAmount());
-		billOrder.setNoTable(orders.getNoTable());
 		billOrder.setTotal(orders.getTotal());
 
-		Collection<Product> product = new ArrayList<Product>();
-		product.add(orders.getProduct());
-		billOrder.setProduct(product);
+		billOrder.setProduct(orders.getProduct());
 
 		Collection<Additional> additional = new ArrayList<Additional>();
 		additional.addAll(orders.getAdditional());
