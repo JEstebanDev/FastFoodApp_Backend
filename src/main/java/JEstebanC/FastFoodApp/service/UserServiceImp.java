@@ -97,7 +97,9 @@ public class UserServiceImp implements IUserService, UserDetailsService {
 		userOld.setUsername(user.getUsername());
 		userOld.setPhone(user.getPhone());
 		userOld.setEmail(user.getEmail());
-		userOld.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
+		if(user.getPassword()!=null) {
+			userOld.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
+		}		
 		userOld.setDiscountPoint(user.getDiscountPoint());
 		userOld.setUrlImage(user.getUrlImage());
 		if (file != null) {

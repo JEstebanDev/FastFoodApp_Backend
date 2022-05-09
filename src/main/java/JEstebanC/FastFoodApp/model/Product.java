@@ -39,6 +39,7 @@ public class Product {
     private String ImageUrl;
     private String duration;
     private int discountPoint;
+    private int highlight;
     @ManyToOne
     @NotNull(message = "idCategory cannot be empty or null")
     @JoinColumn(name = "idCategory")

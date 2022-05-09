@@ -1,6 +1,7 @@
 package JEstebanC.FastFoodApp.controller;
 
 import java.time.Instant;
+import java.util.Collection;
 import java.util.Map;
 
 import javax.validation.Valid;
@@ -164,6 +165,24 @@ public class ProductController {
 		} else {
 			return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
 					.message("The product with category called " + name + " does not exist")
+					.status(HttpStatus.BAD_REQUEST).statusCode(HttpStatus.BAD_REQUEST.value()).build());
+		}
+
+	}
+	
+//	ORDER BY HIGHLIGHT
+	@GetMapping(value = "/highlight")
+	public ResponseEntity<Response> getProductOrderByHighlight() {
+		Collection<Product> listProducts= serviceImp.findAllOrderByHighlight();
+		if (listProducts != null) {
+			return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
+					.data(Map.of("products",listProducts))
+					.message("Products highlight: ").status(HttpStatus.OK)
+					.statusCode(HttpStatus.OK.value()).build());
+
+		} else {
+			return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
+					.message("There are not products with highlight ")
 					.status(HttpStatus.BAD_REQUEST).statusCode(HttpStatus.BAD_REQUEST.value()).build());
 		}
 

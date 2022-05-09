@@ -103,6 +103,12 @@ public class ProductServiceImp implements IProductService {
 		}
 
 	}
+	
+	public Collection<Product> findAllOrderByHighlight() {
+		log.info("Searching product order by highlight");
+		Collection<Product> listProducts = productRepository.findAllOrderByHighlight();
+		return listProducts != null ? listProducts : null;
+	}
 
 	@Override
 	public Boolean exist(Long idProduct) {
