@@ -89,5 +89,10 @@ public class AdditionalServiceImp implements IAdditionalService {
 		log.info("Searching additional by name: " + name);
 		return additionalRepository.findByNameStartsWith(name);
 	}
+	
+	public Collection<Additional> findByCategory(Long idCategory) {
+		log.info("Searching additional by idCategory: " + idCategory);
+		return additionalRepository.findByIdCategory(idCategory);
+	}
 
 }

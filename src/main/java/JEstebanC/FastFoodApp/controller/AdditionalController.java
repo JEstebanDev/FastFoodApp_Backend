@@ -4,6 +4,7 @@
 package JEstebanC.FastFoodApp.controller;
 
 import java.time.Instant;
+import java.util.Collection;
 import java.util.Map;
 
 import javax.validation.Valid;
@@ -122,6 +123,23 @@ public class AdditionalController {
 		} else {
 			return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
 					.message("The additional called" + name + " does not exist").status(HttpStatus.BAD_REQUEST)
+					.statusCode(HttpStatus.BAD_REQUEST.value()).build());
+		}
+
+	}
+	
+//	SEARCH BY IDCATEGORY
+	@GetMapping(value = "/category/{idCategory}")
+	public ResponseEntity<Response> getAdditionalByCategory(@PathVariable("idCategory") Long idCategory) {
+		Collection<Additional> additional=serviceImp.findByCategory(idCategory);
+		if (additional!= null) {
+			return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
+					.data(Map.of("additional",additional)).message("Get additional by category: " + idCategory)
+					.status(HttpStatus.OK).statusCode(HttpStatus.OK.value()).build());
+
+		} else {
+			return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
+					.message("The additional with id category: " + idCategory + " does not exist").status(HttpStatus.BAD_REQUEST)
 					.statusCode(HttpStatus.BAD_REQUEST.value()).build());
 		}
 
