@@ -4,6 +4,8 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+
+import JEstebanC.FastFoodApp.service.CloudinaryService;
 @SpringBootApplication
 public class FastFoodAppApplication {
 
@@ -15,5 +17,9 @@ public class FastFoodAppApplication {
 	@Bean
 	public BCryptPasswordEncoder bCryptPasswordEncoder() {
 		return new BCryptPasswordEncoder();
+	}
+	@Bean
+	public CloudinaryService cloudinaryService() {
+		return new CloudinaryService();
 	}
 }

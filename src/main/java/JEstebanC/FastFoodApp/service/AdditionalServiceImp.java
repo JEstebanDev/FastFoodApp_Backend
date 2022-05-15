@@ -3,6 +3,7 @@
  */
 package JEstebanC.FastFoodApp.service;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.Optional;
 
@@ -28,16 +29,20 @@ import lombok.extern.slf4j.Slf4j;
 public class AdditionalServiceImp implements IAdditionalService {
 
 	@Autowired
-	private IAdditionalRepository additionalRepository;
+	private final IAdditionalRepository additionalRepository;
 	@Autowired
-	private final FileStorageService fileStorageService;
+	private final CloudinaryService cloudinaryService;
 
 	@Override
 	public Additional create(Additional additional, MultipartFile file) {
 		log.info("Saving new additional: " + additional.getName());
-		if (additional.getCategory() != null) {
-			if (file!=null) {
-				additional.setImageUrl(fileStorageService.uploadAndDownloadFile(file, "additionalimage"));				
+		if (additional.getCategory().size()>0) {
+			if (file != null) {
+				try {
+					additional.setImageUrl(cloudinaryService.upload(file, "additional"));
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
 			}
 			return additionalRepository.save(additional);
 		} else {
@@ -50,9 +55,13 @@ public class AdditionalServiceImp implements IAdditionalService {
 		log.info("Updating additional: " + additional.getName());
 		Optional<Additional> oldAdditional = additionalRepository.findById(id);
 		additional.setIdAdditional(id);
-		if (additional.getCategory() != null) {
+		if (additional.getCategory().size()>0) {
 			if (file != null) {
-				additional.setImageUrl(fileStorageService.uploadAndDownloadFile(file, "additionalimage"));
+				try {
+					additional.setImageUrl(cloudinaryService.upload(file, "additional"));
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
 			} else {
 				additional.setImageUrl(oldAdditional.get().getImageUrl());
 			}
@@ -89,7 +98,7 @@ public class AdditionalServiceImp implements IAdditionalService {
 		log.info("Searching additional by name: " + name);
 		return additionalRepository.findByNameStartsWith(name);
 	}
-	
+
 	public Collection<Additional> findByCategory(Long idCategory) {
 		log.info("Searching additional by idCategory: " + idCategory);
 		return additionalRepository.findByIdCategory(idCategory);

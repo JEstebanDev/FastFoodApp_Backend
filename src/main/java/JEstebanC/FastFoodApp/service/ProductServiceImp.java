@@ -3,6 +3,7 @@
  */
 package JEstebanC.FastFoodApp.service;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.Optional;
 
@@ -33,37 +34,46 @@ public class ProductServiceImp implements IProductService {
 	@Autowired
 	private final ICategoryRepository categoryRepository;
 	@Autowired
-	private final FileStorageService fileStorageService;
+	private final CloudinaryService cloudinaryService;
 
 	@Override
 	public Product create(Product product, MultipartFile file) {
-
-		if (categoryRepository.existsById(product.getCategory().getIdCategory())) {
-			log.info("Saving new product: " + product.getName());
-			if (file != null) {
-				product.setImageUrl(fileStorageService.uploadAndDownloadFile(file, "productimage"));
+		if (product.getCategory()!= null) {
+			if (categoryRepository.existsById(product.getCategory().getIdCategory())) {
+				log.info("Saving new product: " + product.getName());
+				if (file != null) {
+					try {
+						product.setImageUrl(cloudinaryService.upload(file, "product"));
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+				return productRepository.save(product);
 			}
-			return productRepository.save(product);
-		} else {
-			return null;
 		}
+		return null;
 	}
 
 	@Override
 	public Product update(Long id, Product product, MultipartFile file) {
-		if (categoryRepository.existsById(product.getCategory().getIdCategory())) {
-			log.info("Updating product with id: " + id);
-			Optional<Product> oldProduct = productRepository.findById(id);
-			product.setIdProduct(id);
-			if (file != null) {
-				product.setImageUrl(fileStorageService.uploadAndDownloadFile(file, "productimage"));
-			} else {
-				product.setImageUrl(oldProduct.get().getImageUrl());
+		log.info("Updating product with id: " + id);
+		if (product.getCategory() != null) {
+			if (categoryRepository.existsById(product.getCategory().getIdCategory())) {
+				Optional<Product> oldProduct = productRepository.findById(id);
+				product.setIdProduct(id);
+				if (file != null) {
+					try {
+						product.setImageUrl(cloudinaryService.upload(file, "product"));
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				} else {
+					product.setImageUrl(oldProduct.get().getImageUrl());
+				}
+				return productRepository.save(product);
 			}
-			return productRepository.save(product);
-		} else {
-			return null;
 		}
+		return null;
 	}
 
 	@Override
@@ -101,9 +111,8 @@ public class ProductServiceImp implements IProductService {
 		} catch (NullPointerException e) {
 			return null;
 		}
-
 	}
-	
+
 	public Collection<Product> findAllOrderByHighlight() {
 		log.info("Searching product order by highlight");
 		Collection<Product> listProducts = productRepository.findAllOrderByHighlight();

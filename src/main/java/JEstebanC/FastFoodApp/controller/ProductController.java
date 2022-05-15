@@ -46,12 +46,10 @@ public class ProductController {
 	@PostMapping()
 	public ResponseEntity<Response> saveProduct(@RequestParam("request") @Valid String strProduct,
 			@RequestParam("productimage") @Nullable MultipartFile file) {
-
 		try {
-			Product product = new ObjectMapper().readValue(strProduct, Product.class);
-			Product newProduct = serviceImp.create(product, file);
-			if (newProduct != null) {
-				return ResponseEntity.ok(Response.builder().timeStamp(Instant.now()).data(Map.of("product", newProduct))
+			Product product = serviceImp.create(new ObjectMapper().readValue(strProduct, Product.class), file);
+			if (product != null) {
+				return ResponseEntity.ok(Response.builder().timeStamp(Instant.now()).data(Map.of("product", product))
 						.message("Create product").status(HttpStatus.OK).statusCode(HttpStatus.OK.value()).build());
 			} else {
 				return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
@@ -81,14 +79,19 @@ public class ProductController {
 	public ResponseEntity<Response> updateProduct(@PathVariable("id") Long id,
 			@RequestParam("request") @Valid String strProduct,
 			@RequestParam("productimage") @Nullable MultipartFile file) {
-
 		try {
-			Product product = new ObjectMapper().readValue(strProduct, Product.class);
 			if (serviceImp.exist(id)) {
-				return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
-						.data(Map.of("product", serviceImp.update(id, product, file)))
-						.message("Update product with id:" + id).status(HttpStatus.OK).statusCode(HttpStatus.OK.value())
-						.build());
+				Product product = serviceImp.update(id, new ObjectMapper().readValue(strProduct, Product.class), file);
+				if (product != null) {
+					return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
+							.data(Map.of("product", product)).message("Update product with id:" + id)
+							.status(HttpStatus.OK).statusCode(HttpStatus.OK.value()).build());
+				} else {
+					return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
+							.developerMessage("Please check if exist any category").message("Cannot create the product")
+							.status(HttpStatus.OK).statusCode(HttpStatus.OK.value()).build());
+				}
+
 			} else {
 				return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
 						.message("The product with id:" + id + " does not exist").status(HttpStatus.BAD_REQUEST)
@@ -100,7 +103,6 @@ public class ProductController {
 					Response.builder().timeStamp(Instant.now()).message("Error updating the product: " + e.getMessage())
 							.status(HttpStatus.BAD_REQUEST).statusCode(HttpStatus.BAD_REQUEST.value()).build());
 		}
-
 	}
 
 //	DELETE
@@ -132,33 +134,30 @@ public class ProductController {
 					.message("The product with id: " + id + " does not exist").status(HttpStatus.BAD_REQUEST)
 					.statusCode(HttpStatus.BAD_REQUEST.value()).build());
 		}
-
 	}
 
 //	SEARCH BY NAME
 	@GetMapping(value = "/{name}")
 	public ResponseEntity<Response> getProductByName(@PathVariable("name") String name) {
-
-		if (serviceImp.findByName(name) != null) {
-			return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
-					.data(Map.of("products", serviceImp.findByName(name))).message("Get products by name: " + name)
-					.status(HttpStatus.OK).statusCode(HttpStatus.OK.value()).build());
+		Collection<Product> listProduct = serviceImp.findByName(name);
+		if (listProduct != null) {
+			return ResponseEntity.ok(Response.builder().timeStamp(Instant.now()).data(Map.of("products", listProduct))
+					.message("Get products by name: " + name).status(HttpStatus.OK).statusCode(HttpStatus.OK.value())
+					.build());
 
 		} else {
 			return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
 					.message("The product called " + name + " does not exist").status(HttpStatus.BAD_REQUEST)
 					.statusCode(HttpStatus.BAD_REQUEST.value()).build());
 		}
-
 	}
 
 //	SEARCH BY CATEGORY
 	@GetMapping(value = "/category/{name}")
 	public ResponseEntity<Response> getProductByCategoryName(@PathVariable("name") String name) {
-
-		if (serviceImp.findByNameCategory(name) != null) {
-			return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
-					.data(Map.of("products", serviceImp.findByNameCategory(name)))
+		Collection<Product> listProduct = serviceImp.findByNameCategory(name);
+		if (listProduct != null) {
+			return ResponseEntity.ok(Response.builder().timeStamp(Instant.now()).data(Map.of("products", listProduct))
 					.message("Get product with category called: " + name).status(HttpStatus.OK)
 					.statusCode(HttpStatus.OK.value()).build());
 
@@ -169,21 +168,19 @@ public class ProductController {
 		}
 
 	}
-	
+
 //	ORDER BY HIGHLIGHT
 	@GetMapping(value = "/highlight")
 	public ResponseEntity<Response> getProductOrderByHighlight() {
-		Collection<Product> listProducts= serviceImp.findAllOrderByHighlight();
+		Collection<Product> listProducts = serviceImp.findAllOrderByHighlight();
 		if (listProducts != null) {
-			return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
-					.data(Map.of("products",listProducts))
-					.message("Products highlight: ").status(HttpStatus.OK)
-					.statusCode(HttpStatus.OK.value()).build());
+			return ResponseEntity.ok(Response.builder().timeStamp(Instant.now()).data(Map.of("products", listProducts))
+					.message("Products highlight: ").status(HttpStatus.OK).statusCode(HttpStatus.OK.value()).build());
 
 		} else {
-			return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
-					.message("There are not products with highlight ")
-					.status(HttpStatus.BAD_REQUEST).statusCode(HttpStatus.BAD_REQUEST.value()).build());
+			return ResponseEntity
+					.ok(Response.builder().timeStamp(Instant.now()).message("There are not products with highlight ")
+							.status(HttpStatus.BAD_REQUEST).statusCode(HttpStatus.BAD_REQUEST.value()).build());
 		}
 
 	}

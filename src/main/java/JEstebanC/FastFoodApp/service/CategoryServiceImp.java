@@ -1,5 +1,6 @@
 package JEstebanC.FastFoodApp.service;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.Optional;
 
@@ -26,17 +27,19 @@ public class CategoryServiceImp implements ICategoryService {
 
 	@Autowired
 	private final ICategoryRepository categoryRepository;
-
 	@Autowired
-	private final FileStorageService fileStorageService;
+	private final CloudinaryService cloudinaryService;
 
 	@Override
 	public Category create(Category category,MultipartFile file) {
 		log.info("Saving new category: " + category.getName());
 		if (file!=null) {
-			category.setImageUrl(fileStorageService.uploadAndDownloadFile(file, "categoryimage"));
+			try {
+				category.setImageUrl(cloudinaryService.upload(file, "category"));
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
-
 		return categoryRepository.save(category);
 	}
 
@@ -46,7 +49,11 @@ public class CategoryServiceImp implements ICategoryService {
 		Optional<Category> oldCategory = categoryRepository.findById(id);
 		category.setIdCategory(id);
 		if (file != null) {
-			category.setImageUrl(fileStorageService.uploadAndDownloadFile(file, "categoryimage"));
+			try {
+				category.setImageUrl(cloudinaryService.upload(file, "category"));
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		} else {
 			category.setImageUrl(oldCategory.get().getImageUrl());
 		}
