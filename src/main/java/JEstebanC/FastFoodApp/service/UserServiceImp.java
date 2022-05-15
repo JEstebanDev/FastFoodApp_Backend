@@ -3,6 +3,7 @@
  */
 package JEstebanC.FastFoodApp.service;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -56,7 +57,7 @@ public class UserServiceImp implements IUserService, UserDetailsService {
 	@Autowired
 	private JavaMailSender javaMailSender;
 	@Autowired
-	private final FileStorageService fileStorageService;
+	private final CloudinaryService cloudinaryService;
 
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -78,7 +79,11 @@ public class UserServiceImp implements IUserService, UserDetailsService {
 		log.info("Saving new user: " + user.getName());
 		user.setIdUser(user.getIdUser());
 		if (file != null) {
-			user.setUrlImage(fileStorageService.uploadAndDownloadFile(file, "userimage"));
+			try {
+				user.setUrlImage(cloudinaryService.upload(file, "user"));
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 		user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
 
@@ -103,7 +108,11 @@ public class UserServiceImp implements IUserService, UserDetailsService {
 		userOld.setDiscountPoint(user.getDiscountPoint());
 		userOld.setUrlImage(user.getUrlImage());
 		if (file != null) {
-			userOld.setUrlImage(fileStorageService.uploadAndDownloadFile(file, "profileimage"));
+			try {
+				userOld.setUrlImage(cloudinaryService.upload(file, "user"));
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 		userOld.setStatus(user.getStatus());
 		return convertirUserToDTO(userRepository.save(userOld));
@@ -128,7 +137,11 @@ public class UserServiceImp implements IUserService, UserDetailsService {
 		userOld.setStatus(userClientDTO.getStatus());
 		userOld.setUrlImage(userClientDTO.getUrlImage());
 		if (file != null) {
-			userOld.setUrlImage(fileStorageService.uploadAndDownloadFile(file, "profileimage"));
+			try {
+				userOld.setUrlImage(cloudinaryService.upload(file, "user"));
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 		return convertirUserToDTO(userRepository.save(userOld));
 	}

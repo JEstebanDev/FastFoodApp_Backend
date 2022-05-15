@@ -49,11 +49,16 @@ public class AdditionalController {
 	public ResponseEntity<Response> saveAdditional(@RequestParam("request") @Valid String strAddiotional,
 			@RequestParam("additionalImage")@Nullable MultipartFile file) {
 		try {
-			Additional addiotional = new ObjectMapper().readValue(strAddiotional, Additional.class);
-			return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
-					.data(Map.of("additional", serviceImp.create(addiotional, file))).message("Create additional")
-					.status(HttpStatus.OK).statusCode(HttpStatus.OK.value()).build());
-
+			Additional additional= serviceImp.create( new ObjectMapper().readValue(strAddiotional, Additional.class), file);
+			if (additional!=null) {
+				return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
+						.data(Map.of("additional", additional)).message("Create additional")
+						.status(HttpStatus.OK).statusCode(HttpStatus.OK.value()).build());
+			}else {
+				return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
+						.message("Error creating the additional verify if you added the category").status(HttpStatus.BAD_REQUEST)
+						.statusCode(HttpStatus.BAD_REQUEST.value()).build());
+			}
 		} catch (JsonProcessingException e) {
 			return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
 					.message("Error creating the additional: " + e.getMessage()).status(HttpStatus.BAD_REQUEST)
@@ -76,12 +81,19 @@ public class AdditionalController {
 			@RequestParam("request") @Valid String strAddiotional,
 			@RequestParam("additionalImage") @Nullable MultipartFile file) {
 		try {
-			Additional addiotional = new ObjectMapper().readValue(strAddiotional, Additional.class);
 			if (serviceImp.exist(id)) {
-				return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
-						.data(Map.of("additional", serviceImp.update(id, addiotional,file)))
-						.message("Update additional with id:" + id).status(HttpStatus.OK)
-						.statusCode(HttpStatus.OK.value()).build());
+				Additional additional= serviceImp.update(id,new ObjectMapper().readValue(strAddiotional, Additional.class), file);
+				if (additional!=null) {
+					return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
+							.data(Map.of("additional", additional))
+							.message("Update additional with id:" + id).status(HttpStatus.OK)
+							.statusCode(HttpStatus.OK.value()).build());
+				} else {
+					return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
+							.message("Error updating the additional verify if you added the category").status(HttpStatus.BAD_REQUEST)
+							.statusCode(HttpStatus.BAD_REQUEST.value()).build());
+				}
+				
 			} else {
 				return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
 						.message("The additional with id:" + id + " does not exist").status(HttpStatus.BAD_REQUEST)
