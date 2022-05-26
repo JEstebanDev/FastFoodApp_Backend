@@ -182,6 +182,10 @@ public class UserServiceImp implements IUserService, UserDetailsService {
 		return userRepository.list(page * 10).stream().map(this::convertirUserToDTO).collect(Collectors.toList());
 	}
 
+	public UserDTO getUser(String username){
+		return convertirUserToDTO(userRepository.findByUsername(username));
+	}
+
 	private UserDTO convertirUserToDTO(User user) {
 		UserDTO userDto = new UserDTO();
 		userDto.setIdUser(user.getIdUser());

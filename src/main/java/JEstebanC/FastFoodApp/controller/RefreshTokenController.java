@@ -12,6 +12,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import JEstebanC.FastFoodApp.dto.UserDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -73,6 +74,62 @@ public class RefreshTokenController {
 						tokens.put("access_token", access_token);
 						return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
 								.data(Map.of("tokens", tokens)).message("tokens").status(HttpStatus.OK)
+								.statusCode(HttpStatus.OK.value()).build());
+					} else {
+						log.error("Error username not found");
+						return ResponseEntity
+								.ok(Response.builder().timeStamp(Instant.now()).message("Error username not found")
+										.status(HttpStatus.OK).statusCode(HttpStatus.OK.value()).build());
+					}
+
+				} catch (Exception e) {
+					log.error("Error logging in AuthorizationFilter: " + e.getMessage());
+					return ResponseEntity.ok(Response.builder().timeStamp(Instant.now()).message(e.getMessage())
+							.status(HttpStatus.OK).statusCode(HttpStatus.OK.value()).build());
+				}
+
+			}
+		} catch (Exception e) {
+			return ResponseEntity.ok(Response.builder().timeStamp(Instant.now()).message("Refresh token is missing")
+					.status(HttpStatus.OK).statusCode(HttpStatus.OK.value()).build());
+		}
+		return ResponseEntity.ok(Response.builder().timeStamp(Instant.now()).message("Refresh token is missing")
+				.status(HttpStatus.OK).statusCode(HttpStatus.OK.value()).build());
+
+	}
+
+	@GetMapping(value="/user")
+	public ResponseEntity<Response> getUser(HttpServletRequest request, HttpServletResponse response)
+			throws StreamWriteException, DatabindException, IOException {
+		String authorizationHeader = request.getHeader(AUTHORIZATION);
+		try {
+			if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+				try {
+					// Remove the word Bearer, because we just want the token
+					String refresh_token = authorizationHeader.substring("Bearer ".length());
+					// Reference to the keyValue
+					Algorithm algorithm = Algorithm.HMAC256(OperationUtil.keyValue().getBytes());
+					JWTVerifier verifier = JWT.require(algorithm).build();
+					DecodedJWT decodeJWT = verifier.verify(refresh_token);
+					String username = decodeJWT.getSubject();
+					if (serviceImp.findByUsername(username) != null) {
+						User user = serviceImp.findByUsername(username);
+						UserDTO user1 = serviceImp.getUser(username);
+						String access_token = JWT.create().withSubject(user.getUsername())
+								//10 minutes before expire
+								.withExpiresAt(new Date(System.currentTimeMillis() + 10 * 60 * 1000))
+								.withIssuer(request.getRequestURL().toString())
+								.withClaim("roles", user.getUserRoles().getAuthority()).sign(algorithm);
+
+						Map<String, Object> tokens = new HashMap<>();
+						tokens.put("valid", true);
+						tokens.put("access_token", access_token);
+						Map<String, Object> objectMap = new HashMap<>();
+						objectMap.put("user", user1);
+						objectMap.put("tokens", tokens);
+
+						return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
+								.data(Map.of("user",objectMap)).message("user").status(HttpStatus.OK)
 								.statusCode(HttpStatus.OK.value()).build());
 					} else {
 						log.error("Error username not found");
