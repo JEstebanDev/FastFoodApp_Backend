@@ -75,7 +75,8 @@ public class BillServiceImp implements IBillService {
 	public Boolean delete(Long idBill) {
 		log.info("Deleting the bill id: " + idBill);
 		if (billRepository.existsById(idBill)) {
-			billRepository.deleteById(idBill);
+			Bill bill= billRepository.findById(idBill).get();
+			bill.setStatusBill(StatusBill.DELETED);
 			return true;
 		} else {
 			return false;

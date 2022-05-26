@@ -17,8 +17,9 @@ import JEstebanC.FastFoodApp.model.User;
 @Repository
 public interface IUserRepository extends JpaRepository<User, Long> {
 	Collection<User> findByNameStartsWith(String name);
-	
-	@Query(value = "select * from user_app order by name OFFSET ? ROWS FETCH NEXT 10 ROWS ONLY", nativeQuery = true)
+
+	//this query just search the clients
+	@Query(value = "select * from user_app where user_roles=2 order by name OFFSET ? ROWS FETCH NEXT 10 ROWS ONLY", nativeQuery = true)
 	Collection<User> list(Long page);
 	
 	User findByIdUser(Long idUser);
