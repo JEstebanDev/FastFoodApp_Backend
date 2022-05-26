@@ -187,6 +187,7 @@ public class BillServiceImp implements IBillService {
 	private BillUserDTO convertirBillToDTO(Bill bill) {
 		BillUserDTO billUser = new BillUserDTO();
 		billUser.setIdBill(bill.getIdBill());
+		billUser.setIdTransaction(bill.getIdTransaction());
 		billUser.setNoTable(bill.getNoTable());
 		billUser.setTotalPrice(bill.getTotalPrice());
 
