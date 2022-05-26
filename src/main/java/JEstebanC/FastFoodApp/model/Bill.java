@@ -30,6 +30,7 @@ public class Bill {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long idBill;
+	private String idTransaction;
 	@DateTimeFormat(iso = DateTimeFormat.ISO.DATE, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSX")
 	private Date date;
 	@ManyToOne
