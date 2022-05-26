@@ -98,7 +98,7 @@ public class RefreshTokenController {
 
 	}
 
-	@GetMapping("/user")
+	@GetMapping(value="/user")
 	public ResponseEntity<Response> getUser(HttpServletRequest request, HttpServletResponse response)
 			throws StreamWriteException, DatabindException, IOException {
 		String authorizationHeader = request.getHeader(AUTHORIZATION);
@@ -125,8 +125,9 @@ public class RefreshTokenController {
 						tokens.put("valid", true);
 						tokens.put("access_token", access_token);
 						Map<String, Object> objectMap = new HashMap<>();
-						tokens.put("tokens", tokens);
-						tokens.put("user", user1);
+						objectMap.put("user", user1);
+						objectMap.put("tokens", tokens);
+
 						return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
 								.data(Map.of("user",objectMap)).message("user").status(HttpStatus.OK)
 								.statusCode(HttpStatus.OK.value()).build());
