@@ -6,7 +6,7 @@ name: Build and deploy JAR app to Azure Web App - fastfoodapi
 on:
   push:
     branches:
-      - version6.2.1
+      - main
   workflow_dispatch:
 
 jobs:
@@ -49,5 +49,5 @@ jobs:
         with:
           app-name: 'fastfoodapi'
           slot-name: 'Production'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_4403E566600445E791503BE8A4B4AE5F }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_2896B985447E4F1D85D4FE3ECA3795AC }}
           package: '*.jar'
