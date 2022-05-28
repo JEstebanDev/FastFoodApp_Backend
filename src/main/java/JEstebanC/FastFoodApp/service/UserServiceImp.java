@@ -89,7 +89,7 @@ public class UserServiceImp implements IUserService, UserDetailsService {
 
 		// Seteo automatico de usuarios tipo cliente
 		user.setDiscountPoint(0);
-		user.setUserRoles(AppUserRole.ROLE_CLIENT);
+		//user.setUserRoles(AppUserRole.ROLE_CLIENT);
 		user.setStatus(Status.ACTIVE);
 		return userRepository.save(user);
 	}

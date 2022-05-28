@@ -34,7 +34,6 @@ public class Bill {
 	@DateTimeFormat(iso = DateTimeFormat.ISO.DATE, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSX")
 	private Date date;
 	@ManyToOne
-	@NotNull(message = "idUser cannot be empty or null")
 	@JoinColumn(name = "idUser")
 	private User User;
 
@@ -46,6 +45,5 @@ public class Bill {
 	private int noTable;
 	@NotNull(message = "total price cannot be empty or null")
 	private int totalPrice;
-	@NotNull(message = "statusBill cannot be empty or null")
 	private StatusBill statusBill;
 }

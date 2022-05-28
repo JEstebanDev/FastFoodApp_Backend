@@ -1,18 +1,5 @@
-/**
- * 
- */
+/** */
 package JEstebanC.FastFoodApp.service;
-
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.stream.Collectors;
-
-import javax.transaction.Transactional;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import JEstebanC.FastFoodApp.dto.BillUserDTO;
 import JEstebanC.FastFoodApp.dto.OrdersDTO;
@@ -29,6 +16,15 @@ import JEstebanC.FastFoodApp.repository.IOrdersRepository;
 import JEstebanC.FastFoodApp.service.interfaces.IBillService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import javax.transaction.Transactional;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.stream.Collectors;
 
 /**
  * @author Juan Esteban Castaño Holguin castanoesteban9@gmail.com 2022-01-26
@@ -39,232 +35,258 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class BillServiceImp implements IBillService {
 
-	@Autowired
-	private IBillRepository billRepository;
-	@Autowired
-	private final IOrdersRepository ordersRepository;
+  @Autowired private final IOrdersRepository ordersRepository;
+  @Autowired private IBillRepository billRepository;
 
-	@Override
-	public BillUserDTO create(Bill bill) {
-		log.info("Saving new bill with id: " + bill.getIdBill());
-		return convertirBillToDTO(billRepository.save(bill));
-	}
+  @Override
+  public BillUserDTO create(Bill bill) {
+    log.info("Saving new bill");
+    bill.setStatusBill(StatusBill.PENDING);
+    return convertirBillToDTO(billRepository.save(bill));
+  }
 
-	@Override
-	public BillUserDTO update(Long idBill, Bill bill) {
-		log.info("Updating bill with id: " + bill.getIdBill());
-		int totalOrder = 0;
-		Bill billOld = billRepository.findByIdBill(idBill);
-		if (billOld.getUser().getIdUser().equals(bill.getUser().getIdUser())) {
-			if (bill.getStatusBill().equals(StatusBill.PAID)) {
-				Collection<Orders> orders = ordersRepository.findByIdBill(idBill);
-				for (Orders order : orders) {
-					totalOrder += order.getTotal();
-				}
-				billOld.setTotalPrice(totalOrder);
-			}
+  @Override
+  public BillUserDTO update(Long idBill, Bill bill) {
+    log.info("Updating bill with id: " + bill.getIdBill());
+    int totalOrder = 0;
+    Bill billOld = billRepository.findByIdBill(idBill);
+    if (billOld.getUser().getIdUser().equals(bill.getUser().getIdUser())) {
+      if (bill.getStatusBill().equals(StatusBill.PAID)) {
+        Collection<Orders> orders = ordersRepository.findByIdBill(idBill);
+        for (Orders order : orders) {
+          totalOrder += order.getTotal();
+        }
+        billOld.setTotalPrice(totalOrder);
+      }
 
-			billOld.setStatusBill(bill.getStatusBill());
-			return convertirBillToDTO(billRepository.save(billOld));
-		} else {
-			return null;
-		}
-	}
+      billOld.setStatusBill(bill.getStatusBill());
+      return convertirBillToDTO(billRepository.save(billOld));
+    } else {
+      return null;
+    }
+  }
 
-	@Override
-	public Boolean delete(Long idBill) {
-		log.info("Deleting the bill id: " + idBill);
-		if (billRepository.existsById(idBill)) {
-			Bill bill= billRepository.findById(idBill).get();
-			bill.setStatusBill(StatusBill.DELETED);
-			return true;
-		} else {
-			return false;
-		}
-	}
+  @Override
+  public Boolean delete(Long idBill) {
+    log.info("Deleting the bill id: " + idBill);
+    if (billRepository.existsById(idBill)) {
+      Bill bill = billRepository.findById(idBill).get();
+      bill.setStatusBill(StatusBill.DELETED);
+      return true;
+    } else {
+      return false;
+    }
+  }
 
-	@Override
-	public Boolean exist(Long idBill) {
-		log.info("Searching bills by id: " + idBill);
-		return billRepository.existsById(idBill);
-	}
+  @Override
+  public Boolean exist(Long idBill) {
+    log.info("Searching bills by id: " + idBill);
+    return billRepository.existsById(idBill);
+  }
 
-	@Override
-	public UserBillOrdersDTO findByIdBill(Long idBill) {
-		return convertirBillOrderToDTO(billRepository.findByIdBill(idBill));
-	}
+  @Override
+  public UserBillOrdersDTO findByIdBill(Long idBill) {
+    return convertBillOrderToDTO(billRepository.findByIdBill(idBill));
+  }
 
-	@Override
-	public Collection<UserBillOrdersDTO> findByOrder(StatusOrder statusOrder, String startDate, String endDate) {
+  @Override
+  public Collection<UserBillOrdersDTO> findByOrder(
+      StatusOrder statusOrder, String startDate, String endDate) {
+    try {
+      log.info("Searching bills by StatusOrder DateBetween");
+      return billRepository
+          .findByDateBetweenAndStatusOrder(
+              new SimpleDateFormat("yyyy-MM-dd").parse(startDate),
+              new SimpleDateFormat("yyyy-MM-dd").parse(endDate),
+              statusOrder.ordinal())
+          .stream()
+          .map(this::convertBillOrderToDTO)
+          .collect(Collectors.toList());
+    } catch (ParseException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+    return null;
+  }
 
-		try {
-			log.info("Searching bills by StatusOrder DateBetween");
-			return billRepository
-					.findByDateBetweenAndStatusOrder(new SimpleDateFormat("yyyy-MM-dd").parse(startDate),
-							new SimpleDateFormat("yyyy-MM-dd").parse(endDate), statusOrder.ordinal())
-					.stream().map(this::convertirBillOrderToDTO).collect(Collectors.toList());
-		} catch (ParseException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return null;
-	}
+  @Override
+  public Collection<UserBillOrdersDTO> findByNewIdUser(
+      Long idUser, StatusBill statusBill, String startDate, String endDate) {
+    if (idUser != null && statusBill != null && startDate != null && endDate != null) {
+      try {
+        log.info("Searching bills by User StatusBill DateBetween");
+        return billRepository
+            .findByIdUserAndStatusBillAndDateBetween(
+                idUser,
+                statusBill.ordinal(),
+                new SimpleDateFormat("yyyy-MM-dd").parse(startDate),
+                new SimpleDateFormat("yyyy-MM-dd").parse(endDate))
+            .stream()
+            .map(this::convertBillOrderToDTO)
+            .collect(Collectors.toList());
+      } catch (ParseException e) {
+        e.printStackTrace();
+      }
+    }
+    if (idUser == null && statusBill == null && startDate == null && endDate == null) {
+      log.info("Searching bills");
+      return billRepository.findAll().stream()
+          .map(this::convertBillOrderToDTO)
+          .collect(Collectors.toList());
+    }
+    if (idUser != null && statusBill == null && startDate == null && endDate == null) {
+      log.info("Searching bills by User");
+      return billRepository.findByIdUser(idUser).stream()
+          .map(this::convertBillOrderToDTO)
+          .collect(Collectors.toList());
+    }
+    if (idUser == null && statusBill != null && startDate == null && endDate == null) {
+      log.info("Searching bills by StatusBill");
+      return billRepository.findByStatusBill(statusBill).stream()
+          .map(this::convertBillOrderToDTO)
+          .collect(Collectors.toList());
+    }
+    if (idUser != null && statusBill != null && startDate == null && endDate == null) {
+      log.info("Searching bills by User StatusBill");
+      return billRepository.findByIdUserAndStatusBill(idUser, statusBill.ordinal()).stream()
+          .map(this::convertBillOrderToDTO)
+          .collect(Collectors.toList());
+    }
+    if (idUser == null && statusBill == null && startDate != null && endDate != null) {
+      try {
+        log.info("Searching bills by DateBetween");
+        return billRepository
+            .findByDateBetween(
+                new SimpleDateFormat("yyyy-MM-dd").parse(startDate),
+                new SimpleDateFormat("yyyy-MM-dd").parse(endDate))
+            .stream()
+            .map(this::convertBillOrderToDTO)
+            .collect(Collectors.toList());
+      } catch (ParseException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      }
+    }
+    if (idUser != null && statusBill == null && startDate != null && endDate != null) {
+      try {
+        log.info("Searching bills by User DateBetween");
+        return billRepository
+            .findByDateBetweenAndIdUser(
+                new SimpleDateFormat("yyyy-MM-dd").parse(startDate),
+                new SimpleDateFormat("yyyy-MM-dd").parse(endDate),
+                idUser)
+            .stream()
+            .map(this::convertBillOrderToDTO)
+            .collect(Collectors.toList());
+      } catch (ParseException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      }
+    }
+    if (idUser == null && statusBill != null && startDate != null && endDate != null) {
+      try {
+        log.info("Searching bills by StatusBill DateBetween");
+        return billRepository
+            .findByDateBetweenAndStatusBill(
+                new SimpleDateFormat("yyyy-MM-dd").parse(startDate),
+                new SimpleDateFormat("yyyy-MM-dd").parse(endDate),
+                statusBill)
+            .stream()
+            .map(this::convertBillOrderToDTO)
+            .collect(Collectors.toList());
+      } catch (ParseException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      }
+    }
+    return null;
+  }
 
-	@Override
-	public Collection<UserBillOrdersDTO> findByNewIdUser(Long idUser, StatusBill statusBill, String startDate,
-			String endDate) {
-		if (idUser != null && statusBill != null && startDate != null && endDate != null) {
-			try {
-				log.info("Searching bills by User StatusBill DateBetween");
-				return billRepository
-						.findByIdUserAndStatusBillAndDateBetween(idUser, statusBill.ordinal(),
-								new SimpleDateFormat("yyyy-MM-dd").parse(startDate),
-								new SimpleDateFormat("yyyy-MM-dd").parse(endDate))
-						.stream().map(this::convertirBillOrderToDTO).collect(Collectors.toList());
-			} catch (ParseException e) {
-				e.printStackTrace();
-			}
-		}
-		if (idUser == null && statusBill == null && startDate == null && endDate == null) {
-			log.info("Searching bills");
-			return billRepository.findAll().stream().map(this::convertirBillOrderToDTO).collect(Collectors.toList());
-		}
-		if (idUser != null && statusBill == null && startDate == null && endDate == null) {
-			log.info("Searching bills by User");
-			return billRepository.findByIdUser(idUser).stream().map(this::convertirBillOrderToDTO)
-					.collect(Collectors.toList());
-		}
-		if (idUser == null && statusBill != null && startDate == null && endDate == null) {
-			log.info("Searching bills by StatusBill");
-			return billRepository.findByStatusBill(statusBill).stream().map(this::convertirBillOrderToDTO)
-					.collect(Collectors.toList());
-		}
-		if (idUser != null && statusBill != null && startDate == null && endDate == null) {
-			log.info("Searching bills by User StatusBill");
-			return billRepository.findByIdUserAndStatusBill(idUser, statusBill.ordinal()).stream()
-					.map(this::convertirBillOrderToDTO).collect(Collectors.toList());
-		}
-		if (idUser == null && statusBill == null && startDate != null && endDate != null) {
-			try {
-				log.info("Searching bills by DateBetween");
-				return billRepository
+  private BillUserDTO convertirBillToDTO(Bill bill) {
 
-						.findByDateBetween(new SimpleDateFormat("yyyy-MM-dd").parse(startDate),
-								new SimpleDateFormat("yyyy-MM-dd").parse(endDate))
-						.stream().map(this::convertirBillOrderToDTO).collect(Collectors.toList());
-			} catch (ParseException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-		if (idUser != null && statusBill == null && startDate != null && endDate != null) {
-			try {
-				log.info("Searching bills by User DateBetween");
-				return billRepository
-						.findByDateBetweenAndIdUser(new SimpleDateFormat("yyyy-MM-dd").parse(startDate),
-								new SimpleDateFormat("yyyy-MM-dd").parse(endDate), idUser)
-						.stream().map(this::convertirBillOrderToDTO).collect(Collectors.toList());
-			} catch (ParseException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-		if (idUser == null && statusBill != null && startDate != null && endDate != null) {
-			try {
-				log.info("Searching bills by StatusBill DateBetween");
-				return billRepository
-						.findByDateBetweenAndStatusBill(new SimpleDateFormat("yyyy-MM-dd").parse(startDate),
-								new SimpleDateFormat("yyyy-MM-dd").parse(endDate), statusBill)
-						.stream().map(this::convertirBillOrderToDTO).collect(Collectors.toList());
-			} catch (ParseException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-		return null;
-	}
+    BillUserDTO billUser = new BillUserDTO();
+    billUser.setIdBill(bill.getIdBill());
+    billUser.setIdTransaction(bill.getIdTransaction());
+    billUser.setNoTable(bill.getNoTable());
+    billUser.setTotalPrice(bill.getTotalPrice());
 
-	private BillUserDTO convertirBillToDTO(Bill bill) {
-		BillUserDTO billUser = new BillUserDTO();
-		billUser.setIdBill(bill.getIdBill());
-		billUser.setIdTransaction(bill.getIdTransaction());
-		billUser.setNoTable(bill.getNoTable());
-		billUser.setTotalPrice(bill.getTotalPrice());
+    if (bill.getUser() != null) {
+      UserForBillDTO userForBill = new UserForBillDTO();
+      userForBill.setIdUser(bill.getUser().getIdUser());
+      userForBill.setUrlImage(bill.getUser().getUrlImage());
+      userForBill.setUsername(bill.getUser().getUsername());
+      userForBill.setName(bill.getUser().getName());
+      billUser.setUserForBill(userForBill);
+    }
 
-		UserForBillDTO userForBill = new UserForBillDTO();
-		userForBill.setIdUser(bill.getUser().getIdUser());
-		userForBill.setUrlImage(bill.getUser().getUrlImage());
-		userForBill.setUsername(bill.getUser().getUsername());
-		userForBill.setName(bill.getUser().getName());
+    PayMode payMode = new PayMode();
+    payMode.setIdPayMode(bill.getPayMode().getIdPayMode());
+    payMode.setName(bill.getPayMode().getName());
+    payMode.setStatus(bill.getPayMode().getStatus());
 
-		billUser.setUserForBill(userForBill);
+    billUser.setPayMode(payMode);
 
-		PayMode payMode = new PayMode();
-		payMode.setIdPayMode(bill.getPayMode().getIdPayMode());
-		payMode.setName(bill.getPayMode().getName());
-		payMode.setStatus(bill.getPayMode().getStatus());
+    billUser.setDate(bill.getDate());
+    billUser.setStatusBill(bill.getStatusBill());
 
-		billUser.setPayMode(payMode);
+    return billUser;
+  }
 
-		billUser.setDate(bill.getDate());
-		billUser.setStatusBill(bill.getStatusBill());
+  private UserBillOrdersDTO convertBillOrderToDTO(Bill bill) {
+    UserBillOrdersDTO billOrder = new UserBillOrdersDTO();
 
-		return billUser;
-	}
+    BillUserDTO billUser = new BillUserDTO();
+    billUser.setIdBill(bill.getIdBill());
+    billUser.setNoTable(bill.getNoTable());
 
-	private UserBillOrdersDTO convertirBillOrderToDTO(Bill bill) {
-		UserBillOrdersDTO billOrder = new UserBillOrdersDTO();
+    if (bill.getUser() != null) {
+      UserForBillDTO userForBill = new UserForBillDTO();
+      userForBill.setIdUser(bill.getUser().getIdUser());
+      userForBill.setUrlImage(bill.getUser().getUrlImage());
+      userForBill.setUsername(bill.getUser().getUsername());
+      userForBill.setName(bill.getUser().getName());
+      billUser.setUserForBill(userForBill);
+    }
 
-		BillUserDTO billUser = new BillUserDTO();
-		billUser.setIdBill(bill.getIdBill());
-		billUser.setNoTable(bill.getNoTable());
+    PayMode payMode = new PayMode();
+    payMode.setIdPayMode(bill.getPayMode().getIdPayMode());
+    payMode.setName(bill.getPayMode().getName());
+    payMode.setStatus(bill.getPayMode().getStatus());
 
-		UserForBillDTO userForBill = new UserForBillDTO();
-		userForBill.setIdUser(bill.getUser().getIdUser());
-		userForBill.setUrlImage(bill.getUser().getUrlImage());
-		userForBill.setUsername(bill.getUser().getUsername());
-		userForBill.setName(bill.getUser().getName());
+    billUser.setPayMode(payMode);
 
-		billUser.setUserForBill(userForBill);
+    billUser.setDate(bill.getDate());
+    billUser.setStatusBill(bill.getStatusBill());
+    Collection<OrdersDTO> orders =
+        ordersRepository.findByIdBill(bill.getIdBill()).stream()
+            .map(this::convertOrderToDTO)
+            .collect(Collectors.toList());
 
-		PayMode payMode = new PayMode();
-		payMode.setIdPayMode(bill.getPayMode().getIdPayMode());
-		payMode.setName(bill.getPayMode().getName());
-		payMode.setStatus(bill.getPayMode().getStatus());
+    int totalPrice = 0;
 
-		billUser.setPayMode(payMode);
+    for (OrdersDTO order : orders) {
+      totalPrice += order.getTotal();
+    }
+    billUser.setTotalPrice(totalPrice);
+    billOrder.setBillUserDTO(billUser);
+    billOrder.setOrdersDTO(orders);
+    return billOrder;
+  }
 
-		billUser.setDate(bill.getDate());
-		billUser.setStatusBill(bill.getStatusBill());
-		Collection<OrdersDTO> orders = ordersRepository.findByIdBill(bill.getIdBill()).stream()
-				.map(this::convertirOrderToDTO).collect(Collectors.toList());
+  private OrdersDTO convertOrderToDTO(Orders orders) {
 
-		int totalPrice = 0;
+    OrdersDTO billOrder = new OrdersDTO();
+    billOrder.setIdOrder(orders.getIdOrder());
+    billOrder.setStatusOrder(orders.getStatusOrder());
+    billOrder.setAmount(orders.getAmount());
+    billOrder.setTotal(orders.getTotal());
 
-		for (OrdersDTO order : orders) {
-			totalPrice += order.getTotal();
-		}
-		billUser.setTotalPrice(totalPrice);
-		billOrder.setBillUserDTO(billUser);
-		billOrder.setOrdersDTO(orders);
-		return billOrder;
-	}
+    billOrder.setProduct(orders.getProduct());
 
-	private OrdersDTO convertirOrderToDTO(Orders orders) {
+    Collection<Additional> additional = new ArrayList<Additional>();
+    additional.addAll(orders.getAdditional());
+    billOrder.setAdditional(additional);
 
-		OrdersDTO billOrder = new OrdersDTO();
-		billOrder.setIdOrder(orders.getIdOrder());
-		billOrder.setStatusOrder(orders.getStatusOrder());
-		billOrder.setAmount(orders.getAmount());
-		billOrder.setTotal(orders.getTotal());
-
-		billOrder.setProduct(orders.getProduct());
-
-		Collection<Additional> additional = new ArrayList<Additional>();
-		additional.addAll(orders.getAdditional());
-		billOrder.setAdditional(additional);
-
-		return billOrder;
-	}
-
+    return billOrder;
+  }
 }

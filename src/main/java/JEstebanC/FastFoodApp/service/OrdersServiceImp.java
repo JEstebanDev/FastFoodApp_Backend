@@ -41,7 +41,7 @@ public class OrdersServiceImp implements IOrdersService {
 
 	@Override
 	public OrdersDTO create(Orders orders) {
-		log.info("Saving new order: " + orders.getIdOrder());
+		log.info("Saving new order");
 		orders.setStatusOrder(StatusOrder.NEW);
 		return convertirOrderToDTO(ordersRepository.save(orders));
 	}
@@ -49,6 +49,8 @@ public class OrdersServiceImp implements IOrdersService {
 	@Override
 	public OrdersDTO update(Long id, Orders orders) {
 		log.info("Updating orders with id: " + id);
+		Orders ordersOld=ordersRepository.findById(id).get();
+		orders.setIdOrder(ordersOld.getIdOrder());
 		return convertirOrderToDTO(ordersRepository.save(orders));
 	}
 
