@@ -22,7 +22,6 @@ import java.util.Map;
  */
 @RestController
 @RequiredArgsConstructor
-@PreAuthorize("authenticated")
 @RequestMapping("/orders")
 public class OrdersController {
 
