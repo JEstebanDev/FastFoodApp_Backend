@@ -8,6 +8,8 @@ import java.util.Collection;
 
 import javax.transaction.Transactional;
 
+import JEstebanC.FastFoodApp.model.Bill;
+import JEstebanC.FastFoodApp.repository.IBillRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -43,7 +45,7 @@ public class OrdersServiceImp implements IOrdersService {
 	public OrdersDTO create(Orders orders) {
 		log.info("Saving new order");
 		orders.setStatusOrder(StatusOrder.NEW);
-		return convertirOrderToDTO(ordersRepository.save(orders));
+		return convertOrderToDTO(ordersRepository.save(orders));
 	}
 
 	@Override
@@ -51,7 +53,7 @@ public class OrdersServiceImp implements IOrdersService {
 		log.info("Updating orders with id: " + id);
 		Orders ordersOld=ordersRepository.findById(id).get();
 		orders.setIdOrder(ordersOld.getIdOrder());
-		return convertirOrderToDTO(ordersRepository.save(orders));
+		return convertOrderToDTO(ordersRepository.save(orders));
 	}
 
 	@Override
@@ -76,7 +78,7 @@ public class OrdersServiceImp implements IOrdersService {
 		return ordersRepository.findById(idOrders).get();
 	}
 
-	private OrdersDTO convertirOrderToDTO(Orders orders) {
+	private OrdersDTO convertOrderToDTO(Orders orders) {
 		int totalAdditional = 0;
 		if (orders.getProduct().getIdProduct() != null) {
 			Product product = productRepository.findByIdProduct(orders.getProduct().getIdProduct());

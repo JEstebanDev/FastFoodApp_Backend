@@ -15,6 +15,7 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
@@ -35,6 +36,7 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/bill")
+@Slf4j
 public class BillController {
     @Autowired
     private final BillServiceImp serviceImp;
@@ -272,5 +274,54 @@ public class BillController {
                             .statusCode(HttpStatus.BAD_REQUEST.value())
                             .build());
         }
+    }
+
+    @PreAuthorize("hasRole('ROLE_UNATTRIBUTED')")
+    @GetMapping(value = "/unattributed")
+    public ResponseEntity<Response> seeBillUnattributed(HttpServletRequest request) {
+        String authorizationHeader = request.getHeader(AUTHORIZATION);
+        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+            try {
+                String token = authorizationHeader.substring("Bearer ".length());
+                Algorithm algorithm = Algorithm.HMAC256(OperationUtil.keyValue().getBytes());
+                JWTVerifier verifier = JWT.require(algorithm).build();
+                DecodedJWT decodeJWT = verifier.verify(token);
+                Long idBill = Long.valueOf(decodeJWT.getKeyId());
+                if (serviceImp.exist(idBill)) {
+                    return ResponseEntity.ok(
+                            Response.builder()
+                                    .timeStamp(Instant.now())
+                                    .data(Map.of("bill", serviceImp.findByIdBill(idBill)))
+                                    .message("Searching bill with id: " + idBill)
+                                    .status(HttpStatus.OK)
+                                    .statusCode(HttpStatus.OK.value())
+                                    .build());
+                } else {
+                    return ResponseEntity.ok(
+                            Response.builder()
+                                    .timeStamp(Instant.now())
+                                    .message("The bill " + idBill + " does not exist")
+                                    .status(HttpStatus.BAD_REQUEST)
+                                    .statusCode(HttpStatus.BAD_REQUEST.value())
+                                    .build());
+                }
+            } catch (Exception e) {
+                return ResponseEntity.ok(
+                        Response.builder()
+                                .timeStamp(Instant.now())
+                                .message(("Error validating token " + e.getMessage()))
+                                .status(HttpStatus.BAD_REQUEST)
+                                .statusCode(HttpStatus.BAD_REQUEST.value())
+                                .build());
+            }
+        }
+        return ResponseEntity.ok(
+                Response.builder()
+                        .timeStamp(Instant.now())
+                        .message("The user does not have permissions")
+                        .status(HttpStatus.BAD_REQUEST)
+                        .statusCode(HttpStatus.BAD_REQUEST.value())
+                        .build());
+
     }
 }
