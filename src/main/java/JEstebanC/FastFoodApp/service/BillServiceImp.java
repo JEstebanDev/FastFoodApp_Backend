@@ -41,6 +41,9 @@ public class BillServiceImp implements IBillService {
   @Override
   public BillUserDTO create(Bill bill) {
     log.info("Saving new bill");
+    if (bill.getUser().getIdUser()==null){
+      bill.setUser(null);
+    }
     bill.setStatusBill(StatusBill.PENDING);
     return convertirBillToDTO(billRepository.save(bill));
   }
@@ -50,7 +53,6 @@ public class BillServiceImp implements IBillService {
     log.info("Updating bill with id: " + bill.getIdBill());
     int totalOrder = 0;
     Bill billOld = billRepository.findByIdBill(idBill);
-    if (billOld.getUser().getIdUser().equals(bill.getUser().getIdUser())) {
       if (bill.getStatusBill().equals(StatusBill.PAID)) {
         Collection<Orders> orders = ordersRepository.findByIdBill(idBill);
         for (Orders order : orders) {
@@ -58,12 +60,9 @@ public class BillServiceImp implements IBillService {
         }
         billOld.setTotalPrice(totalOrder);
       }
-
       billOld.setStatusBill(bill.getStatusBill());
       return convertirBillToDTO(billRepository.save(billOld));
-    } else {
-      return null;
-    }
+
   }
 
   @Override
