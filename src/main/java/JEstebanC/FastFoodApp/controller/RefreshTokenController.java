@@ -8,15 +8,17 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 import java.io.IOException;
 import java.time.Instant;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import JEstebanC.FastFoodApp.dto.UserDTO;
+import JEstebanC.FastFoodApp.enumeration.AppUserRole;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -46,6 +48,22 @@ public class RefreshTokenController {
 	@Autowired
 	private final UserServiceImp serviceImp;
 
+
+	@GetMapping(value = "/unattributed/{idBill}")
+	public ResponseEntity<Response> refreshToken2(@PathVariable("idBill") Long idBill, HttpServletRequest request)
+	{
+		Algorithm algorithm = Algorithm.HMAC256(OperationUtil.keyValue().getBytes());
+		String access_token = JWT.create().withKeyId(idBill.toString())
+				// give 30 minutes for the token to expire
+				.withExpiresAt(new Date(System.currentTimeMillis() + 30 * 60 * 1000))
+				.withIssuer(request.getRequestURL().toString())
+				.withClaim("roles", List.of(AppUserRole.ROLE_UNATTRIBUTED.getAuthority()))
+				.sign(algorithm);
+		return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
+				.data(Map.of("unattributed", access_token)).message("token unattributed").status(HttpStatus.OK)
+				.statusCode(HttpStatus.OK.value()).build());
+	}
+
 	@GetMapping()
 	public ResponseEntity<Response> refreshToken(HttpServletRequest request, HttpServletResponse response)
 			throws StreamWriteException, DatabindException, IOException {
@@ -67,7 +85,7 @@ public class RefreshTokenController {
 						String access_token = JWT.create().withSubject(user.getUsername())
 								.withExpiresAt(new Date(System.currentTimeMillis() + 30 * 60 * 1000))
 								.withIssuer(request.getRequestURL().toString())
-								.withClaim("roles", user.getUserRoles().getAuthority()).sign(algorithm);
+								.withClaim("roles",List.of(user.getUserRoles().getAuthority())).sign(algorithm);
 
 						Map<String, Object> tokens = new HashMap<>();
 						tokens.put("valid", true);
@@ -119,7 +137,7 @@ public class RefreshTokenController {
 								//10 minutes before expire
 								.withExpiresAt(new Date(System.currentTimeMillis() + 10 * 60 * 1000))
 								.withIssuer(request.getRequestURL().toString())
-								.withClaim("roles", user.getUserRoles().getAuthority()).sign(algorithm);
+								.withClaim("roles", List.of(user.getUserRoles().getAuthority())).sign(algorithm);
 
 						Map<String, Object> tokens = new HashMap<>();
 						tokens.put("valid", true);
