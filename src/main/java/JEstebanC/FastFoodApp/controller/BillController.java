@@ -210,7 +210,7 @@ public class BillController {
     public ResponseEntity<Response> updateBill(
             @PathVariable("id") Long id, @RequestBody @Valid Bill bill) {
         if (serviceImp.exist(id)) {
-            if (bill.getUser() != null && bill.getStatusBill() != null) {
+            if (bill.getStatusBill() != null) {
                 BillUserDTO billUserDTO = serviceImp.update(id, bill);
                 if (billUserDTO != null) {
                     return ResponseEntity.ok(
