@@ -24,6 +24,10 @@ public class Company {
     private String urlImage;
     @NotNull(message = "nit code cannot be empty or null")
     private String nitCode;
+    @NotNull(message = "region code cannot be empty or null")
+    private String region;
+    @NotNull(message = "city code cannot be empty or null")
+    private String city;
     @NotNull(message = "address code cannot be empty or null")
     private String address;
     private String managerName;
