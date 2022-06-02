@@ -32,7 +32,7 @@ public class RecoverPasswordController {
 
 	@Autowired
 	private final UserServiceImp serviceImp;
-
+  
 	@GetMapping(value = "/recover-password")
 	public ResponseEntity<Response> recoverPassword(HttpServletRequest request, HttpServletResponse response,
 			@RequestParam(name = "email") String email) throws MessagingException {
