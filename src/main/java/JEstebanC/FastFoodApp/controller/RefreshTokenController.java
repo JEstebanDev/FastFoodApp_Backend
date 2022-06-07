@@ -53,8 +53,8 @@ public class RefreshTokenController {
 		if (billServiceImp.exist(idBill)) {
 			Algorithm algorithm = Algorithm.HMAC256(OperationUtil.keyValue().getBytes());
 			String access_token = JWT.create().withKeyId(idBill.toString())
-					// give 30 minutes for the token to expire
-					.withExpiresAt(new Date(System.currentTimeMillis() + 30 * 60 * 1000))
+					// give 60 minutes for the token to expire
+					.withExpiresAt(new Date(System.currentTimeMillis() + 60 * 60 * 1000))
 					.withIssuer(request.getRequestURL().toString())
 					.withClaim("roles", List.of(AppUserRole.ROLE_UNATTRIBUTED.getAuthority())).sign(algorithm);
 			return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())

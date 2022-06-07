@@ -38,7 +38,7 @@ public class ReportController {
 		return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
 				.data(Map.of("report", serviceImp.getRankProducts(idProduct, limit, startDate, endDate)))
 				.message("report").status(HttpStatus.OK).statusCode(HttpStatus.OK.value()).build());
-	}
+	}  
 
 	@GetMapping(value = "/client")
 	public ResponseEntity<Response> listBestClientsByParams(@Param(value = "startDate") String startDate,

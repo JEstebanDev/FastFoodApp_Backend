@@ -5,6 +5,7 @@ package JEstebanC.FastFoodApp.service.interfaces;
 
 
 import JEstebanC.FastFoodApp.dto.OrdersDTO;
+import JEstebanC.FastFoodApp.enumeration.StatusOrder;
 import JEstebanC.FastFoodApp.model.Orders;
 
 /**
@@ -16,6 +17,7 @@ public interface IOrdersService {
 
 	OrdersDTO update(Long id, Orders orders);
 
+	Boolean updateStatus(Long idBill, StatusOrder statusOrder);
 	Boolean delete(Long idOrders);
 
 	Boolean exist(Long idOrders);
