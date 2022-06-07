@@ -57,6 +57,21 @@ public class OrdersServiceImp implements IOrdersService {
 	}
 
 	@Override
+	public Boolean updateStatus(Long id, StatusOrder statusOrder) {
+		log.info("Updating updateStatus with bill id: " + id);
+		Collection<Orders> ordersOld=ordersRepository.findByIdBill(id);
+		try {
+			ordersOld.forEach(element->{
+				element.setStatusOrder(statusOrder);
+				ordersRepository.save(element);
+			});
+			return true;
+		} catch (Exception e) {
+			return false;
+		}
+	}
+
+	@Override
 	public Boolean delete(Long idOrders) {
 		log.info("Deleting the order with id: " + idOrders);
 		if (ordersRepository.existsById(idOrders)) {

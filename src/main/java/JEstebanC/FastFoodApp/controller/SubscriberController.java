@@ -36,7 +36,7 @@ public class SubscriberController {
 	@Autowired
 	private final SubscriberServiceImp serviceImp;
 
-//	CREATE
+//	CREATE 
 	@PostMapping()
 	public ResponseEntity<Response> saveSubscriber(@RequestBody @Valid Subscriber subscriber) {
 		if (!serviceImp.existByEmail(subscriber.getEmail())) {

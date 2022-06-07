@@ -65,7 +65,7 @@ public class UserController {
 				if (serviceImp.findByEmail(user.getEmail()) == null) {
 					return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
 							.data(Map.of("user", serviceImp.create(user, file))).message("Create user")
-							.status(HttpStatus.OK).statusCode(HttpStatus.OK.value()).build());
+					 		.status(HttpStatus.OK).statusCode(HttpStatus.OK.value()).build());
 				} else {
 					return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
 							.message("The email: " + user.getEmail() + " already exist").status(HttpStatus.BAD_REQUEST)

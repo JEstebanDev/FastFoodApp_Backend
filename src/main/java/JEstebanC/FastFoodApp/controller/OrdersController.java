@@ -2,12 +2,15 @@ package JEstebanC.FastFoodApp.controller;
 
 import JEstebanC.FastFoodApp.dto.UserBillOrdersDTO;
 import JEstebanC.FastFoodApp.enumeration.StatusBill;
+import JEstebanC.FastFoodApp.enumeration.StatusOrder;
 import JEstebanC.FastFoodApp.model.Orders;
 import JEstebanC.FastFoodApp.model.Response;
 import JEstebanC.FastFoodApp.service.BillServiceImp;
 import JEstebanC.FastFoodApp.service.OrdersServiceImp;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -23,6 +26,7 @@ import java.util.Map;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/orders")
+@Slf4j
 public class OrdersController {
 
     @Autowired
@@ -65,6 +69,31 @@ public class OrdersController {
                         .build());
 
 
+    }
+
+    @PreAuthorize("hasRole('ROLE_ADMIN') OR hasRole('ROLE_EMPLOYEE')")
+    @PutMapping(value = "/status/{idBill}")
+    public ResponseEntity<Response> updateStatusOrder(
+            @PathVariable("idBill") Long idBill,@Param(value = "statusOrder") StatusOrder statusOrder){
+        UserBillOrdersDTO userBillOrdersDTO = serviceBillImp.findByIdBill(idBill);
+        if (userBillOrdersDTO != null) {
+            return ResponseEntity.ok(
+                    Response.builder()
+                            .timeStamp(Instant.now())
+                            .data(Map.of("order", serviceImp.updateStatus(idBill,statusOrder)))
+                            .message("Updating order with bill id: " + idBill)
+                            .status(HttpStatus.OK)
+                            .statusCode(HttpStatus.OK.value())
+                            .build());
+        }else{
+            return ResponseEntity.ok(
+                    Response.builder()
+                            .timeStamp(Instant.now())
+                            .message("The bill " + idBill + " does not exist")
+                            .status(HttpStatus.BAD_REQUEST)
+                            .statusCode(HttpStatus.BAD_REQUEST.value())
+                            .build());
+        }
     }
 
     //	UPDATE
