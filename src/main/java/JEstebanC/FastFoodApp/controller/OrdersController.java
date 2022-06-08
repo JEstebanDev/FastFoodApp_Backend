@@ -72,7 +72,7 @@ public class OrdersController {
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN') OR hasRole('ROLE_EMPLOYEE')")
-    @PutMapping(value = "/status/{idBill}")
+    @GetMapping(value = "/status/{idBill}")
     public ResponseEntity<Response> updateStatusOrder(
             @PathVariable("idBill") Long idBill,@Param(value = "statusOrder") StatusOrder statusOrder){
         UserBillOrdersDTO userBillOrdersDTO = serviceBillImp.findByIdBill(idBill);
