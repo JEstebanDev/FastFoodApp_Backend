@@ -26,6 +26,8 @@ public interface IBillService {
 	
 	BillUserDTO update(Long idBill, Bill bill);
 
+	BillUserDTO updateStatusBill(Long idBill, StatusBill statusBill);
+
 	Boolean delete(Long idBill);
 
 	Boolean exist(Long idBill);

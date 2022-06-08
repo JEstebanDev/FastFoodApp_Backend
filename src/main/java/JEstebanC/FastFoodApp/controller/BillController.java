@@ -56,6 +56,41 @@ public class BillController {
                         .build());
     }
 
+    @PreAuthorize("hasRole('ROLE_ADMIN') OR hasRole('ROLE_EMPLOYEE')")
+    @GetMapping(value = "/status/{idBill}")
+    public ResponseEntity<Response> updateStatusBill(
+            @PathVariable("idBill") Long idBill,@Param(value = "statusBill") StatusBill statusBill){
+        if (serviceImp.exist(idBill)) {
+            UserBillOrdersDTO userBillOrdersClient = serviceImp.findByIdBill(idBill);
+            if(!userBillOrdersClient.getBillUserDTO().getStatusBill().equals(StatusBill.PAID)){
+                return ResponseEntity.ok(
+                        Response.builder()
+                                .timeStamp(Instant.now())
+                                .data(Map.of("bill", serviceImp.updateStatusBill(idBill,statusBill)))
+                                .message("bill")
+                                .status(HttpStatus.OK)
+                                .statusCode(HttpStatus.OK.value())
+                                .build());
+            }else{
+                return ResponseEntity.ok(
+                        Response.builder()
+                                .timeStamp(Instant.now())
+                                .message("The bill with id:" + idBill + " is already paid")
+                                .status(HttpStatus.BAD_REQUEST)
+                                .statusCode(HttpStatus.BAD_REQUEST.value())
+                                .build());
+            }
+        }else{
+            return ResponseEntity.ok(
+                    Response.builder()
+                            .timeStamp(Instant.now())
+                            .message("The bill with id:" + idBill + " does not exist")
+                            .status(HttpStatus.BAD_REQUEST)
+                            .statusCode(HttpStatus.BAD_REQUEST.value())
+                            .build());
+        }
+    }
+
     // READ SEARCH BY PARAMS
     @PreAuthorize("hasRole('ROLE_ADMIN') OR hasRole('ROLE_EMPLOYEE') OR hasRole('ROLE_CLIENT')")
     @GetMapping(value = "/list")

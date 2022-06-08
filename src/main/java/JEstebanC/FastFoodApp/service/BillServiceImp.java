@@ -62,7 +62,14 @@ public class BillServiceImp implements IBillService {
       }
       billOld.setStatusBill(bill.getStatusBill());
       return convertirBillToDTO(billRepository.save(billOld));
+  }
 
+  @Override
+  public BillUserDTO updateStatusBill(Long idBill, StatusBill statusBill) {
+    log.info("Updating bill with id: " +idBill);
+    Bill billOld = billRepository.findByIdBill(idBill);
+    billOld.setStatusBill(statusBill);
+    return convertirBillToDTO(billRepository.save(billOld));
   }
 
   @Override
@@ -209,24 +216,7 @@ public class BillServiceImp implements IBillService {
     billUser.setNoTable(bill.getNoTable());
     billUser.setTotalPrice(bill.getTotalPrice());
 
-    if (bill.getUser() != null) {
-      UserForBillDTO userForBill = new UserForBillDTO();
-      userForBill.setIdUser(bill.getUser().getIdUser());
-      userForBill.setUrlImage(bill.getUser().getUrlImage());
-      userForBill.setUsername(bill.getUser().getUsername());
-      userForBill.setName(bill.getUser().getName());
-      billUser.setUserForBill(userForBill);
-    }
-
-    PayMode payMode = new PayMode();
-    payMode.setIdPayMode(bill.getPayMode().getIdPayMode());
-    payMode.setName(bill.getPayMode().getName());
-    payMode.setStatus(bill.getPayMode().getStatus());
-
-    billUser.setPayMode(payMode);
-
-    billUser.setDate(bill.getDate());
-    billUser.setStatusBill(bill.getStatusBill());
+    convertPartBillDTO(bill, billUser);
 
     return billUser;
   }
@@ -238,24 +228,7 @@ public class BillServiceImp implements IBillService {
     billUser.setIdBill(bill.getIdBill());
     billUser.setNoTable(bill.getNoTable());
 
-    if (bill.getUser() != null) {
-      UserForBillDTO userForBill = new UserForBillDTO();
-      userForBill.setIdUser(bill.getUser().getIdUser());
-      userForBill.setUrlImage(bill.getUser().getUrlImage());
-      userForBill.setUsername(bill.getUser().getUsername());
-      userForBill.setName(bill.getUser().getName());
-      billUser.setUserForBill(userForBill);
-    }
-
-    PayMode payMode = new PayMode();
-    payMode.setIdPayMode(bill.getPayMode().getIdPayMode());
-    payMode.setName(bill.getPayMode().getName());
-    payMode.setStatus(bill.getPayMode().getStatus());
-
-    billUser.setPayMode(payMode);
-
-    billUser.setDate(bill.getDate());
-    billUser.setStatusBill(bill.getStatusBill());
+    convertPartBillDTO(bill, billUser);
     Collection<OrdersDTO> orders =
         ordersRepository.findByIdBill(bill.getIdBill()).stream()
             .map(this::convertOrderToDTO)
@@ -287,5 +260,26 @@ public class BillServiceImp implements IBillService {
     billOrder.setAdditional(additional);
 
     return billOrder;
+  }
+
+  private void convertPartBillDTO(Bill bill, BillUserDTO billUser) {
+    if (bill.getUser() != null) {
+      UserForBillDTO userForBill = new UserForBillDTO();
+      userForBill.setIdUser(bill.getUser().getIdUser());
+      userForBill.setUrlImage(bill.getUser().getUrlImage());
+      userForBill.setUsername(bill.getUser().getUsername());
+      userForBill.setName(bill.getUser().getName());
+      billUser.setUserForBill(userForBill);
+    }
+
+    PayMode payMode = new PayMode();
+    payMode.setIdPayMode(bill.getPayMode().getIdPayMode());
+    payMode.setName(bill.getPayMode().getName());
+    payMode.setStatus(bill.getPayMode().getStatus());
+
+    billUser.setPayMode(payMode);
+
+    billUser.setDate(bill.getDate());
+    billUser.setStatusBill(bill.getStatusBill());
   }
 }
