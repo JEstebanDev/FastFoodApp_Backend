@@ -3,6 +3,7 @@
  */
 package JEstebanC.FastFoodApp.controller;
 
+import java.text.ParseException;
 import java.time.Instant;
 import java.util.Map;
 
@@ -41,10 +42,10 @@ public class ReportController {
 	}  
 
 	@GetMapping(value = "/client")
-	public ResponseEntity<Response> listBestClientsByParams(@Param(value = "startDate") String startDate,
-			@Param(value = "endDate") String endDate) {
+	public ResponseEntity<Response> listBestClientsByParams(@Param(value = "username") String username,@Param(value = "startDate") String startDate,
+			@Param(value = "endDate") String endDate) throws ParseException {
 		return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
-				.data(Map.of("report", serviceImp.getRankClient(startDate, endDate))).message("report")
+				.data(Map.of("report", serviceImp.getRankClient(username,startDate, endDate))).message("report")
 				.status(HttpStatus.OK).statusCode(HttpStatus.OK.value()).build());
 	}
 

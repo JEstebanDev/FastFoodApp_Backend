@@ -11,6 +11,7 @@ import lombok.Data;
 public class ReportProductDTO {
 
 	private Long idProduct;
+	private String name;
 	private int amount;
 	private int total;
 }

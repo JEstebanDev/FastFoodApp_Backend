@@ -12,6 +12,6 @@ import lombok.Data;
 public class ReportClientDTO {
 
 	private Long idUser;
-
+	private String username;
 	private int total;
 }
