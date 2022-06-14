@@ -70,25 +70,25 @@ public interface IReportRepository extends JpaRepository<Orders, Long> {
     //	SEARCH FOR BEST CLIENTS
     @Query(value = "SELECT Bill.id_user, User_app.username,User_app.url_image, SUM(COALESCE(Orders.total,0)) total " +
             "FROM orders Orders JOIN bill Bill on Bill.id_bill=Orders.id_bill JOIN user_app User_app on User_app.id_user=Bill.id_user " +
-            "WHERE Bill.status_bill=0 GROUP BY (Bill.id_user,User_app.username,User_app.url_image) ORDER BY(total) DESC", nativeQuery = true)
+            "WHERE Bill.status_bill=0 GROUP BY (Bill.id_user,User_app.username,User_app.url_image) ORDER BY(total) DESC LIMIT 5", nativeQuery = true)
     Collection<Map<String, Object>> getRankClients();
 
     @Query(value = "SELECT Bill.id_user, User_app.username,User_app.url_image, SUM(COALESCE(Orders.total,0)) total " +
             "FROM orders Orders JOIN bill Bill ON Bill.id_bill=Orders.id_bill JOIN user_app User_app on User_app.id_user=Bill.id_user " +
             "WHERE Bill.status_bill=0 " +
-            "AND Bill.date BETWEEN :startDate AND :endDate GROUP BY (Bill.id_user,User_app.username,User_app.url_image) ORDER BY(total) DESC", nativeQuery = true)
+            "AND Bill.date BETWEEN :startDate AND :endDate GROUP BY (Bill.id_user,User_app.username,User_app.url_image) ORDER BY(total) DESC LIMIT 5", nativeQuery = true)
     Collection<Map<String, Object>> getRankClientsByDate(@Param("startDate") Date startDate, @Param("endDate") Date endDate);
 
     @Query(value = "SELECT Bill.id_user, User_app.username,User_app.url_image, SUM(COALESCE(Orders.total,0)) total " +
             "FROM orders Orders JOIN bill Bill ON Bill.id_bill=Orders.id_bill JOIN user_app User_app on User_app.id_user=Bill.id_user " +
             "WHERE Bill.status_bill=0 AND User_app.username=:username " +
-            "GROUP BY (Bill.id_user,User_app.username,User_app.url_image) ORDER BY(total) DESC", nativeQuery = true)
+            "GROUP BY (Bill.id_user,User_app.username,User_app.url_image) ORDER BY(total) DESC LIMIT 5", nativeQuery = true)
     Collection<Map<String, Object>> getRankClientsByUsername(@Param("username") String username);
 
     @Query(value = "SELECT Bill.id_user, User_app.username,User_app.url_image, SUM(COALESCE(Orders.total,0)) total " +
             "FROM orders Orders JOIN bill Bill on Bill.id_bill=Orders.id_bill JOIN user_app User_app on User_app.id_user=Bill.id_user " +
             "WHERE Bill.status_bill=0 and User_app.username=:username "
-            + "AND Bill.date BETWEEN :startDate AND :endDate GROUP BY (Bill.id_user,User_app.username,User_app.url_image) ORDER BY(total) DESC", nativeQuery = true)
+            + "AND Bill.date BETWEEN :startDate AND :endDate GROUP BY (Bill.id_user,User_app.username,User_app.url_image) ORDER BY(total) DESC LIMIT 5", nativeQuery = true)
     Collection<Map<String, Object>> getRankClientsByUsernameAndDate(@Param("username") String username, @Param("startDate") Date startDate, @Param("endDate") Date endDate);
 
     //	TOTAL SALES
