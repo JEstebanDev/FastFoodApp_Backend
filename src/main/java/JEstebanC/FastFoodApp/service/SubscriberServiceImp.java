@@ -55,7 +55,7 @@ public class SubscriberServiceImp implements ISubscriberService {
 	@Override
 	public Boolean existByEmail(String email) {
 		log.info("Searching subscriber with email: " + email);
-		return subscriberRepository.findByEmail(email) != null ? true : false;
+		return subscriberRepository.findByEmail(email) != null;
 	}
 	
 	@Override

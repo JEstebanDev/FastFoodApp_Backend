@@ -20,7 +20,7 @@ public interface IBillService {
 
 	UserBillOrdersDTO findByIdBill(Long idBill);
 
-	Collection<UserBillOrdersDTO> findByNewIdUser(Long idUser, StatusBill statusBill, String startDate, String endDate);
+	Collection<UserBillOrdersDTO> findByNewIdUser(String username, StatusBill statusBill, String startDate, String endDate);
 
 	Collection<UserBillOrdersDTO> findByOrder(StatusOrder statusOrder, String startDate, String endDate);
 	

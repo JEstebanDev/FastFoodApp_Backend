@@ -13,5 +13,6 @@ public class ReportClientDTO {
 
 	private Long idUser;
 	private String username;
+	private String urlImage;
 	private int total;
 }
