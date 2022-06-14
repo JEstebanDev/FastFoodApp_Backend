@@ -23,5 +23,5 @@ public interface IReportService {
 	Collection<ReportSalesMonthlyDTO> getSalesMonthly();
 
 	Collection<ReportSalesWeeklyDTO> getSalesPerWeek() throws ParseException;
-	Collection<ReportPayModeDTO> getSalesPayModeByDate(String startDate, String endDate);
+	Collection<ReportPayModeDTO> getPayModeQuantity();
 }
