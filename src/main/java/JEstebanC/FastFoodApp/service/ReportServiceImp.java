@@ -158,18 +158,9 @@ public class ReportServiceImp implements IReportService {
     }
 
     @Override
-    public Collection<ReportPayModeDTO> getSalesPayModeByDate(String startDate, String endDate) {
+    public Collection<ReportPayModeDTO> getPayModeQuantity() {
         log.info("Get the paymode");
-        if (startDate != null && endDate != null) {
-            log.info("Search with date");
-            try {
-                return reportRepository.getSalesPayModeByDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(startDate), new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(endDate)).stream().map(this::convertReportPayModeToDTO).collect(Collectors.toList());
-            } catch (ParseException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        }
-        return null;
+        return reportRepository.getSalesPayMode().stream().map(this::convertReportPayModeToDTO).collect(Collectors.toList());
     }
 
     private ReportSalesDTO convertReportSalesToDTO(Map<String, BigInteger> sales) {
@@ -179,10 +170,11 @@ public class ReportServiceImp implements IReportService {
         return reportSales;
     }
 
-    private ReportPayModeDTO convertReportPayModeToDTO(Map<String, BigInteger> paymode) {
+    private ReportPayModeDTO convertReportPayModeToDTO(Map<String, Object> paymode) {
         ReportPayModeDTO reportPayMode = new ReportPayModeDTO();
-        reportPayMode.setIdPayMode((long) paymode.get("id_pay_mode").intValue());
-        reportPayMode.setQuantity(paymode.get("quantity").intValue());
+        reportPayMode.setIdPayMode(((BigInteger) paymode.get("id_pay_mode")).intValue());
+        reportPayMode.setName((String) paymode.get("name"));
+        reportPayMode.setQuantity(((BigInteger) paymode.get("quantity")).intValue());
         return reportPayMode;
     }
 

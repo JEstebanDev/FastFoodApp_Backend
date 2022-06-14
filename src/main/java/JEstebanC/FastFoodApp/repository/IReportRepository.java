@@ -104,6 +104,7 @@ public interface IReportRepository extends JpaRepository<Orders, Long> {
             "WHERE Bill.date BETWEEN date_trunc('week', current_timestamp) AND  current_timestamp GROUP BY (weekday) ORDER BY weekday ASC", nativeQuery = true)
     Collection<Map<String, Object>> getSalesWeekly();
     //	PAYMODE COUNT
-    @Query(value = "select id_pay_mode,COUNT(id_pay_mode) quantity from bill WHERE Bill.status_bill=0 AND date BETWEEN :startDate AND :endDate GROUP BY (id_pay_mode)", nativeQuery = true)
-    Collection<Map<String, BigInteger>> getSalesPayModeByDate(@Param("startDate") Date startDate, @Param("endDate") Date endDate);
+    @Query(value = "SELECT Bill.id_pay_mode,Pay.name, COUNT(Bill.id_pay_mode) quantity FROM bill Bill " +
+            "JOIN pay_mode Pay ON Bill.id_pay_mode=Pay.id_pay_mode WHERE Bill.status_bill=0 GROUP BY (Bill.id_pay_mode,Pay.name) ORDER BY quantity DESC", nativeQuery = true)
+    Collection<Map<String, Object>> getSalesPayMode();
 }

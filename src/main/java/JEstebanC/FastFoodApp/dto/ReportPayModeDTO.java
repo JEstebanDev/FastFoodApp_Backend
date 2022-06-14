@@ -8,6 +8,7 @@ import lombok.Data;
 @Data
 public class ReportPayModeDTO {
 
-	private Long idPayMode;
+	private int idPayMode;
+	private String name;
 	private int quantity;
 }

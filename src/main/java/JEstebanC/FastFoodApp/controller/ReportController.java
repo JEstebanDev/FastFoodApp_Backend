@@ -64,30 +64,23 @@ public class ReportController {
 
     @GetMapping(value = "/salesmonthly")
     public ResponseEntity<Response> listSalesMonthly() {
-
         return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
                 .data(Map.of("report", serviceImp.getSalesMonthly())).message("report monthly")
                 .status(HttpStatus.OK).statusCode(HttpStatus.OK.value()).build());
     }
 
     @GetMapping(value = "/salesweekly")
-    public ResponseEntity<Response> listSalesWeekly(){
-
+    public ResponseEntity<Response> listSalesWeekly() {
         return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
                 .data(Map.of("report", serviceImp.getSalesPerWeek())).message("report weekly")
                 .status(HttpStatus.OK).statusCode(HttpStatus.OK.value()).build());
     }
 
     @GetMapping(value = "/paymode")
-    public ResponseEntity<Response> listPayModeByParams(@Param(value = "startDate") String startDate,
-                                                        @Param(value = "endDate") String endDate) {
-        if (startDate == null && endDate == null) {
-            return ResponseEntity.ok(Response.builder().timeStamp(Instant.now()).message("The dates can not be null")
-                    .status(HttpStatus.BAD_REQUEST).statusCode(HttpStatus.BAD_REQUEST.value()).build());
-        } else {
-            return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
-                    .data(Map.of("report", serviceImp.getSalesPayModeByDate(startDate, endDate))).message("report")
-                    .status(HttpStatus.OK).statusCode(HttpStatus.OK.value()).build());
-        }
+    public ResponseEntity<Response> listPayModeByParams() {
+        return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
+                .data(Map.of("report", serviceImp.getPayModeQuantity())).message("report")
+                .status(HttpStatus.OK).statusCode(HttpStatus.OK.value()).build());
+
     }
 }
