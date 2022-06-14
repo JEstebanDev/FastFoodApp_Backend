@@ -10,6 +10,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigInteger;
+import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
@@ -67,27 +68,27 @@ public interface IReportRepository extends JpaRepository<Orders, Long> {
 
 
     //	SEARCH FOR BEST CLIENTS
-    @Query(value = "SELECT Bill.id_user, User_app.username, SUM(COALESCE(Orders.total,0)) total " +
+    @Query(value = "SELECT Bill.id_user, User_app.username,User_app.url_image, SUM(COALESCE(Orders.total,0)) total " +
             "FROM orders Orders JOIN bill Bill on Bill.id_bill=Orders.id_bill JOIN user_app User_app on User_app.id_user=Bill.id_user " +
-            "WHERE Bill.status_bill=0 GROUP BY (Bill.id_user,User_app.username)", nativeQuery = true)
+            "WHERE Bill.status_bill=0 GROUP BY (Bill.id_user,User_app.username,User_app.url_image) ORDER BY(total) DESC", nativeQuery = true)
     Collection<Map<String, Object>> getRankClients();
 
-    @Query(value = "SELECT Bill.id_user, User_app.username, SUM(COALESCE(Orders.total,0)) total " +
+    @Query(value = "SELECT Bill.id_user, User_app.username,User_app.url_image, SUM(COALESCE(Orders.total,0)) total " +
             "FROM orders Orders JOIN bill Bill ON Bill.id_bill=Orders.id_bill JOIN user_app User_app on User_app.id_user=Bill.id_user " +
             "WHERE Bill.status_bill=0 " +
-            "AND Bill.date BETWEEN :startDate AND :endDate GROUP BY (Bill.id_user,User_app.username)", nativeQuery = true)
+            "AND Bill.date BETWEEN :startDate AND :endDate GROUP BY (Bill.id_user,User_app.username,User_app.url_image) ORDER BY(total) DESC", nativeQuery = true)
     Collection<Map<String, Object>> getRankClientsByDate(@Param("startDate") Date startDate, @Param("endDate") Date endDate);
 
-    @Query(value = "SELECT Bill.id_user, User_app.username, SUM(COALESCE(Orders.total,0)) total " +
+    @Query(value = "SELECT Bill.id_user, User_app.username,User_app.url_image, SUM(COALESCE(Orders.total,0)) total " +
             "FROM orders Orders JOIN bill Bill ON Bill.id_bill=Orders.id_bill JOIN user_app User_app on User_app.id_user=Bill.id_user " +
             "WHERE Bill.status_bill=0 AND User_app.username=:username " +
-            "GROUP BY (Bill.id_user,User_app.username)", nativeQuery = true)
+            "GROUP BY (Bill.id_user,User_app.username,User_app.url_image) ORDER BY(total) DESC", nativeQuery = true)
     Collection<Map<String, Object>> getRankClientsByUsername(@Param("username") String username);
 
-    @Query(value = "SELECT Bill.id_user, User_app.username, SUM(COALESCE(Orders.total,0)) total " +
+    @Query(value = "SELECT Bill.id_user, User_app.username,User_app.url_image, SUM(COALESCE(Orders.total,0)) total " +
             "FROM orders Orders JOIN bill Bill on Bill.id_bill=Orders.id_bill JOIN user_app User_app on User_app.id_user=Bill.id_user " +
             "WHERE Bill.status_bill=0 and User_app.username=:username "
-            + "AND Bill.date BETWEEN :startDate AND :endDate GROUP BY (Bill.id_user,User_app.username)", nativeQuery = true)
+            + "AND Bill.date BETWEEN :startDate AND :endDate GROUP BY (Bill.id_user,User_app.username,User_app.url_image) ORDER BY(total) DESC", nativeQuery = true)
     Collection<Map<String, Object>> getRankClientsByUsernameAndDate(@Param("username") String username, @Param("startDate") Date startDate, @Param("endDate") Date endDate);
 
     //	TOTAL SALES
@@ -95,6 +96,13 @@ public interface IReportRepository extends JpaRepository<Orders, Long> {
             + "JOIN bill Bill on Bill.id_bill=Orders.id_bill WHERE Bill.status_bill=0 AND Bill.date BETWEEN :startDate AND :endDate GROUP BY (Orders.id_bill) ORDER BY total DESC", nativeQuery = true)
     Collection<Map<String, BigInteger>> getSalesByDate(@Param("startDate") Date startDate, @Param("endDate") Date endDate);
 
+    @Query(value = "SELECT EXTRACT(MONTH FROM date) AS month, SUM(COALESCE(total_price,0)) AS total FROM bill Bill WHERE EXTRACT(MONTH FROM date) " +
+            "BETWEEN 1 AND EXTRACT(MONTH FROM CURRENT_DATE) GROUP BY (month) ORDER BY month ASC", nativeQuery = true)
+    Collection<Map<String, Object>> getSalesMonthly();
+
+    @Query(value = "SELECT distinct(extract(isodow from date)) as weekday, SUM(COALESCE(total_price,0)) AS total FROM bill Bill " +
+            "WHERE Bill.date BETWEEN date_trunc('week', CURRENT_DATE) AND  CURRENT_DATE GROUP BY (weekday) ORDER BY weekday ASC", nativeQuery = true)
+    Collection<Map<String, Object>> getSalesWeekly();
     //	PAYMODE COUNT
     @Query(value = "select id_pay_mode,COUNT(id_pay_mode) quantity from bill WHERE Bill.status_bill=0 AND date BETWEEN :startDate AND :endDate GROUP BY (id_pay_mode)", nativeQuery = true)
     Collection<Map<String, BigInteger>> getSalesPayModeByDate(@Param("startDate") Date startDate, @Param("endDate") Date endDate);

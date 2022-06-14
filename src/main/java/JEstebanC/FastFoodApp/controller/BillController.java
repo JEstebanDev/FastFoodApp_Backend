@@ -59,19 +59,19 @@ public class BillController {
     @PreAuthorize("hasRole('ROLE_ADMIN') OR hasRole('ROLE_EMPLOYEE')")
     @GetMapping(value = "/status/{idBill}")
     public ResponseEntity<Response> updateStatusBill(
-            @PathVariable("idBill") Long idBill,@Param(value = "statusBill") StatusBill statusBill){
+            @PathVariable("idBill") Long idBill, @Param(value = "statusBill") StatusBill statusBill) {
         if (serviceImp.exist(idBill)) {
             UserBillOrdersDTO userBillOrdersClient = serviceImp.findByIdBill(idBill);
-            if(!userBillOrdersClient.getBillUserDTO().getStatusBill().equals(StatusBill.PAID)){
+            if (!userBillOrdersClient.getBillUserDTO().getStatusBill().equals(StatusBill.PAID)) {
                 return ResponseEntity.ok(
                         Response.builder()
                                 .timeStamp(Instant.now())
-                                .data(Map.of("bill", serviceImp.updateStatusBill(idBill,statusBill)))
+                                .data(Map.of("bill", serviceImp.updateStatusBill(idBill, statusBill)))
                                 .message("bill")
                                 .status(HttpStatus.OK)
                                 .statusCode(HttpStatus.OK.value())
                                 .build());
-            }else{
+            } else {
                 return ResponseEntity.ok(
                         Response.builder()
                                 .timeStamp(Instant.now())
@@ -80,7 +80,7 @@ public class BillController {
                                 .statusCode(HttpStatus.BAD_REQUEST.value())
                                 .build());
             }
-        }else{
+        } else {
             return ResponseEntity.ok(
                     Response.builder()
                             .timeStamp(Instant.now())
@@ -96,7 +96,7 @@ public class BillController {
     @GetMapping(value = "/list")
     public ResponseEntity<Response> listByParams(
             @Param(value = "idBill") Long idBill,
-            @Param(value = "idUser") Long idUser,
+            @Param(value = "username") String username,
             @Param(value = "statusBill") StatusBill statusBill,
             @Param(value = "statusOrder") StatusOrder statusOrder,
             @Param(value = "startDate") String startDate,
@@ -145,9 +145,9 @@ public class BillController {
                                             .build());
                         }
                     }
-                    if (idUser != null) {
-                        if (serviceImpUser.exist(idUser)) {
-                            User userOld = serviceImpUser.findById(idUser);
+                    if (username != null) {
+                        if (serviceImpUser.exist(username)) {
+                            User userOld = serviceImpUser.findByUsername(username);
                             if (userOld.getUsername().equals(decodeJWT.getSubject())) {
                                 return ResponseEntity.ok(
                                         Response.builder()
@@ -156,7 +156,7 @@ public class BillController {
                                                         Map.of(
                                                                 "bill",
                                                                 serviceImp.findByNewIdUser(
-                                                                        userOld.getIdUser(), statusBill, startDate, endDate)))
+                                                                        username, statusBill, startDate, endDate)))
                                                 .message("bill")
                                                 .status(HttpStatus.OK)
                                                 .statusCode(HttpStatus.OK.value())
@@ -234,7 +234,7 @@ public class BillController {
                 Response.builder()
                         .timeStamp(Instant.now())
                         .data(
-                                Map.of("bill", serviceImp.findByNewIdUser(idUser, statusBill, startDate, endDate)))
+                                Map.of("bill", serviceImp.findByNewIdUser(username, statusBill, startDate, endDate)))
                         .message("bill")
                         .status(HttpStatus.OK)
                         .statusCode(HttpStatus.OK.value())

@@ -27,4 +27,6 @@ public interface IUserService {
 
 	Boolean exist(Long idUser);
 
+	Boolean exist(String username);
+
 }
