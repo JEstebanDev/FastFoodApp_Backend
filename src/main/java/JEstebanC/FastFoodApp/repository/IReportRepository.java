@@ -101,7 +101,7 @@ public interface IReportRepository extends JpaRepository<Orders, Long> {
     Collection<Map<String, Object>> getSalesMonthly();
 
     @Query(value = "SELECT distinct(extract(isodow from date)) as weekday, SUM(COALESCE(total_price,0)) AS total FROM bill Bill " +
-            "WHERE Bill.date BETWEEN date_trunc('week', CURRENT_DATE) AND  CURRENT_DATE GROUP BY (weekday) ORDER BY weekday ASC", nativeQuery = true)
+            "WHERE Bill.date BETWEEN date_trunc('week', current_timestamp) AND  current_timestamp GROUP BY (weekday) ORDER BY weekday ASC", nativeQuery = true)
     Collection<Map<String, Object>> getSalesWeekly();
     //	PAYMODE COUNT
     @Query(value = "select id_pay_mode,COUNT(id_pay_mode) quantity from bill WHERE Bill.status_bill=0 AND date BETWEEN :startDate AND :endDate GROUP BY (id_pay_mode)", nativeQuery = true)
