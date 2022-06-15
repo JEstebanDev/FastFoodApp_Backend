@@ -65,8 +65,9 @@ public class ProductServiceImp implements IProductService {
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                } else {
-                    product.setImageUrl(oldProduct.get().getImageUrl());
+                }
+                if(product.getImageUrl()==null && file == null){
+                    product.setImageUrl(null);
                 }
                 return productRepository.save(product);
             }
