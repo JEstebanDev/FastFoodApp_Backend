@@ -52,8 +52,9 @@ public class CategoryServiceImp implements ICategoryService {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        } else {
-            category.setImageUrl(oldCategory.get().getImageUrl());
+        }
+        if(category.getImageUrl()==null && file == null){
+            category.setImageUrl(null);
         }
         return categoryRepository.save(category);
     }
