@@ -9,7 +9,9 @@ import JEstebanC.FastFoodApp.enumeration.StatusBill;
 import JEstebanC.FastFoodApp.enumeration.StatusOrder;
 import JEstebanC.FastFoodApp.model.Bill;
 
+import java.text.ParseException;
 import java.util.Collection;
+import java.util.Date;
 
 /**
  * @author Juan Esteban Castaño Holguin castanoesteban9@gmail.com 2022-01-26
