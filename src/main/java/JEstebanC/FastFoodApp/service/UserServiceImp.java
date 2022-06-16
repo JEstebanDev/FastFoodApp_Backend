@@ -8,6 +8,7 @@ import JEstebanC.FastFoodApp.dto.update.UserClientDTO;
 import JEstebanC.FastFoodApp.dto.update.UserEmployeeDTO;
 import JEstebanC.FastFoodApp.dto.validation.UserEmailDTO;
 import JEstebanC.FastFoodApp.dto.validation.UsernameDTO;
+import JEstebanC.FastFoodApp.enumeration.AppUserRole;
 import JEstebanC.FastFoodApp.enumeration.Status;
 import JEstebanC.FastFoodApp.model.User;
 import JEstebanC.FastFoodApp.repository.IUserRepository;
@@ -84,7 +85,7 @@ public class UserServiceImp implements IUserService, UserDetailsService {
         user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
 
         // Set automatically the user type Client
-        //user.setUserRoles(AppUserRole.ROLE_CLIENT);
+        user.setUserRoles(AppUserRole.ROLE_CLIENT);
         user.setDiscountPoint(0);
         user.setStatus(Status.ACTIVE);
         return userRepository.save(user);
