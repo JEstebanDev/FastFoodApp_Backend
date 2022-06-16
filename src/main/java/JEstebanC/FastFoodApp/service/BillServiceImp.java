@@ -106,8 +106,8 @@ public class BillServiceImp implements IBillService {
             log.info("Searching bills by StatusOrder DateBetween");
             return billRepository
                     .findByDateBetweenAndStatusOrder(
-                            new SimpleDateFormat("yyyy-MM-dd").parse(startDate),
-                            new SimpleDateFormat("yyyy-MM-dd").parse(endDate),
+                            new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(startDate),
+                            new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(endDate),
                             statusOrder.ordinal())
                     .stream()
                     .map(this::convertBillOrderToDTO)
@@ -129,8 +129,8 @@ public class BillServiceImp implements IBillService {
                         .findByIdUserAndStatusBillAndDateBetween(
                                 username,
                                 statusBill.ordinal(),
-                                new SimpleDateFormat("yyyy-MM-dd").parse(startDate),
-                                new SimpleDateFormat("yyyy-MM-dd").parse(endDate))
+                                new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(startDate),
+                                new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(endDate))
                         .stream()
                         .map(this::convertBillOrderToDTO)
                         .collect(Collectors.toList());
@@ -167,8 +167,8 @@ public class BillServiceImp implements IBillService {
                 log.info("Searching bills by DateBetween");
                 return billRepository
                         .findByDateBetween(
-                                new SimpleDateFormat("yyyy-MM-dd").parse(startDate),
-                                new SimpleDateFormat("yyyy-MM-dd").parse(endDate))
+                                new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(startDate),
+                                new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(endDate))
                         .stream()
                         .map(this::convertBillOrderToDTO)
                         .collect(Collectors.toList());
@@ -182,8 +182,8 @@ public class BillServiceImp implements IBillService {
                 log.info("Searching bills by User DateBetween");
                 return billRepository
                         .findByDateBetweenAndIdUser(
-                                new SimpleDateFormat("yyyy-MM-dd").parse(startDate),
-                                new SimpleDateFormat("yyyy-MM-dd").parse(endDate),
+                                new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(startDate),
+                                new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(endDate),
                                 username)
                         .stream()
                         .map(this::convertBillOrderToDTO)
@@ -198,8 +198,8 @@ public class BillServiceImp implements IBillService {
                 log.info("Searching bills by StatusBill DateBetween");
                 return billRepository
                         .findByDateBetweenAndStatusBill(
-                                new SimpleDateFormat("yyyy-MM-dd").parse(startDate),
-                                new SimpleDateFormat("yyyy-MM-dd").parse(endDate),
+                                new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(startDate),
+                                new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(endDate),
                                 statusBill)
                         .stream()
                         .map(this::convertBillOrderToDTO)
