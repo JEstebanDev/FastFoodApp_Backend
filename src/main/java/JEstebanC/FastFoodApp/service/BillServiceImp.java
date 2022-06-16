@@ -54,7 +54,7 @@ public class BillServiceImp implements IBillService {
 
     @Override
     public BillUserDTO update(Long idBill, Bill bill) {
-        log.info("Updating bill with id: " + bill.getIdBill());
+        log.info("Updating bill with id: " + idBill);
         int totalOrder = 0;
         Bill billOld = billRepository.findByIdBill(idBill);
         if (bill.getStatusBill().equals(StatusBill.PAID)) {
@@ -64,7 +64,10 @@ public class BillServiceImp implements IBillService {
             }
             billOld.setTotalPrice(totalOrder);
         }
+        billOld.setPayMode(bill.getPayMode());
+        billOld.setNoTable(bill.getNoTable());
         billOld.setStatusBill(bill.getStatusBill());
+        billOld.setDate(bill.getDate());
         return convertBillToDTO(billRepository.save(billOld));
     }
 
