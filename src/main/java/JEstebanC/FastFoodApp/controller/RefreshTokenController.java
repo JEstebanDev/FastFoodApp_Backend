@@ -139,7 +139,6 @@ public class RefreshTokenController {
 								.withClaim("roles", List.of(user.getUserRoles().getAuthority())).sign(algorithm);
 
 						Map<String, Object> tokens = new HashMap<>();
-						tokens.put("valid", true);
 						tokens.put("access_token", access_token);
 						Map<String, Object> objectMap = new HashMap<>();
 						objectMap.put("user", user1);
