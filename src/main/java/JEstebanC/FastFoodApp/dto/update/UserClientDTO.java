@@ -15,7 +15,7 @@ import lombok.Data;
 public class UserClientDTO {
 	private String name;
 	private String urlImage;
-	private int phone;
+	private Long phone;
 	private String email;
 	private String password;
 	private Status status;

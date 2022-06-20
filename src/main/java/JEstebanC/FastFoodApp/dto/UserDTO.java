@@ -3,6 +3,7 @@
  */
 package JEstebanC.FastFoodApp.dto;
 
+import JEstebanC.FastFoodApp.enumeration.AppUserRole;
 import JEstebanC.FastFoodApp.enumeration.Status;
 import lombok.Data;
 
@@ -17,8 +18,9 @@ public class UserDTO {
 	private String name;
 	private String username;
 	private String urlImage;
-	private int phone;
+	private Long phone;
 	private String email;
 	private int discountPoint;
+	private AppUserRole userRoles;
 	private Status status;
 }

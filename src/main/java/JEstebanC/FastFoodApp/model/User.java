@@ -36,7 +36,7 @@ public class User {
 	private String username;
 	private String urlImage;
 	@Column(length = 15)
-	private int phone;
+	private Long phone;
 	@NotNull(message = "email cannot be empty or null")
 	@Column(length = 50)
 	private String email;
