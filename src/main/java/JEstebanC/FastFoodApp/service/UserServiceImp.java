@@ -118,7 +118,7 @@ public class UserServiceImp implements IUserService, UserDetailsService {
     public UserDTO updateEmployee(UserEmployeeDTO userEmployeeDTO, long id) {
         log.info("Updating user with id: " + id);
         User userOld = userRepository.findByIdUser(id);
-        userOld.setPhone(userEmployeeDTO.getPhone());
+        userOld.setPhone((long) userEmployeeDTO.getPhone());
         userOld.setEmail(userEmployeeDTO.getEmail());
         return convertUserToDTO(userRepository.save(userOld));
 
@@ -190,6 +190,7 @@ public class UserServiceImp implements IUserService, UserDetailsService {
         userDto.setUrlImage(user.getUrlImage());
         userDto.setPhone(user.getPhone());
         userDto.setEmail(user.getEmail());
+        userDto.setUserRoles(user.getUserRoles());
         userDto.setDiscountPoint(user.getDiscountPoint());
         userDto.setStatus(user.getStatus());
         return userDto;

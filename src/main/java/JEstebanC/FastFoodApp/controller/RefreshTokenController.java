@@ -66,8 +66,7 @@ public class RefreshTokenController {
 	}
 
 	@GetMapping()
-	public ResponseEntity<Response> refreshToken(HttpServletRequest request, HttpServletResponse response)
-			throws StreamWriteException, DatabindException, IOException {
+	public ResponseEntity<Response> refreshToken(HttpServletRequest request) {
 		String authorizationHeader = request.getHeader(AUTHORIZATION);
 
 		try {
@@ -118,8 +117,7 @@ public class RefreshTokenController {
 	}
 
 	@GetMapping(value = "/user")
-	public ResponseEntity<Response> getUser(HttpServletRequest request, HttpServletResponse response)
-			throws StreamWriteException, DatabindException, IOException {
+	public ResponseEntity<Response> getUser(HttpServletRequest request){
 		String authorizationHeader = request.getHeader(AUTHORIZATION);
 		try {
 			if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
