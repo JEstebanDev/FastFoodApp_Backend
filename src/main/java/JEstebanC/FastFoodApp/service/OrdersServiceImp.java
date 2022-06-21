@@ -6,11 +6,9 @@ package JEstebanC.FastFoodApp.service;
 import JEstebanC.FastFoodApp.dto.OrdersDTO;
 import JEstebanC.FastFoodApp.enumeration.StatusOrder;
 import JEstebanC.FastFoodApp.model.Additional;
-import JEstebanC.FastFoodApp.model.Bill;
 import JEstebanC.FastFoodApp.model.Orders;
 import JEstebanC.FastFoodApp.model.Product;
 import JEstebanC.FastFoodApp.repository.IAdditionalRepository;
-import JEstebanC.FastFoodApp.repository.IBillRepository;
 import JEstebanC.FastFoodApp.repository.IOrdersRepository;
 import JEstebanC.FastFoodApp.repository.IProductRepository;
 import JEstebanC.FastFoodApp.service.interfaces.IOrdersService;
@@ -22,8 +20,6 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * @author Juan Esteban Castaño Holguin castanoesteban9@gmail.com 2022-01-27
@@ -124,8 +120,7 @@ public class OrdersServiceImp implements IOrdersService {
 
         Order.setProduct(orders.getProduct());
 
-        Collection<Additional> additional = new ArrayList<Additional>();
-        additional.addAll(orders.getAdditional());
+        Collection<Additional> additional = new ArrayList<>(orders.getAdditional());
         Order.setAdditional(additional);
 
         return Order;

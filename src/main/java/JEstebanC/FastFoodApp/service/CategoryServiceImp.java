@@ -12,7 +12,6 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.transaction.Transactional;
 import java.io.IOException;
 import java.util.Collection;
-import java.util.Optional;
 
 /**
  * @author Juan Esteban Castaño Holguin castanoesteban9@gmail.com 2022-01-24
@@ -44,7 +43,6 @@ public class CategoryServiceImp implements ICategoryService {
     @Override
     public Category update(Long id, Category category, MultipartFile file) {
         log.info("Updating category with id: " + id);
-        Optional<Category> oldCategory = categoryRepository.findById(id);
         category.setIdCategory(id);
         if (file != null) {
             try {

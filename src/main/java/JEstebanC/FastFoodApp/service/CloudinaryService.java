@@ -38,8 +38,7 @@ public class CloudinaryService {
 
 	@SuppressWarnings("rawtypes")
 	public Map delete(String id, String folder) throws IOException {
-		Map result = cloudinary.uploader().destroy(id, ObjectUtils.emptyMap());
-		return result;
+		return cloudinary.uploader().destroy(id, ObjectUtils.emptyMap());
 	}
 
 	public File convert(MultipartFile multipartFile) throws IOException {

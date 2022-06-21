@@ -16,7 +16,6 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.transaction.Transactional;
 import java.io.IOException;
 import java.util.Collection;
-import java.util.Optional;
 
 /**
  * @author Juan Esteban Castaño Holguin castanoesteban9@gmail.com 2022-01-23
@@ -57,7 +56,6 @@ public class ProductServiceImp implements IProductService {
         log.info("Updating product with id: " + id);
         if (product.getCategory() != null) {
             if (categoryRepository.existsById(product.getCategory().getIdCategory())) {
-                Optional<Product> oldProduct = productRepository.findById(id);
                 product.setIdProduct(id);
                 if (file != null) {
                     try {
@@ -101,7 +99,7 @@ public class ProductServiceImp implements IProductService {
         log.info("Searching product by category: " + name);
         try {
             if (categoryRepository.findByName(name).getIdCategory() != null) {
-                return productRepository.findByNameCategory(categoryRepository.findByName(name).getName().toString());
+                return productRepository.findByNameCategory(categoryRepository.findByName(name).getName());
             } else {
                 return null;
             }

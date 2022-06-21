@@ -92,12 +92,12 @@ public class UserController {
         if (userOld != null) {
             AppUserRole userRole = userOld.getUserRoles();
             if (request.isUserInRole("ROLE_CLIENT")
-                    && (userRole.getAuthority() == "ROLE_ADMIN" || userRole.getAuthority() == "ROLE_EMPLOYEE")) {
+                    && (userRole.getAuthority().equals("ROLE_ADMIN") || userRole.getAuthority().equals("ROLE_EMPLOYEE"))) {
                 return ResponseEntity.ok(
                         Response.builder().timeStamp(Instant.now()).message(("Error user without permission to update"))
                                 .status(HttpStatus.BAD_REQUEST).statusCode(HttpStatus.BAD_REQUEST.value()).build());
             }
-            if (request.isUserInRole("ROLE_EMPLOYEE") && (userRole.getAuthority() == "ROLE_ADMIN")) {
+            if (request.isUserInRole("ROLE_EMPLOYEE") && (userRole.getAuthority().equals("ROLE_ADMIN"))) {
                 return ResponseEntity.ok(
                         Response.builder().timeStamp(Instant.now()).message(("Error user without permission to update"))
                                 .status(HttpStatus.BAD_REQUEST).statusCode(HttpStatus.BAD_REQUEST.value()).build());
@@ -111,8 +111,8 @@ public class UserController {
                     JWTVerifier verifier = JWT.require(algorithm).build();
                     DecodedJWT decodeJWT = verifier.verify(token);
 
-                    if (request.isUserInRole("ROLE_CLIENT") && userRole.getAuthority() == "ROLE_CLIENT") {
-                        if (userOld.getUsername().equals(decodeJWT.getSubject().toString())) {
+                    if (request.isUserInRole("ROLE_CLIENT") && userRole.getAuthority().equals("ROLE_CLIENT")) {
+                        if (userOld.getUsername().equals(decodeJWT.getSubject())) {
                             UserClientDTO userClientDTO = new ObjectMapper().readValue(strUser, UserClientDTO.class);
                             return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
                                     .data(Map.of("user", serviceImp.updateClient(userClientDTO, id, file)))

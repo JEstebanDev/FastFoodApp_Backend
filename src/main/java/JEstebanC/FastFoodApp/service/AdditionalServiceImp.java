@@ -5,7 +5,6 @@ package JEstebanC.FastFoodApp.service;
 
 import java.io.IOException;
 import java.util.Collection;
-import java.util.Optional;
 
 import javax.transaction.Transactional;
 
@@ -53,7 +52,6 @@ public class AdditionalServiceImp implements IAdditionalService {
 	@Override
 	public Additional update(Long id, Additional additional, MultipartFile file) {
 		log.info("Updating additional: " + additional.getName());
-		Optional<Additional> oldAdditional = additionalRepository.findById(id);
 		additional.setIdAdditional(id);
 		if (additional.getCategory().size()>0) {
 			if (file != null) {

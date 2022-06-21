@@ -6,9 +6,7 @@ package JEstebanC.FastFoodApp.controller;
 import java.time.Instant;
 import java.util.Map;
 
-import javax.mail.MessagingException;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -34,13 +32,13 @@ public class RecoverPasswordController {
 	private final UserServiceImp serviceImp;
   
 	@GetMapping(value = "/recover-password")
-	public ResponseEntity<Response> recoverPassword(HttpServletRequest request, HttpServletResponse response,
-			@RequestParam(name = "email") String email) throws MessagingException {
+	public ResponseEntity<Response> recoverPassword(HttpServletRequest request,
+			@RequestParam(name = "email") String email) {
 		UserDTO user = serviceImp.findByEmail(email);
 		if (user != null) {
 			return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
 					.data(Map.of("user",
-							serviceImp.sendMail(request, response, email, user.getUsername(), user.getName())))
+							serviceImp.sendMail(request, email, user.getUsername(), user.getName())))
 					.message("Mail sent").status(HttpStatus.OK).statusCode(HttpStatus.OK.value()).build());
 		} else {
 			return ResponseEntity.ok(Response.builder().timeStamp(Instant.now()).message("The email do not exist")

@@ -32,7 +32,7 @@ public class ReportServiceImp implements IReportService {
     private final IReportRepository reportRepository;
 
     @Override
-    public Collection<ReportClientDTO> getRankClient(String username, String startDate, String endDate) throws ParseException {
+    public Collection<ReportClientDTO> getRankClient(String username, String startDate, String endDate){
         log.info("Get the ranking of the best clients");
 
         if (username == null && startDate == null && endDate == null) {
