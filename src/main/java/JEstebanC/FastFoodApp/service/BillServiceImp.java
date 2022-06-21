@@ -262,8 +262,7 @@ public class BillServiceImp implements IBillService {
 
         billOrder.setProduct(orders.getProduct());
 
-        Collection<Additional> additional = new ArrayList<Additional>();
-        additional.addAll(orders.getAdditional());
+        Collection<Additional> additional = new ArrayList<>(orders.getAdditional());
         billOrder.setAdditional(additional);
 
         return billOrder;

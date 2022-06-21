@@ -32,7 +32,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.transaction.Transactional;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -259,7 +258,7 @@ public class UserServiceImp implements IUserService, UserDetailsService {
         return usernameDTO;
     }
 
-    public Boolean sendMail(HttpServletRequest request, HttpServletResponse response, String email, String userName,
+    public Boolean sendMail(HttpServletRequest request, String email, String userName,
                             String name) {
 
         // Reference to the keyValue
