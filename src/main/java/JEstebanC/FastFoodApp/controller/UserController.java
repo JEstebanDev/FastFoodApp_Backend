@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
@@ -196,8 +197,21 @@ public class UserController {
 	}
 
 //	SEARCH BY EMAIL VALIDATION
-	@GetMapping(value = "/is-valid-email/{email}")
-	public ResponseEntity<Response> getUserByEmailValidation(@PathVariable("email") String email) {
+	@GetMapping(value = "/is-valid-email")
+	public ResponseEntity<Response> getUserByEmailValidation(@Param(value = "idUser") Long idUser,
+															 @Param(value = "email") String email) {
+		if (idUser != null) {
+			if (serviceImp.findById(idUser).getEmail().equals(email)){
+				return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
+						.message("The email is already taken by the idUser: " + idUser).status(HttpStatus.BAD_REQUEST)
+						.statusCode(HttpStatus.BAD_REQUEST.value()).build());
+			}
+		}
+		if(email==null){
+			return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
+					.message("The email is mandatory").status(HttpStatus.BAD_REQUEST)
+					.statusCode(HttpStatus.BAD_REQUEST.value()).build());
+		}
 		if (serviceImp.findByEmailValid(email) != null) {
 			return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
 					.data(Map.of("User", serviceImp.findByEmailValid(email))).message("Get user by email: " + email)
@@ -210,9 +224,22 @@ public class UserController {
 	}
 
 //	SEARCH BY USERNAME VALIDATION	
-	@GetMapping(value = "/is-valid-username/{username}")
-	public ResponseEntity<Response> getUserByNameValidation(@PathVariable("username") String username) {
+	@GetMapping(value = "/is-valid-username")
+	public ResponseEntity<Response> getUserByNameValidation(@Param(value = "idUser") Long idUser,
+															@Param(value = "username") String username) {
 
+		if (idUser != null) {
+			if (serviceImp.findById(idUser).getUsername().equals(username)){
+				return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
+						.message("The user is already taken by the idUser: " + idUser).status(HttpStatus.BAD_REQUEST)
+						.statusCode(HttpStatus.BAD_REQUEST.value()).build());
+			}
+		}
+		if(username==null){
+			return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
+					.message("The username is mandatory").status(HttpStatus.BAD_REQUEST)
+					.statusCode(HttpStatus.BAD_REQUEST.value()).build());
+		}
 		if (serviceImp.findByUsernameValidation(username) != null) {
 			return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
 					.data(Map.of("User", serviceImp.findByUsernameValidation(username)))
@@ -227,7 +254,7 @@ public class UserController {
 	}
 
 	private ResponseEntity<Response> actionForRole(Long id, String strUser, HttpServletRequest request,
-			MultipartFile file) throws JsonMappingException, JsonProcessingException {
+			MultipartFile file) throws JsonProcessingException {
 		if (request.isUserInRole("ROLE_EMPLOYEE")) {
 			UserEmployeeDTO userEmployeeDTO = new ObjectMapper().readValue(strUser, UserEmployeeDTO.class);
 			return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
