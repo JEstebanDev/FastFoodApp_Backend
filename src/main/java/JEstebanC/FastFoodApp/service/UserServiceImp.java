@@ -103,13 +103,15 @@ public class UserServiceImp implements IUserService, UserDetailsService {
             userOld.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
         }
         userOld.setDiscountPoint(user.getDiscountPoint());
-        userOld.setUrlImage(user.getUrlImage());
         if (file != null) {
             try {
                 userOld.setUrlImage(cloudinaryService.upload(file, "user"));
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        }
+        if(user.getUrlImage()==null && file == null){
+            user.setUrlImage(null);
         }
         userOld.setStatus(user.getStatus());
         return convertUserToDTO(userRepository.save(userOld));
