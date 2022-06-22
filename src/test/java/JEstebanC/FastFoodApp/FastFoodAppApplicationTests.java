@@ -1,4 +1,4 @@
-/**package JEstebanC.FastFoodApp;
+/*package JEstebanC.FastFoodApp;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -10,5 +10,5 @@ class FastFoodAppApplicationTests {
 	void contextLoads() {
 	}
 
-}
-**/
+}*/
+

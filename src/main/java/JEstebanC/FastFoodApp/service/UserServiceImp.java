@@ -112,8 +112,10 @@ public class UserServiceImp implements IUserService, UserDetailsService {
         if(user.getUrlImage()==null && file == null){
             userOld.setUrlImage(null);
         }
+        if(user.getUrlImage()!=null){
+            userOld.setUrlImage(userOld.getUrlImage());
+        }
         userOld.setStatus(user.getStatus());
-        userOld.setUserRoles(user.getUserRoles());
         return convertUserToDTO(userRepository.save(userOld));
     }
 
@@ -132,7 +134,9 @@ public class UserServiceImp implements IUserService, UserDetailsService {
         userOld.setName(userClientDTO.getName());
         userOld.setPhone(userClientDTO.getPhone());
         userOld.setEmail(userClientDTO.getEmail());
-        userOld.setPassword(bCryptPasswordEncoder.encode(userClientDTO.getPassword()));
+        if (userClientDTO.getPassword() != null) {
+            userOld.setPassword(bCryptPasswordEncoder.encode(userClientDTO.getPassword()));
+        }
         userOld.setStatus(userClientDTO.getStatus());
         userOld.setUrlImage(userClientDTO.getUrlImage());
         if (file != null) {
@@ -141,6 +145,9 @@ public class UserServiceImp implements IUserService, UserDetailsService {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        }
+        if(userClientDTO.getUrlImage()==null && file == null){
+            userOld.setUrlImage(null);
         }
         return convertUserToDTO(userRepository.save(userOld));
     }
