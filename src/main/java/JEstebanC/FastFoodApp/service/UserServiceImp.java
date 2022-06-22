@@ -113,6 +113,7 @@ public class UserServiceImp implements IUserService, UserDetailsService {
             userOld.setUrlImage(null);
         }
         userOld.setStatus(user.getStatus());
+        userOld.setUserRoles(user.getUserRoles());
         return convertUserToDTO(userRepository.save(userOld));
     }
 
