@@ -43,6 +43,9 @@ public class AdditionalServiceImp implements IAdditionalService {
 					e.printStackTrace();
 				}
 			}
+			if(additional.getImageUrl()==null && file == null){
+				additional.setImageUrl(null);
+			}
 			return additionalRepository.save(additional);
 		} else {
 			return null;
