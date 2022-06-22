@@ -86,7 +86,7 @@ public class UserController {
     @PreAuthorize("hasRole('ROLE_ADMIN') OR hasRole('ROLE_EMPLOYEE') OR hasRole('ROLE_CLIENT')")
     @PutMapping(value = "/{id}")
     public ResponseEntity<Response> updateUser(@PathVariable("id") Long id,
-                                               @RequestParam("request") @Valid String strUser, @RequestParam("profileimage") @Nullable MultipartFile file,
+                                               @RequestParam("request") @Valid String strUser, @RequestParam("userimage") @Nullable MultipartFile file,
                                                HttpServletRequest request) {
         User userOld = serviceImp.findById(id);
         if (userOld != null) {
