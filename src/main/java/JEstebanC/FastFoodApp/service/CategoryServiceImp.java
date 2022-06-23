@@ -43,6 +43,9 @@ public class CategoryServiceImp implements ICategoryService {
     @Override
     public Category update(Long id, Category category, MultipartFile file) {
         log.info("Updating category with id: " + id);
+        if(id == null){
+            throw new IllegalArgumentException("Id cannot be null");
+        }
         category.setIdCategory(id);
         if (file != null) {
             try {
