@@ -10,7 +10,7 @@ class FastFoodAppApplicationTests {
 
 	@Test
 	void contextLoads() {
-        assertTrue(true);
+		assertTrue(true);
 	}
 
 }
