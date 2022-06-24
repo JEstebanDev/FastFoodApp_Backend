@@ -115,7 +115,7 @@ class UserServiceImpTest {
         newUser.setPassword("aPassWordForJulian");
         newUser.setDiscountPoint(123);
         newUser.setStatus(Status.INACTIVE);
-        //newUser.setUserRoles(AppUserRole.ROLE_CLIENT);
+        newUser.setUserRoles(AppUserRole.ROLE_CLIENT);
 
         String encodedPass = bCryptPasswordEncoder.encode(newUser.getPassword());
 
