@@ -30,36 +30,42 @@ public class ReportServiceImp implements IReportService {
 
     @Autowired
     private final IReportRepository reportRepository;
+    static final String DATE_FORMAT_PATTERN = "yyyy-MM-dd HH:mm:ss";
 
     @Override
-    public Collection<ReportClientDTO> getRankClient(String username, String startDate, String endDate){
+    public Collection<ReportClientDTO> getRankClient(String username, String startDate, String endDate) {
         log.info("Get the ranking of the best clients");
+        boolean noConditionSearch = username == null && startDate == null && endDate == null;
+        boolean usernameAndDateSearch = username != null && startDate != null && endDate != null;
+        boolean dateSearch = username == null && startDate != null && endDate != null;
+        boolean usernameSearch = username != null && startDate == null && endDate == null;
 
-        if (username == null && startDate == null && endDate == null) {
-            log.info("Search without conditions");
+        if (noConditionSearch) {
+            log.info("ReportServiceImp.java: Search without conditions");
             return reportRepository.getRankClients().stream().map(this::convertReportClientToDTO).collect(Collectors.toList());
         }
 
-        if (username == null && startDate != null && endDate != null) {
-            log.info("Search with date");
+        if (dateSearch) {
+            log.info("ReportServiceImp.java: Search with date");
             try {
-                return reportRepository.getRankClientsByDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(startDate), new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(endDate)).stream().map(this::convertReportClientToDTO).collect(Collectors.toList());
+                return reportRepository.getRankClientsByDate(new SimpleDateFormat(DATE_FORMAT_PATTERN).parse(startDate), new SimpleDateFormat(DATE_FORMAT_PATTERN).parse(endDate)).stream().map(this::convertReportClientToDTO).collect(Collectors.toList());
             } catch (ParseException e) {
-                // TODO Auto-generated catch block
+                log.error("ReportServiceImp.java: Exception in getRankClient() when ranking clients by date");
                 e.printStackTrace();
             }
         }
-        if (username != null && startDate != null && endDate != null) {
-            log.info("Search with username and date");
+        if (usernameAndDateSearch) {
+            log.info("ReportServiceImp.java: Search with username and date");
             try {
-                return reportRepository.getRankClientsByUsernameAndDate(username, new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(startDate), new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(endDate)).stream().map(this::convertReportClientToDTO).collect(Collectors.toList());
+                return reportRepository.getRankClientsByUsernameAndDate(username, new SimpleDateFormat(DATE_FORMAT_PATTERN).parse(startDate), new SimpleDateFormat(DATE_FORMAT_PATTERN).parse(endDate)).stream().map(this::convertReportClientToDTO).collect(Collectors.toList());
             } catch (ParseException e) {
-                // TODO Auto-generated catch block
+                log.error("ReportServiceImp.java: Exception in getRankClient()  ranking clients by username and date");
                 e.printStackTrace();
             }
         }
-        if (username != null && startDate == null && endDate == null) {
-            log.info("Search with username");
+
+        if (usernameSearch) {
+            log.info("ReportServiceImp.java: Search with username");
             return reportRepository.getRankClientsByUsername(username).stream().map(this::convertReportClientToDTO).collect(Collectors.toList());
 
         }
@@ -70,61 +76,73 @@ public class ReportServiceImp implements IReportService {
     public Collection<ReportProductDTO> getRankProducts(Long idProduct, Integer limit, String startDate, String endDate) {
 
         log.info("Get the ranking of the best products");
+        boolean noConditionSearch = idProduct == null && limit == null && startDate == null && endDate == null;
+        boolean idProductSearch = idProduct != null && limit == null && startDate == null && endDate == null;
+        boolean limitSearch = idProduct == null && limit != null && startDate == null && endDate == null;
+        boolean idProductAndLimitSearch = idProduct != null && limit != null && startDate == null && endDate == null;
+        boolean limitAndDateSearch = idProduct == null && limit != null && startDate != null && endDate != null;
+        boolean idProductAndDateSearch = idProduct != null && limit == null && startDate != null && endDate != null;
+        boolean dateSearch = idProduct == null && limit == null && startDate != null && endDate != null;
+        boolean idProductLimitAndDateSearch = idProduct != null && limit != null && startDate != null && endDate != null;
 
-        if (idProduct == null && limit == null && startDate == null && endDate == null) {
-            log.info("Search without conditions");
+        if (noConditionSearch) {
+            log.info("ReportService.java: Search without conditions");
             return reportRepository.getRankProducts().stream().map(this::convertReportProductToDTO).collect(Collectors.toList());
         }
 
-        if (idProduct != null && limit != null && startDate != null && endDate != null) {
-            log.info("Search by idProduct limit and date");
+        if (idProductLimitAndDateSearch) {
+            log.info("ReportService.java: Search by idProduct limit and date");
             try {
-                return reportRepository.getRankProductsByIdProductsAndDateAndLimit(idProduct, limit, new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(startDate), new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(endDate)).stream().map(this::convertReportProductToDTO).collect(Collectors.toList());
+                return reportRepository.getRankProductsByIdProductsAndDateAndLimit(idProduct, limit, new SimpleDateFormat(DATE_FORMAT_PATTERN).parse(startDate), new SimpleDateFormat(DATE_FORMAT_PATTERN).parse(endDate)).stream().map(this::convertReportProductToDTO).collect(Collectors.toList());
             } catch (ParseException e) {
+                log.error("ReportService.java: EXCEPTION in getRankProducts() when searching by idProduct, limit and date");
                 e.printStackTrace();
             }
         }
-        if (idProduct == null && limit == null && startDate != null && endDate != null) {
-            log.info("Search by date");
-            try {
-                return reportRepository.getRankProductsByDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(startDate), new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(endDate)).stream().map(this::convertReportProductToDTO).collect(Collectors.toList());
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
-        }
-        if (idProduct != null && limit == null && startDate != null && endDate != null) {
-            log.info("Search by idProduct and date");
-            try {
-                return reportRepository.getRankProductsByIdProductsAndDate(idProduct, new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(startDate), new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(endDate)).stream().map(this::convertReportProductToDTO).collect(Collectors.toList());
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
-        }
-        if (idProduct == null && limit != null && startDate != null && endDate != null) {
-            log.info("Search by limit and date");
-            try {
-                return reportRepository.getRankProductsByDateAndLimit(limit, new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(startDate), new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(endDate)).stream().map(this::convertReportProductToDTO).collect(Collectors.toList());
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
-        }
-        if (idProduct != null && limit != null && startDate == null && endDate == null) {
-            log.info("Search by idProduct and limit");
 
+        if (dateSearch) {
+            log.info("ReportService.java: Search by date");
+            try {
+                return reportRepository.getRankProductsByDate(new SimpleDateFormat(DATE_FORMAT_PATTERN).parse(startDate), new SimpleDateFormat(DATE_FORMAT_PATTERN).parse(endDate)).stream().map(this::convertReportProductToDTO).collect(Collectors.toList());
+            } catch (ParseException e) {
+                log.error("ReportService.java: EXCEPTION in getRankProducts() when searching by date");
+                e.printStackTrace();
+            }
+        }
+
+        if (idProductAndDateSearch) {
+            log.info("ReportService.java: Search by idProduct and date");
+            try {
+                return reportRepository.getRankProductsByIdProductsAndDate(idProduct, new SimpleDateFormat(DATE_FORMAT_PATTERN).parse(startDate), new SimpleDateFormat(DATE_FORMAT_PATTERN).parse(endDate)).stream().map(this::convertReportProductToDTO).collect(Collectors.toList());
+            } catch (ParseException e) {
+                log.error("ReportService.java: EXCEPTION in getRankProducts() when searching by idProduct and date");
+                e.printStackTrace();
+            }
+        }
+
+        if (limitAndDateSearch) {
+            log.info("ReportService.java: Search by limit and date");
+            try {
+                return reportRepository.getRankProductsByDateAndLimit(limit, new SimpleDateFormat(DATE_FORMAT_PATTERN).parse(startDate), new SimpleDateFormat(DATE_FORMAT_PATTERN).parse(endDate)).stream().map(this::convertReportProductToDTO).collect(Collectors.toList());
+            } catch (ParseException e) {
+                log.error("ReportService.java: EXCEPTION in getRankProducts() when searching by limit and date");
+                e.printStackTrace();
+            }
+        }
+
+        if (idProductAndLimitSearch) {
+            log.info("ReportService.java: Search by idProduct and limit");
             return reportRepository.getRankProductsByIdProductsAndLimit(idProduct, limit).stream().map(this::convertReportProductToDTO).collect(Collectors.toList());
-
         }
-        if (idProduct != null && limit == null && startDate == null && endDate == null) {
-            log.info("Search by idProduct");
 
+        if (idProductSearch) {
+            log.info("ReportService.java: Search by idProduct");
             return reportRepository.getRankProductsByIdProducts(idProduct).stream().map(this::convertReportProductToDTO).collect(Collectors.toList());
-
         }
-        if (idProduct == null && limit != null && startDate == null && endDate == null) {
-            log.info("Search by limit");
 
+        if (limitSearch) {
+            log.info("ReportService.java: Search by limit");
             return reportRepository.getRankProductsByLimit(limit).stream().map(this::convertReportProductToDTO).collect(Collectors.toList());
-
         }
         return null;
     }
@@ -134,11 +152,11 @@ public class ReportServiceImp implements IReportService {
         log.info("Get the sales");
 
         if (startDate != null && endDate != null) {
-            log.info("Search with date");
+            log.info("ReportServiceImp.java: Search with date");
             try {
-                return reportRepository.getSalesByDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(startDate), new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(endDate)).stream().map(this::convertReportSalesToDTO).collect(Collectors.toList());
+                return reportRepository.getSalesByDate(new SimpleDateFormat(DATE_FORMAT_PATTERN).parse(startDate), new SimpleDateFormat(DATE_FORMAT_PATTERN).parse(endDate)).stream().map(this::convertReportSalesToDTO).collect(Collectors.toList());
             } catch (ParseException e) {
-                // TODO Auto-generated catch block
+                log.error("ReportServiceImp.java: Exception in getSalesByDate() while getting sales by date");
                 e.printStackTrace();
             }
         }
@@ -159,7 +177,7 @@ public class ReportServiceImp implements IReportService {
 
     @Override
     public Collection<ReportPayModeDTO> getPayModeQuantity() {
-        log.info("Get the paymode");
+        log.info("Get the pay mode");
         return reportRepository.getSalesPayMode().stream().map(this::convertReportPayModeToDTO).collect(Collectors.toList());
     }
 
@@ -170,11 +188,11 @@ public class ReportServiceImp implements IReportService {
         return reportSales;
     }
 
-    private ReportPayModeDTO convertReportPayModeToDTO(Map<String, Object> paymode) {
+    private ReportPayModeDTO convertReportPayModeToDTO(Map<String, Object> payMode) {
         ReportPayModeDTO reportPayMode = new ReportPayModeDTO();
-        reportPayMode.setIdPayMode(((BigInteger) paymode.get("id_pay_mode")).intValue());
-        reportPayMode.setName((String) paymode.get("name"));
-        reportPayMode.setQuantity(((BigInteger) paymode.get("quantity")).intValue());
+        reportPayMode.setIdPayMode(((BigInteger) payMode.get("id_pay_mode")).intValue());
+        reportPayMode.setName((String) payMode.get("name"));
+        reportPayMode.setQuantity(((BigInteger) payMode.get("quantity")).intValue());
         return reportPayMode;
     }
 
