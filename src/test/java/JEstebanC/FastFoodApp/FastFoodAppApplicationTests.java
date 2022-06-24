@@ -1,4 +1,4 @@
-package JEstebanC.FastFoodApp;
+/*package JEstebanC.FastFoodApp;
 
 import JEstebanC.FastFoodApp.service.*;
 import org.junit.jupiter.api.Test;
@@ -33,22 +33,5 @@ class FastFoodAppApplicationTests {
     SubscriberServiceImp subscriberServiceImp;
     @Autowired
     TaxServiceImp taxServiceImp;
-
-
-    @Test
-    void contextLoads() {
-        assertThat(userServiceImp).isNotNull();
-        assertThat(categoryServiceImp).isNotNull();
-        assertThat(productServiceImp).isNotNull();
-        assertThat(additionalServiceImp).isNotNull();
-        assertThat(billServiceImp).isNotNull();
-        assertThat(cloudinaryService).isNotNull();
-        assertThat(companyServiceImp).isNotNull();
-        assertThat(orderServiceImp).isNotNull();
-        assertThat(payModeServiceImp).isNotNull();
-        assertThat(reportServiceImp).isNotNull();
-        assertThat(subscriberServiceImp).isNotNull();
-        assertThat(taxServiceImp).isNotNull();
-    }
 
 }

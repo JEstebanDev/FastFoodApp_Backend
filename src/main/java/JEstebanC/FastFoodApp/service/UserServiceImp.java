@@ -273,7 +273,7 @@ public class UserServiceImp implements IUserService, UserDetailsService {
 
     public Boolean sendMail(HttpServletRequest request, String email, String userName,
                             String name) {
-
+        log.info("Sending mail");
         // Reference to the keyValue
         Algorithm algorithm = Algorithm.HMAC256(OperationUtil.keyValue().getBytes());
         String token = JWT.create().withSubject(userName)
@@ -288,7 +288,7 @@ public class UserServiceImp implements IUserService, UserDetailsService {
         String html = "Hola " + name + "! \n" + "¿olvidaste tu contraseña? \n"
                 + "Recibimos una petición para restablecer tu contraseña\n"
                 + "Para restablecer tu contraseña por favor presiona clic en el siguiente enlace \n"
-                + "http://localhost:8081/api/v1/reset-password?token=" + token;
+                + "http://localhost:4200/recover-password/" + token;
         message.setText(html);
         javaMailSender.send(message);
         return true;

@@ -138,44 +138,6 @@ class UserServiceImpTest {
     }
 
     @Test
-    @DisplayName("USER updatePasswordClient() modifies password of User")
-    void updatePasswordClientModifiesUserPassword() {
-        String oldPassword = user.getPassword();
-        when(userRepository.findByUsername(any(String.class))).thenReturn(user);
-        when(userRepository.save(any(User.class))).thenReturn(user);
-        userServiceImp.updatePasswordClient(user.getUsername(), "newPassword");
-
-        assertNotSame(oldPassword, user.getPassword());
-        assertSame(60, user.getPassword().length());
-    }
-
-    @Test
-    @DisplayName("USER updatePasswordClient() throws exception when user is null")
-    void updatePasswordClientThrowsExceptionWhenUserIsNull() {
-        when(userRepository.findByUsername(any(String.class))).thenReturn(null);
-        assertThrows(UsernameNotFoundException.class, () -> userServiceImp.updatePasswordClient("Adrian", "newPassword"));
-    }
-
-    @Test
-    @DisplayName("USER findByEmail() returns correct User when email is found")
-    void findByEmailReturnsCorrectUser() {
-        when(userRepository.findByEmail(any(String.class))).thenReturn(user);
-        //no way to convert from User to UserDTO, so we compare some fields
-        UserDTO usrDto = userServiceImp.findByEmail(user.getEmail());
-        assertEquals(user.getUsername(), usrDto.getUsername());
-        assertEquals(user.getEmail(), usrDto.getEmail());
-        assertEquals(user.getPhone(), usrDto.getPhone());
-        assertEquals(user.getIdUser(), usrDto.getIdUser());
-    }
-
-    @Test
-    @DisplayName("USER findByEmail() returns null when user is not found")
-    void findByEmailReturnsNullWhenEmailIsNotFound() {
-        when(userRepository.findByEmail(any(String.class))).thenReturn(null);
-        assertNull(userServiceImp.findByEmail(user.getEmail()));
-    }
-
-    @Test
     @DisplayName("USER validationToken returns null when token is null")
     void validationTokenThrowsExceptionWhenTokenIsNull() {
         assertNull(userServiceImp.validationToken(null));
