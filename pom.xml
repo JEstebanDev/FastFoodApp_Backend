@@ -77,7 +77,6 @@
             <artifactId>cloudinary-http44</artifactId>
             <version>1.32.1</version>
         </dependency>
-
         <!-- Mockito for testing-->
         <dependency>
             <groupId>org.mockito</groupId>
