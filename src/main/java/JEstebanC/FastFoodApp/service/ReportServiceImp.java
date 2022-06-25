@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -184,7 +185,7 @@ public class ReportServiceImp implements IReportService {
     private ReportSalesDTO convertReportSalesToDTO(Map<String, BigInteger> sales) {
         ReportSalesDTO reportSales = new ReportSalesDTO();
         reportSales.setIdBill((long) sales.get("id_bill").intValue());
-        reportSales.setTotal(sales.get("total").intValue());
+        reportSales.setTotal(sales.get("total"));
         return reportSales;
     }
 
@@ -201,7 +202,7 @@ public class ReportServiceImp implements IReportService {
         reportProduct.setIdProduct((long) ((BigInteger) report.get("id_product")).intValue());
         reportProduct.setName(String.valueOf(report.get("name")));
         reportProduct.setAmount(((BigInteger) report.get("amount")).intValue());
-        reportProduct.setTotal(((BigInteger) report.get("total")).intValue());
+        reportProduct.setTotal((BigInteger) report.get("total"));
         return reportProduct;
     }
 
@@ -210,21 +211,21 @@ public class ReportServiceImp implements IReportService {
         reportClient.setIdUser((long) ((BigInteger) client.get("id_user")).intValue());
         reportClient.setUsername((String) client.get("username"));
         reportClient.setUrlImage((String) client.get("url_image"));
-        reportClient.setTotal(((BigInteger) client.get("total")).intValue());
+        reportClient.setTotal(((BigInteger) client.get("total")));
         return reportClient;
     }
 
     private ReportSalesMonthlyDTO convertReportSalesMonthlyToDTO(Map<String, Object> salesMonthly) {
         ReportSalesMonthlyDTO reportSalesMonthly = new ReportSalesMonthlyDTO();
-        reportSalesMonthly.setMonth((Double) salesMonthly.get("month"));
-        reportSalesMonthly.setTotal(((BigInteger) salesMonthly.get("total")).intValue());
+        reportSalesMonthly.setMonth((long) ((BigDecimal) salesMonthly.get("month")).intValue());
+        reportSalesMonthly.setTotal(((BigInteger) salesMonthly.get("total")));
         return reportSalesMonthly;
     }
 
     private ReportSalesWeeklyDTO convertReportSalesWeeklyToDTO(Map<String, Object> salesWeekly) {
         ReportSalesWeeklyDTO reportSalesWeekly = new ReportSalesWeeklyDTO();
-        reportSalesWeekly.setWeekday((Double) salesWeekly.get("weekday"));
-        reportSalesWeekly.setTotal(((BigInteger) salesWeekly.get("total")).intValue());
+        reportSalesWeekly.setWeekday((long) ((BigDecimal) salesWeekly.get("weekday")).intValue());
+        reportSalesWeekly.setTotal(((BigInteger) salesWeekly.get("total")));
         return reportSalesWeekly;
     }
 }
