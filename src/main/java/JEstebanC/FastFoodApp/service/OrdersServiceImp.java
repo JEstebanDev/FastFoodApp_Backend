@@ -41,7 +41,6 @@ public class OrdersServiceImp implements IOrdersService {
     public OrdersDTO create(Orders orders) {
         log.info("Saving new order");
         orders.setStatusOrder(StatusOrder.NEW);
-
         return convertOrderToDTO(ordersRepository.save(orders));
     }
 
@@ -90,6 +89,10 @@ public class OrdersServiceImp implements IOrdersService {
         return ordersRepository.findById(idOrders).get();
     }
 
+    public void updateTotalPrice(Long idBill){
+        //here call the update for the TotalPriceBill
+        ordersRepository.setTotalPriceBill(idBill);
+    }
     private OrdersDTO convertOrderToDTO(Orders orders) {
         int totalAdditional = 0;
         if (orders.getProduct().getIdProduct() != null) {
@@ -108,24 +111,15 @@ public class OrdersServiceImp implements IOrdersService {
         } else {
             return null;
         }
-
         OrdersDTO Order = new OrdersDTO();
         Order.setIdOrder(orders.getIdOrder());
         Order.setStatusOrder(orders.getStatusOrder());
         Order.setAmount(orders.getAmount());
-
         Order.setTotal(orders.getTotal());
-        //this is important because this method update the totalPrice
-        ordersRepository.setTotalPriceBill(orders.getBill().getIdBill());
-
         Order.setProduct(orders.getProduct());
 
         Collection<Additional> additional = new ArrayList<>(orders.getAdditional());
         Order.setAdditional(additional);
-
         return Order;
     }
-
-
-
 }

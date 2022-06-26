@@ -18,16 +18,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.query.Param;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import java.text.ParseException;
 import java.time.Instant;
-import java.util.Date;
 import java.util.Map;
 
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
@@ -44,7 +41,6 @@ public class BillController {
     private final BillServiceImp serviceImp;
     @Autowired
     private final UserServiceImp serviceImpUser;
-
     // CREATE
     @PostMapping()
     public ResponseEntity<Response> saveBill(@RequestBody @Valid Bill bill) {
@@ -361,4 +357,37 @@ public class BillController {
                         .build());
 
     }
+    @GetMapping(value = "/transaction/{idBill}")
+    public ResponseEntity<Response> checkTransaction(@PathVariable("idBill") Long idBill){
+        if (serviceImp.exist(idBill)) {
+            if (serviceImp.validateTransaction(idBill)) {
+                return ResponseEntity.ok(
+                        Response.builder()
+                                .timeStamp(Instant.now())
+                                .data(Map.of("bill", true))
+                                .message("bill")
+                                .status(HttpStatus.OK)
+                                .statusCode(HttpStatus.OK.value())
+                                .build());
+            } else {
+                return ResponseEntity.ok(
+                        Response.builder()
+                                .timeStamp(Instant.now())
+                                .message("The bill with id:" + idBill + " is already paid")
+                                .status(HttpStatus.BAD_REQUEST)
+                                .statusCode(HttpStatus.BAD_REQUEST.value())
+                                .build());
+            }
+        } else {
+            return ResponseEntity.ok(
+                    Response.builder()
+                            .timeStamp(Instant.now())
+                            .message("The bill with id:" + idBill + " does not exist")
+                            .status(HttpStatus.BAD_REQUEST)
+                            .statusCode(HttpStatus.BAD_REQUEST.value())
+                            .build());
+        }
+    }
+
+
 }

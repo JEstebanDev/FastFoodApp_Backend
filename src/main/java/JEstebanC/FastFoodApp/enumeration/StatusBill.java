@@ -1,5 +1,5 @@
 package JEstebanC.FastFoodApp.enumeration;
 
 public enum StatusBill {
-	PAID, PENDING, NONPAYMENT,DELETED;
+	PAID, PENDING, DECLINED,DELETED;
 }

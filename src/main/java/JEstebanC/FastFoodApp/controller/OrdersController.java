@@ -1,5 +1,6 @@
 package JEstebanC.FastFoodApp.controller;
 
+import JEstebanC.FastFoodApp.dto.OrdersDTO;
 import JEstebanC.FastFoodApp.dto.UserBillOrdersDTO;
 import JEstebanC.FastFoodApp.enumeration.StatusBill;
 import JEstebanC.FastFoodApp.enumeration.StatusOrder;
@@ -41,10 +42,13 @@ public class OrdersController {
         if (serviceBillImp.exist(order.getBill().getIdBill())) {
             UserBillOrdersDTO userBillOrdersDTO = serviceBillImp.findByIdBill(order.getBill().getIdBill());
             if (userBillOrdersDTO.getBillUserDTO().getStatusBill() != StatusBill.PAID) {
+                OrdersDTO ordersDTO=serviceImp.create(order);
+                //this is important because this method update the totalPrice
+                serviceImp.updateTotalPrice(order.getBill().getIdBill());
                 return ResponseEntity.ok(
                         Response.builder()
                                 .timeStamp(Instant.now())
-                                .data(Map.of("order", serviceImp.create(order)))
+                                .data(Map.of("order", ordersDTO))
                                 .message("Create order")
                                 .status(HttpStatus.OK)
                                 .statusCode(HttpStatus.OK.value())
