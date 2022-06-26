@@ -373,7 +373,7 @@ public class BillController {
                 return ResponseEntity.ok(
                         Response.builder()
                                 .timeStamp(Instant.now())
-                                .message("The bill with id:" + idBill + " is already paid")
+                                .message("Error problems to connect with Wompi")
                                 .status(HttpStatus.BAD_REQUEST)
                                 .statusCode(HttpStatus.BAD_REQUEST.value())
                                 .build());

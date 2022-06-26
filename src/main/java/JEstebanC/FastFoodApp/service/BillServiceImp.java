@@ -61,34 +61,31 @@ public class BillServiceImp implements IBillService {
     }
 
     public boolean validateTransaction(long idBill) {
-        Bill bill=billRepository.findByIdBill(idBill);
+        Bill bill = billRepository.findByIdBill(idBill);
         bill.setIdBill(idBill);
-        if (!bill.getStatusBill().equals(StatusBill.PAID)){
-            String url = "https://sandbox.wompi.co/v1/transactions?reference=" + bill.getIdTransaction();
-            // create headers
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
-            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-            headers.set("Authorization", "Bearer prv_test_2Vjk6fZaET3oNejoRegTLiJO4Lk6yyjW");
+        String url = "https://sandbox.wompi.co/v1/transactions?reference=" + bill.getIdTransaction();
+        // create headers
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+        headers.set("Authorization", "Bearer prv_test_2Vjk6fZaET3oNejoRegTLiJO4Lk6yyjW");
 
-            RestTemplate restTemplate = new RestTemplate();
-            HttpEntity<Object> entity = new HttpEntity<>(headers);
-            Wompi wompi = restTemplate.exchange(url, HttpMethod.GET, entity, Wompi.class).getBody();
-            AtomicInteger status = new AtomicInteger();
-            if (wompi != null) {
-                wompi.data.forEach(datum -> {
-                    if (datum.status.equals("APPROVED")) {
-                        bill.setStatusBill(StatusBill.PAID);
-                    }else{
-                        bill.setStatusBill(StatusBill.DECLINED);
-                    }
-                });
-                return true;
-            }else{
-                return false;
-            }
+        RestTemplate restTemplate = new RestTemplate();
+        HttpEntity<Object> entity = new HttpEntity<>(headers);
+        Wompi wompi = restTemplate.exchange(url, HttpMethod.GET, entity, Wompi.class).getBody();
+        AtomicInteger status = new AtomicInteger();
+        if (wompi != null) {
+            wompi.data.forEach(datum -> {
+                if (datum.status.equals("APPROVED")) {
+                    bill.setStatusBill(StatusBill.PAID);
+                } else {
+                    bill.setStatusBill(StatusBill.DECLINED);
+                }
+            });
+            return true;
+        } else {
+            return false;
         }
-        return false;
     }
 
     @Override
@@ -273,7 +270,7 @@ public class BillServiceImp implements IBillService {
         BillUserDTO billUser = new BillUserDTO();
         billUser.setIdBill(bill.getIdBill());
         billUser.setNoTable(bill.getNoTable());
-
+        billUser.setIdTransaction(bill.getIdTransaction());
         convertPartBillDTO(bill, billUser);
         Collection<OrdersDTO> orders =
                 ordersRepository.findByIdBill(bill.getIdBill()).stream()
