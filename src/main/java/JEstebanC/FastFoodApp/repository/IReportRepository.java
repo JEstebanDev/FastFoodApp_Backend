@@ -96,12 +96,12 @@ public interface IReportRepository extends JpaRepository<Orders, Long> {
             + "JOIN bill Bill on Bill.id_bill=Orders.id_bill WHERE Bill.status_bill=0 AND Bill.date BETWEEN :startDate AND :endDate GROUP BY (Orders.id_bill) ORDER BY total DESC", nativeQuery = true)
     Collection<Map<String, BigInteger>> getSalesByDate(@Param("startDate") Date startDate, @Param("endDate") Date endDate);
 
-    @Query(value = "SELECT EXTRACT(MONTH FROM date) AS month, SUM(COALESCE(total_price,0)) AS total FROM bill Bill WHERE EXTRACT(MONTH FROM date) " +
-            "BETWEEN 1 AND EXTRACT(MONTH FROM CURRENT_DATE) GROUP BY (month) ORDER BY month ASC", nativeQuery = true)
+    @Query(value = "SELECT EXTRACT(MONTH FROM date) AS month, SUM(COALESCE(total_price,0)) AS total FROM bill Bill WHERE Bill.status_bill=0 AND  " +
+            "EXTRACT(MONTH FROM date) BETWEEN 1 AND EXTRACT(MONTH FROM CURRENT_DATE) GROUP BY (month) ORDER BY month ASC", nativeQuery = true)
     Collection<Map<String, Object>> getSalesMonthly();
 
     @Query(value = "SELECT distinct(extract(isodow from date)) as weekday, SUM(COALESCE(total_price,0)) AS total FROM bill Bill " +
-            "WHERE Bill.date BETWEEN date_trunc('week', current_timestamp) AND  current_timestamp GROUP BY (weekday) ORDER BY weekday ASC", nativeQuery = true)
+            "WHERE Bill.status_bill=0 AND  Bill.date BETWEEN date_trunc('week', current_timestamp) AND  current_timestamp GROUP BY (weekday) ORDER BY weekday ASC", nativeQuery = true)
     Collection<Map<String, Object>> getSalesWeekly();
     //	PAYMODE COUNT
     @Query(value = "SELECT Bill.id_pay_mode,Pay.name, COUNT(Bill.id_pay_mode) quantity FROM bill Bill " +

@@ -7,6 +7,7 @@ import JEstebanC.FastFoodApp.dto.BillUserDTO;
 import JEstebanC.FastFoodApp.dto.OrdersDTO;
 import JEstebanC.FastFoodApp.dto.UserBillOrdersDTO;
 import JEstebanC.FastFoodApp.dto.validation.UserForBillDTO;
+import JEstebanC.FastFoodApp.dto.wompi.Wompi;
 import JEstebanC.FastFoodApp.enumeration.StatusBill;
 import JEstebanC.FastFoodApp.enumeration.StatusOrder;
 import JEstebanC.FastFoodApp.model.Additional;
@@ -19,13 +20,20 @@ import JEstebanC.FastFoodApp.service.interfaces.IBillService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import javax.transaction.Transactional;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 /**
@@ -50,6 +58,37 @@ public class BillServiceImp implements IBillService {
         }
         bill.setStatusBill(StatusBill.PENDING);
         return convertBillToDTO(billRepository.save(bill));
+    }
+
+    public boolean validateTransaction(long idBill) {
+        Bill bill=billRepository.findByIdBill(idBill);
+        bill.setIdBill(idBill);
+        if (!bill.getStatusBill().equals(StatusBill.PAID)){
+            String url = "https://sandbox.wompi.co/v1/transactions?reference=" + bill.getIdTransaction();
+            // create headers
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            headers.set("Authorization", "Bearer prv_test_2Vjk6fZaET3oNejoRegTLiJO4Lk6yyjW");
+
+            RestTemplate restTemplate = new RestTemplate();
+            HttpEntity<Object> entity = new HttpEntity<>(headers);
+            Wompi wompi = restTemplate.exchange(url, HttpMethod.GET, entity, Wompi.class).getBody();
+            AtomicInteger status = new AtomicInteger();
+            if (wompi != null) {
+                wompi.data.forEach(datum -> {
+                    if (datum.status.equals("APPROVED")) {
+                        bill.setStatusBill(StatusBill.PAID);
+                    }else{
+                        bill.setStatusBill(StatusBill.DECLINED);
+                    }
+                });
+                return true;
+            }else{
+                return false;
+            }
+        }
+        return false;
     }
 
     @Override
@@ -264,7 +303,6 @@ public class BillServiceImp implements IBillService {
 
         Collection<Additional> additional = new ArrayList<>(orders.getAdditional());
         billOrder.setAdditional(additional);
-
         return billOrder;
     }
 
