@@ -37,18 +37,17 @@ public class SubscriberController {
 	private final SubscriberServiceImp serviceImp;
 
 //	CREATE 
-	@PostMapping()
-	public ResponseEntity<Response> saveSubscriber(@RequestBody @Valid Subscriber subscriber) {
-		if (!serviceImp.existByEmail(subscriber.getEmail())) {
+	@GetMapping("/{email}")
+	public ResponseEntity<Response> saveSubscriber(@PathVariable("email") String email) {
+		if (!serviceImp.existByEmail(email)) {
 			return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
-					.data(Map.of("subscriber", serviceImp.create(subscriber))).message("Create subscriber")
+					.data(Map.of("subscriber", serviceImp.create(email))).message("Create subscriber")
 					.status(HttpStatus.OK).statusCode(HttpStatus.OK.value()).build());
 		} else {
 			return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
-					.message("The subscriber: " + subscriber.getEmail() + " already exist")
+					.message("The subscriber: " + email + " already exist")
 					.status(HttpStatus.BAD_REQUEST).statusCode(HttpStatus.BAD_REQUEST.value()).build());
 		}
-
 	}
 
 	@PreAuthorize("hasRole('ROLE_ADMIN') OR hasRole('ROLE_EMPLOYEE')")

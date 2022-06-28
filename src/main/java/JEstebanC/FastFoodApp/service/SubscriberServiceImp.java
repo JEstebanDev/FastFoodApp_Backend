@@ -7,6 +7,7 @@ import java.util.Collection;
 
 import javax.transaction.Transactional;
 
+import JEstebanC.FastFoodApp.enumeration.Status;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -28,8 +29,11 @@ public class SubscriberServiceImp implements ISubscriberService {
 	@Autowired
 	private ISubscriberRepository subscriberRepository;
 
-	public Subscriber create(Subscriber subscriber) {
-		log.info("Saving new subscriber: " + subscriber.getEmail());
+	public Subscriber create(String email) {
+		log.info("Saving new subscriber: " + email);
+		Subscriber subscriber=new Subscriber();
+		subscriber.setEmail(email);
+		subscriber.setStatus(Status.ACTIVE);
 		return subscriberRepository.save(subscriber);
 	}
 
