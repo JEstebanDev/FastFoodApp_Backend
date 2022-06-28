@@ -1,6 +1,7 @@
 package JEstebanC.FastFoodApp.service.interfaces;
 
 import JEstebanC.FastFoodApp.model.Company;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Collection;
 
@@ -9,11 +10,11 @@ import java.util.Collection;
  */
 public interface ICompanyService {
 
-    Company create(Company company);
+    Company create(Company company, MultipartFile file);
 
     Collection<Company> list();
 
-    Company update(Long idCompany, Company company);
+    Company update(Long idCompany, Company company, MultipartFile file);
 
     Boolean delete(Long idCompany);
 

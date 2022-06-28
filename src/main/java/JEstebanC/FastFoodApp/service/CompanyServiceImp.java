@@ -7,8 +7,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.transaction.Transactional;
+import java.io.IOException;
 import java.util.Collection;
 
 /**
@@ -22,10 +24,18 @@ public class CompanyServiceImp implements ICompanyService {
 
     @Autowired
     private final ICompanyRepository companyRepository;
-
+    @Autowired
+    private final CloudinaryService cloudinaryService;
     @Override
-    public Company create(Company company) {
+    public Company create(Company company, MultipartFile file) {
         log.info("Saving company: " + company.getName());
+        if (file != null) {
+            try {
+                company.setUrlImage(cloudinaryService.upload(file, "company"));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
         return companyRepository.save(company);
     }
 
@@ -36,10 +46,19 @@ public class CompanyServiceImp implements ICompanyService {
     }
 
     @Override
-    public Company update(Long idCompany, Company company) {
+    public Company update(Long idCompany, Company company, MultipartFile file) {
         log.info("Updating company: " + company.getName());
-        Company companyOld = companyRepository.findById(idCompany).get();
-        company.setIdCompany(companyOld.getIdCompany());
+        company.setIdCompany(idCompany);
+        if (file != null) {
+            try {
+                company.setUrlImage(cloudinaryService.upload(file, "company"));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        if(company.getUrlImage()==null && file == null){
+            company.setUrlImage(null);
+        }
         return companyRepository.save(company);
     }
 

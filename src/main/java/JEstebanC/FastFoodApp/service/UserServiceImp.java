@@ -85,6 +85,29 @@ public class UserServiceImp implements IUserService, UserDetailsService {
 
         // Set automatically the user type Client
         user.setUserRoles(AppUserRole.ROLE_CLIENT);
+
+        user.setDiscountPoint(0);
+        user.setStatus(Status.ACTIVE);
+        return userRepository.save(user);
+    }
+
+    public User createAdmin(User user, MultipartFile file) {
+        log.info("Saving new user-admin: " + user.getName());
+        user.setIdUser(user.getIdUser());
+        if (file != null) {
+            try {
+                user.setUrlImage(cloudinaryService.upload(file, "user"));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
+
+        if (user.getUserRoles() != null) {
+            user.setUserRoles(user.getUserRoles());
+        } else {
+            user.setUserRoles(AppUserRole.ROLE_CLIENT);
+        }
         user.setDiscountPoint(0);
         user.setStatus(Status.ACTIVE);
         return userRepository.save(user);
@@ -109,13 +132,16 @@ public class UserServiceImp implements IUserService, UserDetailsService {
                 e.printStackTrace();
             }
         }
-        if(user.getUrlImage()==null && file == null){
+        if (user.getUrlImage() == null && file == null) {
             userOld.setUrlImage(null);
         }
-        if(user.getUrlImage()!=null){
+        if (user.getUrlImage() != null) {
             userOld.setUrlImage(userOld.getUrlImage());
         }
         userOld.setStatus(user.getStatus());
+        if (user.getUserRoles() != null) {
+            userOld.setUserRoles(user.getUserRoles());
+        }
         return convertUserToDTO(userRepository.save(userOld));
     }
 
@@ -146,7 +172,7 @@ public class UserServiceImp implements IUserService, UserDetailsService {
                 e.printStackTrace();
             }
         }
-        if(userClientDTO.getUrlImage()==null && file == null){
+        if (userClientDTO.getUrlImage() == null && file == null) {
             userOld.setUrlImage(null);
         }
         return convertUserToDTO(userRepository.save(userOld));
@@ -167,10 +193,10 @@ public class UserServiceImp implements IUserService, UserDetailsService {
     public User updatePasswordClient(String username, String password) {
         log.info("Updating password username: " + username);
         User user = userRepository.findByUsername(username);
-        if(user==null){
+        if (user == null) {
             log.error("User with username: " + username + " not found");
             throw new UsernameNotFoundException("User with username: " + username + " not found");
-        }else {
+        } else {
             user.setPassword(bCryptPasswordEncoder.encode(password));
             System.out.println(bCryptPasswordEncoder.encode(password));
         }
@@ -191,6 +217,11 @@ public class UserServiceImp implements IUserService, UserDetailsService {
     public Collection<UserDTO> list(Long page) {
         log.info("List all users");
         return userRepository.list(page * 10).stream().map(this::convertUserToDTO).collect(Collectors.toList());
+    }
+
+    public Collection<UserDTO> listAdmin() {
+        log.info("List all users especial");
+        return userRepository.listUser().stream().map(this::convertUserToDTO).collect(Collectors.toList());
     }
 
     public UserDTO getUser(String username) {
@@ -214,19 +245,27 @@ public class UserServiceImp implements IUserService, UserDetailsService {
     @Override
     public Boolean exist(Long idUser) {
         log.info("Searching user by id: " + idUser);
-        return  userRepository.existsById(idUser);
+        return userRepository.existsById(idUser);
     }
 
-	public Boolean exist(String username) {
-		log.info("Searching user by username: " + username);
-		User user = userRepository.findByUsername(username);
-		return user != null;
-	}
+    public Boolean exist(String username) {
+        log.info("Searching user by username: " + username);
+        User user = userRepository.findByUsername(username);
+        return user != null;
+    }
 
     public Collection<UserDTO> findByName(String name) {
         log.info("Searching user by name: " + name);
 
         return userRepository.findByNameStartsWith(name).stream().map(this::convertUserToDTO)
+                .collect(Collectors.toList());
+
+    }
+
+    public Collection<UserDTO> findByNameAdmin(String name) {
+        log.info("Searching user-admin by name: " + name);
+
+        return userRepository.findByNameAdminStartsWith(name).stream().map(this::convertUserToDTO)
                 .collect(Collectors.toList());
 
     }
