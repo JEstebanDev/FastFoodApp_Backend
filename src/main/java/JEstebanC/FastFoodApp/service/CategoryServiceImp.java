@@ -74,6 +74,12 @@ public class CategoryServiceImp implements ICategoryService {
     }
 
     @Override
+    public Collection<Category> listCategoriesWithProducts() {
+        log.info("List all categories with products");
+        return categoryRepository.findCategoriesWithProducts();
+    }
+
+    @Override
     public Boolean exist(Long idCategory) {
         log.info("Searching category by id: " + idCategory);
         return categoryRepository.existsById(idCategory);

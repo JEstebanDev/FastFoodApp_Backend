@@ -22,6 +22,8 @@ public interface ICategoryService {
 
     Collection<Category> list();
 
+    Collection<Category> listCategoriesWithProducts();
+
     Boolean exist(Long idCategory);
 
 }

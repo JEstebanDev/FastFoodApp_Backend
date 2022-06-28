@@ -73,12 +73,51 @@ public class UserController {
         }
 
     }
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PostMapping("/admin")
+    public ResponseEntity<Response> saveUserAdmin(@RequestParam("request") @Valid String strUser,
+                                             @RequestParam("userimage") @Nullable MultipartFile file) {
+
+        try {
+            User user = new ObjectMapper().readValue(strUser, User.class);
+            if (serviceImp.findByUsername(user.getUsername()) == null) {
+                if (serviceImp.findByEmail(user.getEmail()) == null) {
+                    return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
+                            .data(Map.of("user", serviceImp.createAdmin(user, file))).message("Create user")
+                            .status(HttpStatus.OK).statusCode(HttpStatus.OK.value()).build());
+                } else {
+                    return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
+                            .message("The email: " + user.getEmail() + " already exist").status(HttpStatus.BAD_REQUEST)
+                            .statusCode(HttpStatus.BAD_REQUEST.value()).build());
+                }
+            } else {
+                return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
+                        .message("The username: " + user.getUsername() + " already exist")
+                        .status(HttpStatus.BAD_REQUEST).statusCode(HttpStatus.BAD_REQUEST.value()).build());
+            }
+
+        } catch (JsonProcessingException e) {
+            return ResponseEntity.ok(
+                    Response.builder().timeStamp(Instant.now()).message("Error creating the user: " + e.getMessage())
+                            .status(HttpStatus.BAD_REQUEST).statusCode(HttpStatus.BAD_REQUEST.value()).build());
+        }
+
+    }
 
     @PreAuthorize("hasRole('ROLE_ADMIN') OR hasRole('ROLE_EMPLOYEE')")
 //  READ
     @GetMapping(value = "/list/{page}")
     public ResponseEntity<Response> getUser(@PathVariable("page") Long page) {
         return ResponseEntity.ok(Response.builder().timeStamp(Instant.now()).data(Map.of("user", serviceImp.list(page)))
+                .message("List users").status(HttpStatus.OK).statusCode(HttpStatus.OK.value()).build());
+    }
+
+
+//  READ
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @GetMapping(value = "/list/admin")
+    public ResponseEntity<Response> getUsersAdmin() {
+        return ResponseEntity.ok(Response.builder().timeStamp(Instant.now()).data(Map.of("user", serviceImp.listAdmin()))
                 .message("List users").status(HttpStatus.OK).statusCode(HttpStatus.OK.value()).build());
     }
 
@@ -159,7 +198,23 @@ public class UserController {
 
         if (serviceImp.findByName(name) != null) {
             return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
-                    .data(Map.of("User", serviceImp.findByName(name))).message("Get user by name: " + name)
+                    .data(Map.of("user", serviceImp.findByName(name))).message("Get user by name: " + name)
+                    .status(HttpStatus.OK).statusCode(HttpStatus.OK.value()).build());
+
+        } else {
+            return ResponseEntity.ok(
+                    Response.builder().timeStamp(Instant.now()).message("The user called " + name + " does not exist")
+                            .status(HttpStatus.BAD_REQUEST).statusCode(HttpStatus.BAD_REQUEST.value()).build());
+        }
+    }
+
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @GetMapping(value = "/admin/{name}")
+    public ResponseEntity<Response> getUserAdminByName(@PathVariable("name") String name) {
+
+        if (serviceImp.findByNameAdmin(name) != null) {
+            return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
+                    .data(Map.of("user", serviceImp.findByNameAdmin(name))).message("Get user by name: " + name)
                     .status(HttpStatus.OK).statusCode(HttpStatus.OK.value()).build());
 
         } else {
