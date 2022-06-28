@@ -14,7 +14,7 @@ import JEstebanC.FastFoodApp.model.Subscriber;
  */
 public interface ISubscriberService {
 	
-	Subscriber create(Subscriber subscriber);
+	Subscriber create(String email);
 	
 	Collection<Subscriber> list(Long page);
 
