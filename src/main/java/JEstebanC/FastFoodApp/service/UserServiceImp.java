@@ -82,10 +82,8 @@ public class UserServiceImp implements IUserService, UserDetailsService {
             }
         }
         user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
-
         // Set automatically the user type Client
         user.setUserRoles(AppUserRole.ROLE_CLIENT);
-
         user.setDiscountPoint(0);
         user.setStatus(Status.ACTIVE);
         return userRepository.save(user);
@@ -102,12 +100,7 @@ public class UserServiceImp implements IUserService, UserDetailsService {
             }
         }
         user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
-
-        if (user.getUserRoles() != null) {
-            user.setUserRoles(user.getUserRoles());
-        } else {
-            user.setUserRoles(AppUserRole.ROLE_CLIENT);
-        }
+        user.setUserRoles(user.getUserRoles());
         user.setDiscountPoint(0);
         user.setStatus(Status.ACTIVE);
         return userRepository.save(user);
@@ -151,7 +144,6 @@ public class UserServiceImp implements IUserService, UserDetailsService {
         userOld.setPhone((long) userEmployeeDTO.getPhone());
         userOld.setEmail(userEmployeeDTO.getEmail());
         return convertUserToDTO(userRepository.save(userOld));
-
     }
 
     public UserDTO updateClient(UserClientDTO userClientDTO, long id, MultipartFile file) {
