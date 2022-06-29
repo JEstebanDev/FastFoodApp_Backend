@@ -25,6 +25,6 @@ public interface IAdditionalRepository extends JpaRepository<Additional, Long> {
 	Additional findByName(String name);
 	
 	@Query(value = "SELECT additional.*	FROM public.additional additional join additional_category category on category.id_additional=additional.id_additional "
-			+ "where category.id_category=:idcategory", nativeQuery = true)
+			+ "where additional.status=1 AND category.id_category=:idcategory", nativeQuery = true)
 	Collection<Additional> findByIdCategory(@Param("idcategory") Long idCategory);
 }

@@ -26,8 +26,11 @@ public interface IBillRepository extends JpaRepository<Bill, Long> {
     Collection<Bill> findByIdUserAndStatusBillAndDateBetween(@Param("username") String username,
                                                              @Param("statusBill") int statusBill, @Param("startDate") Date startDate, @Param("endDate") Date endDate);
 
-    @Query(value = "SELECT Bill.* FROM bill Bill JOIN user_app User_App on Bill.id_user=User_App.id_user WHERE User_App.username=:username", nativeQuery = true)
+    @Query(value = "SELECT Bill.* FROM bill Bill JOIN user_app User_App on Bill.id_user=User_App.id_user WHERE status_bill=0 AND User_App.username=:username ORDER BY date DESC", nativeQuery = true)
     Collection<Bill> findByIdUser(@Param("username") String username);
+
+    @Query(value = "SELECT Bill.* FROM bill Bill JOIN user_app User_App on Bill.id_user=User_App.id_user WHERE User_App.username=:username ORDER BY date DESC", nativeQuery = true)
+    Collection<Bill> findByIdUserAdmin(@Param("username") String username);
 
     Collection<Bill> findByStatusBill(StatusBill statusBill);
 

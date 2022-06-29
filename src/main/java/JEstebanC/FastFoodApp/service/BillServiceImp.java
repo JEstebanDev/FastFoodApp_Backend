@@ -160,7 +160,7 @@ public class BillServiceImp implements IBillService {
 
     @Override
     public Collection<UserBillOrdersDTO> findByNewIdUser(
-            String username, StatusBill statusBill, String startDate, String endDate) {
+            String username, StatusBill statusBill, String startDate, String endDate,int number) {
         if (username != null && statusBill != null && startDate != null && endDate != null) {
             try {
                 log.info("Searching bills by User StatusBill DateBetween");
@@ -185,9 +185,15 @@ public class BillServiceImp implements IBillService {
         }
         if (username != null && statusBill == null && startDate == null && endDate == null) {
             log.info("Searching bills by User");
-            return billRepository.findByIdUser(username).stream()
-                    .map(this::convertBillOrderToDTO)
-                    .collect(Collectors.toList());
+            if (number==1) {
+                return billRepository.findByIdUser(username).stream()
+                        .map(this::convertBillOrderToDTO)
+                        .collect(Collectors.toList());
+            }else{
+                return billRepository.findByIdUserAdmin(username).stream()
+                        .map(this::convertBillOrderToDTO)
+                        .collect(Collectors.toList());
+            }
         }
         if (username == null && statusBill != null && startDate == null && endDate == null) {
             log.info("Searching bills by StatusBill");

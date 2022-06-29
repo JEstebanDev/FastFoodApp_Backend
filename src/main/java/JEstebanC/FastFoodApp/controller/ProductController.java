@@ -140,23 +140,6 @@ public class ProductController {
         }
     }
 
-    //	SEARCH BY CATEGORY
-    @GetMapping(value = "/category/{name}")
-    public ResponseEntity<Response> getProductByCategoryName(@PathVariable("name") String name) {
-        Collection<Product> listProduct = serviceImp.findByNameCategory(name);
-        if (listProduct != null) {
-            return ResponseEntity.ok(Response.builder().timeStamp(Instant.now()).data(Map.of("products", listProduct))
-                    .message("Get product with category called: " + name).status(HttpStatus.OK)
-                    .statusCode(HttpStatus.OK.value()).build());
-
-        } else {
-            return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
-                    .message("The product with category called " + name + " does not exist")
-                    .status(HttpStatus.BAD_REQUEST).statusCode(HttpStatus.BAD_REQUEST.value()).build());
-        }
-
-    }
-
     //	ORDER BY HIGHLIGHT
     @GetMapping(value = "/highlight")
     public ResponseEntity<Response> getProductOrderByHighlight() {
@@ -171,5 +154,33 @@ public class ProductController {
                             .status(HttpStatus.BAD_REQUEST).statusCode(HttpStatus.BAD_REQUEST.value()).build());
         }
 
+    }
+
+    //	SEARCH BY CATEGORY
+    @GetMapping(value = "/category/{name}")
+    public ResponseEntity<Response> getProductByCategoryName(@PathVariable("name") String name) {
+        Collection<Product> listProduct = serviceImp.findByNameCategory(name);
+        return getProductByCategory(name, listProduct);
+
+    }
+
+    @GetMapping(value = "/category-admin/{name}")
+    public ResponseEntity<Response> getProductByCategoryNameAdmin(@PathVariable("name") String name) {
+        Collection<Product> listProduct = serviceImp.findByNameCategoryAdmin(name);
+        return getProductByCategory(name, listProduct);
+
+    }
+
+    private ResponseEntity<Response> getProductByCategory(@PathVariable("name") String name, Collection<Product> listProduct) {
+        if (listProduct != null) {
+            return ResponseEntity.ok(Response.builder().timeStamp(Instant.now()).data(Map.of("products", listProduct))
+                    .message("Get product with category called: " + name).status(HttpStatus.OK)
+                    .statusCode(HttpStatus.OK.value()).build());
+
+        } else {
+            return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
+                    .message("The product with category called " + name + " does not exist")
+                    .status(HttpStatus.BAD_REQUEST).statusCode(HttpStatus.BAD_REQUEST.value()).build());
+        }
     }
 }

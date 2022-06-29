@@ -21,11 +21,14 @@ public interface IProductRepository extends JpaRepository<Product, Long> {
 	@Query(value = "SELECT * FROM product order by name OFFSET ? ROWS FETCH NEXT 10 ROWS ONLY", nativeQuery = true)
 	Collection<Product> list(Long page);
 	
-	@Query(value = "SELECT * FROM product where highlight>0 order by highlight asc", nativeQuery = true)
+	@Query(value = "SELECT * FROM product where status=1 AND highlight>0 order by highlight asc", nativeQuery = true)
 	Collection<Product> findAllOrderByHighlight();
 	
-	@Query(value = "SELECT pro.* FROM product pro join category ca on ca.id_category=pro.id_category  WHERE ca.name = ?", nativeQuery = true)
+	@Query(value = "SELECT pro.* FROM product pro join category ca on ca.id_category=pro.id_category WHERE pro.status=1 AND ca.name = ?", nativeQuery = true)
 	Collection<Product> findByNameCategory(String name);
+
+	@Query(value = "SELECT pro.* FROM product pro join category ca on ca.id_category=pro.id_category WHERE ca.name = ?", nativeQuery = true)
+	Collection<Product> findByNameCategoryAdmin(String name);
 	
 //	@Query(value = "SELECT * FROM product WHERE id_product=?", nativeQuery = true)
 	Product findByIdProduct(Long idProduct);
