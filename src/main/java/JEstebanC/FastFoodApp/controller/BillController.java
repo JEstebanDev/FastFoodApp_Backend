@@ -154,7 +154,7 @@ public class BillController {
                                                         Map.of(
                                                                 "bill",
                                                                 serviceImp.findByNewIdUser(
-                                                                        username, statusBill, startDate, endDate)))
+                                                                        username, statusBill, startDate, endDate,1)))
                                                 .message("bill")
                                                 .status(HttpStatus.OK)
                                                 .statusCode(HttpStatus.OK.value())
@@ -232,7 +232,7 @@ public class BillController {
                 Response.builder()
                         .timeStamp(Instant.now())
                         .data(
-                                Map.of("bill", serviceImp.findByNewIdUser(username, statusBill, startDate, endDate)))
+                                Map.of("bill", serviceImp.findByNewIdUser(username, statusBill, startDate, endDate,0)))
                         .message("bill")
                         .status(HttpStatus.OK)
                         .statusCode(HttpStatus.OK.value())

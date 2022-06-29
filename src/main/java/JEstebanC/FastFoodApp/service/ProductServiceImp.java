@@ -108,6 +108,19 @@ public class ProductServiceImp implements IProductService {
         }
     }
 
+    public Collection<Product> findByNameCategoryAdmin(String name) {
+        log.info("Searching product by category-admin: " + name);
+        try {
+            if (categoryRepository.findByName(name).getIdCategory() != null) {
+                return productRepository.findByNameCategoryAdmin(categoryRepository.findByName(name).getName());
+            } else {
+                return null;
+            }
+        } catch (NullPointerException e) {
+            return null;
+        }
+    }
+
     public Collection<Product> findAllOrderByHighlight() {
         log.info("Searching product order by highlight");
         return productRepository.findAllOrderByHighlight();
