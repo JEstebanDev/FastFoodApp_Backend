@@ -62,11 +62,16 @@ public class UserServiceImp implements IUserService, UserDetailsService {
             log.error("User with username: " + username + " not found");
             throw new UsernameNotFoundException("User with username: " + username + " not found");
         } else {
-            log.info("User found " + username);
-            Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();
-            authorities.add(new SimpleGrantedAuthority(user.getUserRoles().getAuthority()));
-            return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(),
-                    authorities);
+            if (user.getStatus().equals(Status.ACTIVE)){
+                log.info("User found " + username);
+                Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();
+                authorities.add(new SimpleGrantedAuthority(user.getUserRoles().getAuthority()));
+                return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(),
+                        authorities);
+            }else{
+                log.error("User with username: " + username + " is inactive");
+                throw new UsernameNotFoundException("User with username: " + username + " is inactive");
+            }
         }
     }
 
