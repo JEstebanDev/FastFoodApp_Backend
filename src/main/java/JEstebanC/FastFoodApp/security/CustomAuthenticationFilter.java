@@ -76,7 +76,6 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
 
 		Map<String, Object> tokens = new HashMap<>();
 		tokens.put("valid", true);
-		tokens.put("userRoles", user.getAuthorities().stream().map(GrantedAuthority::getAuthority).findAny().get());
 		tokens.put("access_token", access_token);
 		tokens.put("refresh_token", refresh_token);
 		response.setStatus(200);

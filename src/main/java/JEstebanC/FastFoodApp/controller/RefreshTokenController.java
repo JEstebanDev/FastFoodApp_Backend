@@ -86,7 +86,6 @@ public class RefreshTokenController {
 
 						Map<String, Object> tokens = new HashMap<>();
 						tokens.put("valid", true);
-						tokens.put("userRoles", user.getUserRoles().getAuthority());
 						tokens.put("access_token", access_token);
 						return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
 								.data(Map.of("tokens", tokens)).message("tokens").status(HttpStatus.OK)

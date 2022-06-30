@@ -208,7 +208,7 @@ public class UserController {
         }
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN') OR hasRole('ROLE_EMPLOYEE')")
     @GetMapping(value = "/admin/{name}")
     public ResponseEntity<Response> getUserAdminByName(@PathVariable("name") String name) {
 
