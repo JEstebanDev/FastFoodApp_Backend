@@ -17,7 +17,7 @@ import JEstebanC.FastFoodApp.model.User;
  */
 @Repository
 public interface IUserRepository extends JpaRepository<User, Long> {
-	@Query(value = "select * from user_app where user_roles=2 and name=:name order by name", nativeQuery = true)
+	@Query(value = "select * from user_app where user_roles=2 and name like :name order by name", nativeQuery = true)
 	Collection<User> findByNameStartsWith(@Param("name")String name);
 
 

@@ -254,7 +254,7 @@ public class UserServiceImp implements IUserService, UserDetailsService {
     public Collection<UserDTO> findByName(String name) {
         log.info("Searching user by name: " + name);
 
-        return userRepository.findByNameStartsWith(name).stream().map(this::convertUserToDTO)
+        return userRepository.findByNameStartsWith(name+"%").stream().map(this::convertUserToDTO)
                 .collect(Collectors.toList());
 
     }
@@ -262,7 +262,7 @@ public class UserServiceImp implements IUserService, UserDetailsService {
     public Collection<UserDTO> findByNameAdmin(String name) {
         log.info("Searching user-admin by name: " + name);
 
-        return userRepository.findByNameAdminStartsWith(name).stream().map(this::convertUserToDTO)
+        return userRepository.findByNameAdminStartsWith(name+"%").stream().map(this::convertUserToDTO)
                 .collect(Collectors.toList());
 
     }
