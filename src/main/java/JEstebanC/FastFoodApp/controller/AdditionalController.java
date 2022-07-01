@@ -78,7 +78,7 @@ public class AdditionalController {
 	@PreAuthorize("hasRole('ROLE_ADMIN') OR hasRole('ROLE_EMPLOYEE')")
 	@PutMapping(value = "/{id}")
 	public ResponseEntity<Response> updateAdditional(@PathVariable("id") Long id,
-			@RequestParam("strAdditional") @Valid String strAdditional,
+			@RequestParam("request") @Valid String strAdditional,
 			@RequestParam("additionalImage") @Nullable MultipartFile file) {
 		try {
 			if (serviceImp.exist(id)) {
