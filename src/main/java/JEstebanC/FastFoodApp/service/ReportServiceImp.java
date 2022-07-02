@@ -217,14 +217,14 @@ public class ReportServiceImp implements IReportService {
 
     private ReportSalesMonthlyDTO convertReportSalesMonthlyToDTO(Map<String, Object> salesMonthly) {
         ReportSalesMonthlyDTO reportSalesMonthly = new ReportSalesMonthlyDTO();
-        reportSalesMonthly.setMonth((long) ((BigDecimal) salesMonthly.get("month")).intValue());
+        reportSalesMonthly.setMonth((Double) salesMonthly.get("month"));
         reportSalesMonthly.setTotal(((BigInteger) salesMonthly.get("total")));
         return reportSalesMonthly;
     }
 
     private ReportSalesWeeklyDTO convertReportSalesWeeklyToDTO(Map<String, Object> salesWeekly) {
         ReportSalesWeeklyDTO reportSalesWeekly = new ReportSalesWeeklyDTO();
-        reportSalesWeekly.setWeekday((long) ((BigDecimal) salesWeekly.get("weekday")).intValue());
+        reportSalesWeekly.setWeekday((Double) salesWeekly.get("weekday"));
         reportSalesWeekly.setTotal(((BigInteger) salesWeekly.get("total")));
         return reportSalesWeekly;
     }
