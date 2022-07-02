@@ -18,7 +18,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.query.Param;
-import org.springframework.http.*;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -41,6 +42,7 @@ public class BillController {
     private final BillServiceImp serviceImp;
     @Autowired
     private final UserServiceImp serviceImpUser;
+
     // CREATE
     @PostMapping()
     public ResponseEntity<Response> saveBill(@RequestBody @Valid Bill bill) {
@@ -59,25 +61,15 @@ public class BillController {
     public ResponseEntity<Response> updateStatusBill(
             @PathVariable("idBill") Long idBill, @Param(value = "statusBill") StatusBill statusBill) {
         if (serviceImp.exist(idBill)) {
-            UserBillOrdersDTO userBillOrdersClient = serviceImp.findByIdBill(idBill);
-            if (!userBillOrdersClient.getBillUserDTO().getStatusBill().equals(StatusBill.PAID)) {
-                return ResponseEntity.ok(
-                        Response.builder()
-                                .timeStamp(Instant.now())
-                                .data(Map.of("bill", serviceImp.updateStatusBill(idBill, statusBill)))
-                                .message("bill")
-                                .status(HttpStatus.OK)
-                                .statusCode(HttpStatus.OK.value())
-                                .build());
-            } else {
-                return ResponseEntity.ok(
-                        Response.builder()
-                                .timeStamp(Instant.now())
-                                .message("The bill with id:" + idBill + " is already paid")
-                                .status(HttpStatus.BAD_REQUEST)
-                                .statusCode(HttpStatus.BAD_REQUEST.value())
-                                .build());
-            }
+            return ResponseEntity.ok(
+                    Response.builder()
+                            .timeStamp(Instant.now())
+                            .data(Map.of("bill", serviceImp.updateStatusBill(idBill, statusBill)))
+                            .message("bill")
+                            .status(HttpStatus.OK)
+                            .statusCode(HttpStatus.OK.value())
+                            .build());
+
         } else {
             return ResponseEntity.ok(
                     Response.builder()
@@ -154,7 +146,7 @@ public class BillController {
                                                         Map.of(
                                                                 "bill",
                                                                 serviceImp.findByNewIdUser(
-                                                                        username, statusBill, startDate, endDate,1)))
+                                                                        username, statusBill, startDate, endDate, 1)))
                                                 .message("bill")
                                                 .status(HttpStatus.OK)
                                                 .statusCode(HttpStatus.OK.value())
@@ -232,7 +224,7 @@ public class BillController {
                 Response.builder()
                         .timeStamp(Instant.now())
                         .data(
-                                Map.of("bill", serviceImp.findByNewIdUser(username, statusBill, startDate, endDate,0)))
+                                Map.of("bill", serviceImp.findByNewIdUser(username, statusBill, startDate, endDate, 0)))
                         .message("bill")
                         .status(HttpStatus.OK)
                         .statusCode(HttpStatus.OK.value())
@@ -357,10 +349,45 @@ public class BillController {
                         .build());
 
     }
+
     @GetMapping(value = "/transaction/{idBill}")
-    public ResponseEntity<Response> checkTransaction(@PathVariable("idBill") Long idBill){
+    public ResponseEntity<Response> checkTransaction(@PathVariable("idBill") Long idBill) {
         if (serviceImp.exist(idBill)) {
-            if (serviceImp.validateTransaction(idBill)) {
+            StatusBill statusBill= serviceImp.validateTransaction(idBill);
+            if (statusBill!=null) {
+                return ResponseEntity.ok(
+                        Response.builder()
+                                .timeStamp(Instant.now())
+                                .data(Map.of("bill", statusBill))
+                                .message("bill")
+                                .status(HttpStatus.OK)
+                                .statusCode(HttpStatus.OK.value())
+                                .build());
+            } else {
+                return ResponseEntity.ok(
+                        Response.builder()
+                                .timeStamp(Instant.now())
+                                .message("Error problems to connect with Wompi")
+                                .status(HttpStatus.BAD_REQUEST)
+                                .statusCode(HttpStatus.BAD_REQUEST.value())
+                                .build());
+            }
+        } else {
+            return ResponseEntity.ok(
+                    Response.builder()
+                            .timeStamp(Instant.now())
+                            .message("The bill with id:" + idBill + " does not exist")
+                            .status(HttpStatus.BAD_REQUEST)
+                            .statusCode(HttpStatus.BAD_REQUEST.value())
+                            .build());
+        }
+    }
+
+    @PreAuthorize("hasRole('ROLE_ADMIN') OR hasRole('ROLE_EMPLOYEE')")
+    @GetMapping(value = "/cancel-transaction/{idBill}")
+    public ResponseEntity<Response> cancelTransaction(@PathVariable("idBill") Long idBill, @RequestParam("referenceTransaction") String referenceTransaction) {
+        if (serviceImp.exist(idBill)) {
+            if (serviceImp.cancelTransaction(idBill, referenceTransaction)) {
                 return ResponseEntity.ok(
                         Response.builder()
                                 .timeStamp(Instant.now())
@@ -388,6 +415,5 @@ public class BillController {
                             .build());
         }
     }
-
 
 }

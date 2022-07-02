@@ -33,7 +33,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 /**
@@ -60,33 +60,74 @@ public class BillServiceImp implements IBillService {
         return convertBillToDTO(billRepository.save(bill));
     }
 
-    public boolean validateTransaction(long idBill) {
-        Bill bill = billRepository.findByIdBill(idBill);
-        bill.setIdBill(idBill);
-        String url = "https://sandbox.wompi.co/v1/transactions?reference=" + bill.getIdTransaction();
+    private Wompi searchWompi(String referenceTransaction) {
+        String url = "https://sandbox.wompi.co/v1/transactions?reference=" + referenceTransaction;
         // create headers
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
         headers.set("Authorization", "Bearer prv_test_2Vjk6fZaET3oNejoRegTLiJO4Lk6yyjW");
-
         RestTemplate restTemplate = new RestTemplate();
         HttpEntity<Object> entity = new HttpEntity<>(headers);
-        Wompi wompi = restTemplate.exchange(url, HttpMethod.GET, entity, Wompi.class).getBody();
-        AtomicInteger status = new AtomicInteger();
+        return restTemplate.exchange(url, HttpMethod.GET, entity, Wompi.class).getBody();
+    }
+
+    public StatusBill validateTransaction(long idBill) {
+        Bill bill = billRepository.findByIdBill(idBill);
+        bill.setIdBill(idBill);
+        Wompi wompi = searchWompi(bill.getReferenceTransaction());
+        AtomicReference<StatusBill> statusBill = new AtomicReference<>(StatusBill.NONE);
         if (wompi != null) {
             wompi.data.forEach(datum -> {
                 if (datum.status.equals("APPROVED")) {
                     bill.setStatusBill(StatusBill.PAID);
-                } else {
+                    billRepository.save(bill);
+                    statusBill.set(StatusBill.PAID);
+                }
+                if (datum.status.equals("DECLINED")) {
                     bill.setStatusBill(StatusBill.DECLINED);
+                    billRepository.save(bill);
+                    statusBill.set(StatusBill.DECLINED);
+                }
+                if (datum.status.equals("VOIDED")) {
+                    bill.setStatusBill(StatusBill.VOIDED);
+                    billRepository.save(bill);
+                    statusBill.set(StatusBill.VOIDED);
                 }
             });
-            return true;
-        } else {
+        }
+        return statusBill.get();
+    }
+
+    public boolean cancelTransaction(Long idBill, String referenceTransaction) {
+        Wompi wompi = searchWompi(referenceTransaction);
+        AtomicReference<String> idTransaction = new AtomicReference<>("");
+        wompi.data.forEach(datum -> {
+            idTransaction.set(datum.id);
+        });
+        log.info("idTransaction" + idTransaction);
+        String url = "https://sandbox.wompi.co/v1/transactions/" + idTransaction + "/void";
+        // create headers
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+        headers.set("Authorization", "Bearer prv_test_2Vjk6fZaET3oNejoRegTLiJO4Lk6yyjW");
+        RestTemplate restTemplate = new RestTemplate();
+        HttpEntity<Object> entity = new HttpEntity<>(headers);
+        try {
+            restTemplate.exchange(url, HttpMethod.POST, entity, Object.class);
+            //this time is mandatory we've to wait to wompi do the changes
+            Thread.sleep(5000);
+        } catch (Exception e) {
             return false;
         }
+        Bill bill = billRepository.findByIdBill(idBill);
+        bill.setIdBill(idBill);
+        bill.setStatusBill(StatusBill.VOIDED);
+        billRepository.save(bill);
+        return true;
     }
+
 
     @Override
     public BillUserDTO update(Long idBill, Bill bill) {
@@ -114,6 +155,7 @@ public class BillServiceImp implements IBillService {
         billOld.setStatusBill(statusBill);
         return convertBillToDTO(billRepository.save(billOld));
     }
+
 
     @Override
     public Boolean delete(Long idBill) {
@@ -160,7 +202,7 @@ public class BillServiceImp implements IBillService {
 
     @Override
     public Collection<UserBillOrdersDTO> findByNewIdUser(
-            String username, StatusBill statusBill, String startDate, String endDate,int number) {
+            String username, StatusBill statusBill, String startDate, String endDate, int number) {
         if (username != null && statusBill != null && startDate != null && endDate != null) {
             try {
                 log.info("Searching bills by User StatusBill DateBetween");
@@ -185,11 +227,11 @@ public class BillServiceImp implements IBillService {
         }
         if (username != null && statusBill == null && startDate == null && endDate == null) {
             log.info("Searching bills by User");
-            if (number==1) {
+            if (number == 1) {
                 return billRepository.findByIdUser(username).stream()
                         .map(this::convertBillOrderToDTO)
                         .collect(Collectors.toList());
-            }else{
+            } else {
                 return billRepository.findByIdUserAdmin(username).stream()
                         .map(this::convertBillOrderToDTO)
                         .collect(Collectors.toList());
@@ -261,7 +303,7 @@ public class BillServiceImp implements IBillService {
 
         BillUserDTO billUser = new BillUserDTO();
         billUser.setIdBill(bill.getIdBill());
-        billUser.setIdTransaction(bill.getIdTransaction());
+        billUser.setReferenceTransaction(bill.getReferenceTransaction());
         billUser.setNoTable(bill.getNoTable());
         billUser.setTotalPrice(bill.getTotalPrice());
 
@@ -276,7 +318,7 @@ public class BillServiceImp implements IBillService {
         BillUserDTO billUser = new BillUserDTO();
         billUser.setIdBill(bill.getIdBill());
         billUser.setNoTable(bill.getNoTable());
-        billUser.setIdTransaction(bill.getIdTransaction());
+        billUser.setReferenceTransaction(bill.getReferenceTransaction());
         convertPartBillDTO(bill, billUser);
         Collection<OrdersDTO> orders =
                 ordersRepository.findByIdBill(bill.getIdBill()).stream()
