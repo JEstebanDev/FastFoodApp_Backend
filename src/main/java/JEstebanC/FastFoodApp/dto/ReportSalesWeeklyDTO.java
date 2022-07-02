@@ -9,6 +9,6 @@ import java.math.BigInteger;
  */
 @Data
 public class ReportSalesWeeklyDTO {
-    private Long weekday;
+    private double weekday;
     private BigInteger total;
 }

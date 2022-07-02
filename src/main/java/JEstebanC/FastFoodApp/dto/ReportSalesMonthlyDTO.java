@@ -9,6 +9,6 @@ import java.math.BigInteger;
  */
 @Data
 public class ReportSalesMonthlyDTO {
-    private Long month;
+    private double month;
     private BigInteger total;
 }
