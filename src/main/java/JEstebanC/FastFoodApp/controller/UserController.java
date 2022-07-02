@@ -73,10 +73,11 @@ public class UserController {
         }
 
     }
+
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping("/admin")
     public ResponseEntity<Response> saveUserAdmin(@RequestParam("request") @Valid String strUser,
-                                             @RequestParam("userimage") @Nullable MultipartFile file) {
+                                                  @RequestParam("userimage") @Nullable MultipartFile file) {
 
         try {
             User user = new ObjectMapper().readValue(strUser, User.class);
@@ -113,12 +114,49 @@ public class UserController {
     }
 
 
-//  READ
+    //  READ
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping(value = "/list/admin")
     public ResponseEntity<Response> getUsersAdmin() {
         return ResponseEntity.ok(Response.builder().timeStamp(Instant.now()).data(Map.of("user", serviceImp.listAdmin()))
                 .message("List users").status(HttpStatus.OK).statusCode(HttpStatus.OK.value()).build());
+    }
+
+
+    //  SET DISABLE ACCOUNT CLIENT
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    @GetMapping(value = "/disable-account/{id}")
+    public ResponseEntity<Response> setDisableAccount(@PathVariable("id") Long id, HttpServletRequest request) {
+        String authorizationHeader = request.getHeader(AUTHORIZATION);
+        User userOld = serviceImp.findById(id);
+        if (userOld != null) {
+            if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+                try {
+                    String token = authorizationHeader.substring("Bearer ".length());
+                    Algorithm algorithm = Algorithm.HMAC256(OperationUtil.keyValue().getBytes());
+                    JWTVerifier verifier = JWT.require(algorithm).build();
+                    DecodedJWT decodeJWT = verifier.verify(token);
+                    if (userOld.getUsername().equals(decodeJWT.getSubject())) {
+                        return ResponseEntity.ok(Response.builder().timeStamp(Instant.now()).data(Map.of("user", serviceImp.setDisableAccount(id)))
+                                .message("List users").status(HttpStatus.OK).statusCode(HttpStatus.OK.value()).build());
+                    } else {
+                        return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
+                                .message(("Error updating user, you can not update other clients"))
+                                .status(HttpStatus.BAD_REQUEST).statusCode(HttpStatus.BAD_REQUEST.value()).build());
+                    }
+
+                } catch (Exception e) {
+                    return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
+                            .message(("Error updating user by client: " + e.getMessage()))
+                            .status(HttpStatus.BAD_REQUEST).statusCode(HttpStatus.BAD_REQUEST.value()).build());
+                }
+            }
+        }
+            return ResponseEntity
+                    .ok(Response.builder().timeStamp(Instant.now()).message("The user with id:" + id + " does not exist")
+                            .status(HttpStatus.BAD_REQUEST).statusCode(HttpStatus.BAD_REQUEST.value()).build());
+
+
     }
 
     //	UPDATE

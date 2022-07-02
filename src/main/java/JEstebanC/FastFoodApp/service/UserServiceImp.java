@@ -175,6 +175,13 @@ public class UserServiceImp implements IUserService, UserDetailsService {
         return convertUserToDTO(userRepository.save(userOld));
     }
 
+    public boolean setDisableAccount(long id) {
+        log.info("Updating user with id: " + id);
+        User userOld = userRepository.findByIdUser(id);
+        userOld.setStatus(Status.INACTIVE);
+        return true;
+    }
+
     public String validationToken(String token) {
         try {
             Algorithm algorithm = Algorithm.HMAC256(OperationUtil.keyValue().getBytes());
