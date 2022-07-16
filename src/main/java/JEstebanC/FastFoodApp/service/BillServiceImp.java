@@ -47,8 +47,6 @@ public class BillServiceImp implements IBillService {
     @Autowired
     private final IPriceAdditionalHistory priceAdditionalHistory;
     @Autowired
-    private final IProductRepository productRepository;
-    @Autowired
     private IBillRepository billRepository;
 
     @Override
@@ -103,9 +101,7 @@ public class BillServiceImp implements IBillService {
     public boolean cancelTransaction(Long idBill, String referenceTransaction) {
         Wompi wompi = searchWompi(referenceTransaction);
         AtomicReference<String> idTransaction = new AtomicReference<>("");
-        wompi.data.forEach(datum -> {
-            idTransaction.set(datum.id);
-        });
+        wompi.data.forEach(datum -> idTransaction.set(datum.id));
         log.info("idTransaction" + idTransaction);
         String url = "https://sandbox.wompi.co/v1/transactions/" + idTransaction + "/void";
         // create headers
