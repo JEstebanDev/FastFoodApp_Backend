@@ -10,12 +10,11 @@ import JEstebanC.FastFoodApp.dto.validation.UserForBillDTO;
 import JEstebanC.FastFoodApp.dto.wompi.Wompi;
 import JEstebanC.FastFoodApp.enumeration.StatusBill;
 import JEstebanC.FastFoodApp.enumeration.StatusOrder;
-import JEstebanC.FastFoodApp.model.Additional;
-import JEstebanC.FastFoodApp.model.Bill;
-import JEstebanC.FastFoodApp.model.Orders;
-import JEstebanC.FastFoodApp.model.PayMode;
+import JEstebanC.FastFoodApp.model.*;
 import JEstebanC.FastFoodApp.repository.IBillRepository;
 import JEstebanC.FastFoodApp.repository.IOrdersRepository;
+import JEstebanC.FastFoodApp.repository.IPriceAdditionalHistory;
+import JEstebanC.FastFoodApp.repository.IPriceProductHistory;
 import JEstebanC.FastFoodApp.service.interfaces.IBillService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,6 +32,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
@@ -47,6 +47,10 @@ public class BillServiceImp implements IBillService {
 
     @Autowired
     private final IOrdersRepository ordersRepository;
+    @Autowired
+    private final IPriceProductHistory priceProductHistory;
+    @Autowired
+    private final IPriceAdditionalHistory priceAdditionalHistory;
     @Autowired
     private IBillRepository billRepository;
 
@@ -155,7 +159,6 @@ public class BillServiceImp implements IBillService {
         billOld.setStatusBill(statusBill);
         return convertBillToDTO(billRepository.save(billOld));
     }
-
 
     @Override
     public Boolean delete(Long idBill) {
@@ -324,10 +327,19 @@ public class BillServiceImp implements IBillService {
                 ordersRepository.findByIdBill(bill.getIdBill()).stream()
                         .map(this::convertOrderToDTO)
                         .collect(Collectors.toList());
-
         int totalPrice = 0;
-
         for (OrdersDTO order : orders) {
+            // todo Toca seter ordersDTO para que cuando yo cambie los precios no se modifiquen para la propiedad como tal
+            PriceProductHistory priceProductHistories = priceProductHistory.findProductHistoryByIdProductAndDate(order.getProduct().getIdProduct(), bill.getDate());
+            if (priceProductHistories!=null) {
+                order.getProduct().setPrice(priceProductHistories.getPrice());
+            }
+           /* if(order.getAdditional()!=null) {
+                order.getAdditional().forEach(additional -> {
+                    PriceAdditionalHistory priceAdditionalHistories = priceAdditionalHistory.findAdditionalHistoryByIdAdditionalAndDate(additional.getIdAdditional(), bill.getDate());
+                    order.getAdditional().;
+                });
+            }*/
             totalPrice += order.getTotal();
         }
         billUser.setTotalPrice(totalPrice);
@@ -335,6 +347,7 @@ public class BillServiceImp implements IBillService {
         billOrder.setOrdersDTO(orders);
         return billOrder;
     }
+
 
     private OrdersDTO convertOrderToDTO(Orders orders) {
 

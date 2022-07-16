@@ -49,4 +49,6 @@ public interface IBillRepository extends JpaRepository<Bill, Long> {
     Collection<Bill> findByDateBetweenAndStatusOrder(@Param("startDate") Date startDate, @Param("endDate") Date endDate,
                                                      @Param("statusOrder") int statusOrder);
 
+
+
 }

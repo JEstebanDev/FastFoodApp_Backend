@@ -3,8 +3,10 @@
  */
 package JEstebanC.FastFoodApp.service;
 
+import JEstebanC.FastFoodApp.model.PriceProductHistory;
 import JEstebanC.FastFoodApp.model.Product;
 import JEstebanC.FastFoodApp.repository.ICategoryRepository;
+import JEstebanC.FastFoodApp.repository.IPriceProductHistory;
 import JEstebanC.FastFoodApp.repository.IProductRepository;
 import JEstebanC.FastFoodApp.service.interfaces.IProductService;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +17,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.transaction.Transactional;
 import java.io.IOException;
+import java.time.Instant;
 import java.util.Collection;
+import java.util.Date;
 
 /**
  * @author Juan Esteban Castaño Holguin castanoesteban9@gmail.com 2022-01-23
@@ -28,6 +32,8 @@ public class ProductServiceImp implements IProductService {
 
     @Autowired
     private final IProductRepository productRepository;
+    @Autowired
+    private final IPriceProductHistory priceProductHistory;
     @Autowired
     private final ICategoryRepository categoryRepository;
     @Autowired
@@ -45,7 +51,11 @@ public class ProductServiceImp implements IProductService {
                         e.printStackTrace();
                     }
                 }
-                return productRepository.save(product);
+
+                Product savedProduct = productRepository.save(product);
+                //this is for the product's price history
+                addPriceHistory(savedProduct);
+                return savedProduct;
             }
         }
         return null;
@@ -64,13 +74,27 @@ public class ProductServiceImp implements IProductService {
                         e.printStackTrace();
                     }
                 }
-                if(product.getImageUrl()==null && file == null){
+                if (product.getImageUrl() == null && file == null) {
                     product.setImageUrl(null);
+                }
+                //this validation is for the priceHistory when the price change, it save the new price
+                Product checkPriceProduct = productRepository.findById(id).get();
+                if (checkPriceProduct.getPrice() != product.getPrice()) {
+                    addPriceHistory(product);
                 }
                 return productRepository.save(product);
             }
         }
         return null;
+    }
+
+    private void addPriceHistory(Product product) {
+        log.info("Adding price product history");
+        PriceProductHistory productHistory = new PriceProductHistory();
+        productHistory.setProduct(product);
+        productHistory.setPrice(product.getPrice());
+        productHistory.setCreationDate(Date.from(Instant.now()));
+        priceProductHistory.save(productHistory);
     }
 
     @Override

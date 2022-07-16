@@ -42,7 +42,7 @@ public class OrdersController {
         if (serviceBillImp.exist(order.getBill().getIdBill())) {
             UserBillOrdersDTO userBillOrdersDTO = serviceBillImp.findByIdBill(order.getBill().getIdBill());
             if (userBillOrdersDTO.getBillUserDTO().getStatusBill() != StatusBill.PAID) {
-                OrdersDTO ordersDTO=serviceImp.create(order);
+                OrdersDTO ordersDTO = serviceImp.create(order);
                 //this is important because this method update the totalPrice
                 serviceImp.updateTotalPrice(order.getBill().getIdBill());
                 return ResponseEntity.ok(
@@ -78,18 +78,18 @@ public class OrdersController {
     @PreAuthorize("hasRole('ROLE_ADMIN') OR hasRole('ROLE_EMPLOYEE')")
     @GetMapping(value = "/status/{idBill}")
     public ResponseEntity<Response> updateStatusOrder(
-            @PathVariable("idBill") Long idBill,@Param(value = "statusOrder") StatusOrder statusOrder){
+            @PathVariable("idBill") Long idBill, @Param(value = "statusOrder") StatusOrder statusOrder) {
         UserBillOrdersDTO userBillOrdersDTO = serviceBillImp.findByIdBill(idBill);
         if (userBillOrdersDTO != null) {
             return ResponseEntity.ok(
                     Response.builder()
                             .timeStamp(Instant.now())
-                            .data(Map.of("order", serviceImp.updateStatus(idBill,statusOrder)))
+                            .data(Map.of("order", serviceImp.updateStatus(idBill, statusOrder)))
                             .message("Updating order with bill id: " + idBill)
                             .status(HttpStatus.OK)
                             .statusCode(HttpStatus.OK.value())
                             .build());
-        }else{
+        } else {
             return ResponseEntity.ok(
                     Response.builder()
                             .timeStamp(Instant.now())
@@ -111,8 +111,7 @@ public class OrdersController {
                 if (order.getIdOrder() != null
                         && order.getAmount() != 0
                         && order.getStatusOrder() != null) {
-                    Orders orderRequest = serviceImp.findByIdOrder(id);
-                    if (orderRequest != null) {
+                    if (serviceImp.exist(id)) {
                         return ResponseEntity.ok(
                                 Response.builder()
                                         .timeStamp(Instant.now())

@@ -69,7 +69,6 @@ public class BillController {
                             .status(HttpStatus.OK)
                             .statusCode(HttpStatus.OK.value())
                             .build());
-
         } else {
             return ResponseEntity.ok(
                     Response.builder()
@@ -353,8 +352,8 @@ public class BillController {
     @GetMapping(value = "/transaction/{idBill}")
     public ResponseEntity<Response> checkTransaction(@PathVariable("idBill") Long idBill) {
         if (serviceImp.exist(idBill)) {
-            StatusBill statusBill= serviceImp.validateTransaction(idBill);
-            if (statusBill!=null) {
+            StatusBill statusBill = serviceImp.validateTransaction(idBill);
+            if (statusBill != null) {
                 return ResponseEntity.ok(
                         Response.builder()
                                 .timeStamp(Instant.now())
