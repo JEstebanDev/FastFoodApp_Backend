@@ -11,10 +11,7 @@ import JEstebanC.FastFoodApp.dto.wompi.Wompi;
 import JEstebanC.FastFoodApp.enumeration.StatusBill;
 import JEstebanC.FastFoodApp.enumeration.StatusOrder;
 import JEstebanC.FastFoodApp.model.*;
-import JEstebanC.FastFoodApp.repository.IBillRepository;
-import JEstebanC.FastFoodApp.repository.IOrdersRepository;
-import JEstebanC.FastFoodApp.repository.IPriceAdditionalHistory;
-import JEstebanC.FastFoodApp.repository.IPriceProductHistory;
+import JEstebanC.FastFoodApp.repository.*;
 import JEstebanC.FastFoodApp.service.interfaces.IBillService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,15 +21,14 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
-import javax.transaction.Transactional;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
@@ -40,7 +36,6 @@ import java.util.stream.Collectors;
  * @author Juan Esteban Castaño Holguin castanoesteban9@gmail.com 2022-01-26
  */
 @Service
-@Transactional
 @RequiredArgsConstructor
 @Slf4j
 public class BillServiceImp implements IBillService {
@@ -51,6 +46,8 @@ public class BillServiceImp implements IBillService {
     private final IPriceProductHistory priceProductHistory;
     @Autowired
     private final IPriceAdditionalHistory priceAdditionalHistory;
+    @Autowired
+    private final IProductRepository productRepository;
     @Autowired
     private IBillRepository billRepository;
 
@@ -315,7 +312,8 @@ public class BillServiceImp implements IBillService {
         return billUser;
     }
 
-    private UserBillOrdersDTO convertBillOrderToDTO(Bill bill) {
+    @Transactional(readOnly = true)
+    UserBillOrdersDTO convertBillOrderToDTO(Bill bill) {
         UserBillOrdersDTO billOrder = new UserBillOrdersDTO();
 
         BillUserDTO billUser = new BillUserDTO();
@@ -329,17 +327,16 @@ public class BillServiceImp implements IBillService {
                         .collect(Collectors.toList());
         int totalPrice = 0;
         for (OrdersDTO order : orders) {
-            // todo Toca seter ordersDTO para que cuando yo cambie los precios no se modifiquen para la propiedad como tal
             PriceProductHistory priceProductHistories = priceProductHistory.findProductHistoryByIdProductAndDate(order.getProduct().getIdProduct(), bill.getDate());
             if (priceProductHistories!=null) {
                 order.getProduct().setPrice(priceProductHistories.getPrice());
             }
-           /* if(order.getAdditional()!=null) {
+           if(order.getAdditional()!=null) {
                 order.getAdditional().forEach(additional -> {
                     PriceAdditionalHistory priceAdditionalHistories = priceAdditionalHistory.findAdditionalHistoryByIdAdditionalAndDate(additional.getIdAdditional(), bill.getDate());
-                    order.getAdditional().;
+                    additional.setPrice(priceAdditionalHistories.getPrice());
                 });
-            }*/
+            }
             totalPrice += order.getTotal();
         }
         billUser.setTotalPrice(totalPrice);
@@ -350,13 +347,11 @@ public class BillServiceImp implements IBillService {
 
 
     private OrdersDTO convertOrderToDTO(Orders orders) {
-
         OrdersDTO billOrder = new OrdersDTO();
         billOrder.setIdOrder(orders.getIdOrder());
         billOrder.setStatusOrder(orders.getStatusOrder());
         billOrder.setAmount(orders.getAmount());
         billOrder.setTotal(orders.getTotal());
-
         billOrder.setProduct(orders.getProduct());
 
         Collection<Additional> additional = new ArrayList<>(orders.getAdditional());

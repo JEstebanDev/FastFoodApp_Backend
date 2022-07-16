@@ -38,7 +38,7 @@ public class Orders {
 
 	@ManyToOne
 	@NotNull(message = "idProduct cannot be empty or null")
-	@JoinColumn(name = "idProduct")
+	@JoinColumn(name = "idProduct",updatable = false)
 	private Product Product;
 
 	@ManyToMany
