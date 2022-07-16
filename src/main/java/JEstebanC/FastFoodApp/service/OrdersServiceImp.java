@@ -84,11 +84,6 @@ public class OrdersServiceImp implements IOrdersService {
         return ordersRepository.existsById(idOrders);
     }
 
-    public Orders findByIdOrder(Long idOrders) {
-        log.info("Searching order by id: " + idOrders);
-        return ordersRepository.findById(idOrders).get();
-    }
-
     public void updateTotalPrice(Long idBill){
         //here call the update for the TotalPriceBill
         ordersRepository.setTotalPriceBill(idBill);
@@ -99,7 +94,6 @@ public class OrdersServiceImp implements IOrdersService {
             Product product = productRepository.findByIdProduct(orders.getProduct().getIdProduct());
             if (orders.getAdditional() != null) {
                 Collection<Additional> additionals = orders.getAdditional();
-
                 for (Additional additional : additionals) {
                     Additional additionalRequest = additionalRepository
                             .findByIdAdditional(additional.getIdAdditional());
@@ -107,7 +101,6 @@ public class OrdersServiceImp implements IOrdersService {
                 }
             }
             orders.setTotal((product.getPrice() * orders.getAmount()) + (totalAdditional * orders.getAmount()));
-
         } else {
             return null;
         }
