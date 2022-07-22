@@ -16,5 +16,6 @@ import lombok.Getter;
 public enum StatusOrder {
 	NEW,
 	COOKING,
+	COOKED,
 	DELIVERED,
 }
