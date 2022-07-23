@@ -4,6 +4,7 @@
 package JEstebanC.FastFoodApp.service;
 
 import JEstebanC.FastFoodApp.dto.EntireUserDTO;
+import JEstebanC.FastFoodApp.dto.Mail;
 import JEstebanC.FastFoodApp.dto.UserDTO;
 import JEstebanC.FastFoodApp.dto.update.UserClientDTO;
 import JEstebanC.FastFoodApp.dto.update.UserEmployeeDTO;
@@ -24,8 +25,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -33,15 +34,18 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.thymeleaf.context.Context;
+import org.thymeleaf.spring5.SpringTemplateEngine;
 
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
 import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * @author Juan Esteban Castaño Holguin castanoesteban9@gmail.com 2022-02-05
@@ -58,6 +62,8 @@ public class UserServiceImp implements IUserService, UserDetailsService {
     private IUserRepository userRepository;
     @Autowired
     private JavaMailSender javaMailSender;
+    @Autowired
+    private SpringTemplateEngine templateEngine;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -95,6 +101,12 @@ public class UserServiceImp implements IUserService, UserDetailsService {
         user.setUserRoles(AppUserRole.ROLE_CLIENT);
         user.setDiscountPoint(0);
         user.setStatus(Status.ACTIVE);
+
+        try {
+            welcomeMessage(user.getName(),user.getEmail());
+        } catch (MessagingException e) {
+            throw new RuntimeException(e);
+        }
         return userRepository.save(user);
     }
 
@@ -224,12 +236,17 @@ public class UserServiceImp implements IUserService, UserDetailsService {
 
     public EntireUserDTO list(int page) {
         log.info("List all users");
+
         PageRequest pageRequest = PageRequest.of(page, 5);
         EntireUserDTO entity = new EntireUserDTO();
         Page<User> pages = userRepository.list(pageRequest);
         List<UserDTO> listUserDTO = pages.getContent().stream().map(this::convertUserToDTO).collect(Collectors.toList());
         entity.setListBill(listUserDTO);
-        entity.setPages(pages.getTotalPages());
+        int totalPage = pages.getTotalPages();
+        if(totalPage > 0) {
+            List<Integer> pagination = IntStream.rangeClosed(1, totalPage).boxed().collect(Collectors.toList());
+            entity.setPages(pagination);
+        }
         return entity;
     }
 
@@ -240,7 +257,11 @@ public class UserServiceImp implements IUserService, UserDetailsService {
         Page<User> pages = userRepository.listUser(pageRequest);
         List<UserDTO> listUserDTO = pages.getContent().stream().map(this::convertUserToDTO).collect(Collectors.toList());
         entity.setListBill(listUserDTO);
-        entity.setPages(pages.getTotalPages());
+        int totalPage = pages.getTotalPages();
+        if(totalPage > 0) {
+            List<Integer> pagination = IntStream.rangeClosed(1, totalPage).boxed().collect(Collectors.toList());
+            entity.setPages(pagination);
+        }
         return entity;
     }
 
@@ -331,7 +352,7 @@ public class UserServiceImp implements IUserService, UserDetailsService {
     }
 
     public Boolean sendMail(HttpServletRequest request, String email, String userName,
-                            String name) {
+                            String name) throws MessagingException {
         log.info("Sending mail");
         // Reference to the keyValue
         Algorithm algorithm = Algorithm.HMAC256(OperationUtil.keyValue().getBytes());
@@ -340,17 +361,55 @@ public class UserServiceImp implements IUserService, UserDetailsService {
                 .withExpiresAt(new Date(System.currentTimeMillis() + 20 * 60 * 1000))
                 .withIssuer(request.getRequestURL().toString()).sign(algorithm);
 
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo(email);
+        MimeMessage message = javaMailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message,
+                MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED,
+                StandardCharsets.UTF_8.name());
 
-        message.setSubject("Burger App");
-        String html = "Hola " + name + "! \n" + "¿olvidaste tu contraseña? \n"
-                + "Recibimos una petición para restablecer tu contraseña\n"
-                + "Para restablecer tu contraseña por favor presiona clic en el siguiente enlace \n"
-                + "http://localhost:4200/recover-password/" + token;
-        message.setText(html);
+        Mail mail = new Mail();
+        mail.setFrom("pruebitas675@gmail.com");
+        mail.setMailTo(email);//replace with your desired email
+        mail.setSubject("Recuperar contraseña - Burger App");
+        Map<String, Object> model = new HashMap<String, Object>();
+        model.put("name", name);
+        model.put("username", userName);
+        model.put("token", "http://localhost:4200/recover-password/" + token);
+        mail.setProps(model);
+
+        Context context = new Context();
+        context.setVariables(mail.getProps());
+
+        String html = templateEngine.process("Email_Password", context);
+        helper.setTo(mail.getMailTo());
+        helper.setText(html, true);
+        helper.setSubject(mail.getSubject());
+        helper.setFrom(mail.getFrom());
         javaMailSender.send(message);
         return true;
+    }
+
+    public void welcomeMessage(String name,String email) throws MessagingException {
+        log.info("Sending welcome message");
+        MimeMessage message = javaMailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message,
+                MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED,
+                StandardCharsets.UTF_8.name());
+
+        Mail mail = new Mail();
+        mail.setFrom("pruebitas675@gmail.com");
+        mail.setMailTo(email);
+        mail.setSubject("Bienvenido/a - Burger App");
+        Map<String, Object> model = new HashMap<String, Object>();
+        model.put("name", name);
+        mail.setProps(model);
+        Context context = new Context();
+        context.setVariables(mail.getProps());
+        String html = templateEngine.process("Email_Welcome", context);
+        helper.setTo(mail.getMailTo());
+        helper.setText(html, true);
+        helper.setSubject(mail.getSubject());
+        helper.setFrom(mail.getFrom());
+        javaMailSender.send(message);
     }
 
 }

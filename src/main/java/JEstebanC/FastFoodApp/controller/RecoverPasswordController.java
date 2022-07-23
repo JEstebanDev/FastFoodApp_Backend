@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.mail.MessagingException;
 import javax.servlet.http.HttpServletRequest;
 import java.time.Instant;
 import java.util.Map;
@@ -31,7 +32,7 @@ public class RecoverPasswordController {
 
     @GetMapping(value = "/recover-password")
     public ResponseEntity<Response> recoverPassword(HttpServletRequest request,
-                                                    @RequestParam(name = "email") String email) {
+                                                    @RequestParam(name = "email") String email) throws MessagingException {
         UserDTO user = serviceImp.findByEmail(email);
         if (user != null) {
             return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())

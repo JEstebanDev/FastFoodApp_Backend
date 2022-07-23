@@ -9,6 +9,6 @@ import java.util.List;
  */
 @Data
 public class EntireBillOrderDTO {
-    private int pages;
+    private List<Integer> pages;
     private List<UserBillOrdersDTO> listBill;
 }
