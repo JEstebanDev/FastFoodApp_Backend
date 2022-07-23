@@ -70,13 +70,7 @@ public class BillController {
                             .statusCode(HttpStatus.OK.value())
                             .build());
         } else {
-            return ResponseEntity.ok(
-                    Response.builder()
-                            .timeStamp(Instant.now())
-                            .message("The bill with id:" + idBill + " does not exist")
-                            .status(HttpStatus.BAD_REQUEST)
-                            .statusCode(HttpStatus.BAD_REQUEST.value())
-                            .build());
+            return response("The bill with id:" + idBill + " does not exist");
         }
     }
 
@@ -90,6 +84,7 @@ public class BillController {
             @Param(value = "statusOrder") StatusOrder statusOrder,
             @Param(value = "startDate") String startDate,
             @Param(value = "endDate") String endDate,
+            @Param(value = "page") int page,
             HttpServletRequest request) {
         if (request.isUserInRole("ROLE_CLIENT")) {
             String authorizationHeader = request.getHeader(AUTHORIZATION);
@@ -116,22 +111,10 @@ public class BillController {
                                                 .statusCode(HttpStatus.OK.value())
                                                 .build());
                             } else {
-                                return ResponseEntity.ok(
-                                        Response.builder()
-                                                .timeStamp(Instant.now())
-                                                .message(("Error seeing the bill, you have not the permissions"))
-                                                .status(HttpStatus.BAD_REQUEST)
-                                                .statusCode(HttpStatus.BAD_REQUEST.value())
-                                                .build());
+                                return response("Error seeing the bill, you have not the permissions");
                             }
                         } else {
-                            return ResponseEntity.ok(
-                                    Response.builder()
-                                            .timeStamp(Instant.now())
-                                            .message("The bill with id:" + idBill + " does not exist")
-                                            .status(HttpStatus.BAD_REQUEST)
-                                            .statusCode(HttpStatus.BAD_REQUEST.value())
-                                            .build());
+                            return response("The bill with id:" + idBill + " does not exist");
                         }
                     }
                     if (username != null) {
@@ -141,51 +124,23 @@ public class BillController {
                                 return ResponseEntity.ok(
                                         Response.builder()
                                                 .timeStamp(Instant.now())
-                                                .data(
-                                                        Map.of(
-                                                                "bill",
-                                                                serviceImp.findByNewIdUser(
-                                                                        username, statusBill, startDate, endDate, 1)))
+                                                .data(Map.of("bill", serviceImp.findByBillParams(
+                                                        username, statusBill, startDate, endDate, 1, page)))
                                                 .message("bill")
                                                 .status(HttpStatus.OK)
                                                 .statusCode(HttpStatus.OK.value())
                                                 .build());
                             } else {
-                                return ResponseEntity.ok(
-                                        Response.builder()
-                                                .timeStamp(Instant.now())
-                                                .message(("Error seeing the bill, you have not the permissions"))
-                                                .status(HttpStatus.BAD_REQUEST)
-                                                .statusCode(HttpStatus.BAD_REQUEST.value())
-                                                .build());
+                                return response("Error seeing the bill, you have not the permissions");
                             }
                         } else {
-                            return ResponseEntity.ok(
-                                    Response.builder()
-                                            .timeStamp(Instant.now())
-                                            .message(("Error seeing the bill, you have not the permissions"))
-                                            .status(HttpStatus.BAD_REQUEST)
-                                            .statusCode(HttpStatus.BAD_REQUEST.value())
-                                            .build());
+                            return response("Error seeing the bill, you have not the permissions");
                         }
-
                     } else {
-                        return ResponseEntity.ok(
-                                Response.builder()
-                                        .timeStamp(Instant.now())
-                                        .message(("Error seeing the bill, you have not the permissions"))
-                                        .status(HttpStatus.BAD_REQUEST)
-                                        .statusCode(HttpStatus.BAD_REQUEST.value())
-                                        .build());
+                        return response("Error seeing the bill, you have not the permissions");
                     }
                 } catch (Exception e) {
-                    return ResponseEntity.ok(
-                            Response.builder()
-                                    .timeStamp(Instant.now())
-                                    .message(("Error validating bill by client: " + e.getMessage()))
-                                    .status(HttpStatus.BAD_REQUEST)
-                                    .statusCode(HttpStatus.BAD_REQUEST.value())
-                                    .build());
+                    return response("Error validating bill by client: " + e.getMessage());
                 }
             }
         }
@@ -200,13 +155,7 @@ public class BillController {
                                 .statusCode(HttpStatus.OK.value())
                                 .build());
             } else {
-                return ResponseEntity.ok(
-                        Response.builder()
-                                .timeStamp(Instant.now())
-                                .message("The bill with id:" + idBill + " does not exist")
-                                .status(HttpStatus.BAD_REQUEST)
-                                .statusCode(HttpStatus.BAD_REQUEST.value())
-                                .build());
+                return response("The bill with id:" + idBill + " does not exist");
             }
         }
         if (statusBill == null && statusOrder != null && startDate != null && endDate != null) {
@@ -223,7 +172,7 @@ public class BillController {
                 Response.builder()
                         .timeStamp(Instant.now())
                         .data(
-                                Map.of("bill", serviceImp.findByNewIdUser(username, statusBill, startDate, endDate, 0)))
+                                Map.of("bill", serviceImp.findByBillParams(username, statusBill, startDate, endDate, 0, page)))
                         .message("bill")
                         .status(HttpStatus.OK)
                         .statusCode(HttpStatus.OK.value())
@@ -248,31 +197,13 @@ public class BillController {
                                     .statusCode(HttpStatus.OK.value())
                                     .build());
                 } else {
-                    return ResponseEntity.ok(
-                            Response.builder()
-                                    .timeStamp(Instant.now())
-                                    .message("The user is not the same")
-                                    .status(HttpStatus.BAD_REQUEST)
-                                    .statusCode(HttpStatus.BAD_REQUEST.value())
-                                    .build());
+                    return response("The user is not the same");
                 }
             } else {
-                return ResponseEntity.ok(
-                        Response.builder()
-                                .timeStamp(Instant.now())
-                                .message("The bill does not have the mandatory information")
-                                .status(HttpStatus.BAD_REQUEST)
-                                .statusCode(HttpStatus.BAD_REQUEST.value())
-                                .build());
+                return response("The bill does not have the mandatory information");
             }
         } else {
-            return ResponseEntity.ok(
-                    Response.builder()
-                            .timeStamp(Instant.now())
-                            .message("The bill with id:" + id + " does not exist")
-                            .status(HttpStatus.BAD_REQUEST)
-                            .statusCode(HttpStatus.BAD_REQUEST.value())
-                            .build());
+            return response("The bill with id:" + id + " does not exist");
         }
     }
 
@@ -290,13 +221,7 @@ public class BillController {
                             .statusCode(HttpStatus.OK.value())
                             .build());
         } else {
-            return ResponseEntity.ok(
-                    Response.builder()
-                            .timeStamp(Instant.now())
-                            .message("The bill " + id + " does not exist")
-                            .status(HttpStatus.BAD_REQUEST)
-                            .statusCode(HttpStatus.BAD_REQUEST.value())
-                            .build());
+            return response("The bill with id:" + id + " does not exist");
         }
     }
 
@@ -321,32 +246,13 @@ public class BillController {
                                     .statusCode(HttpStatus.OK.value())
                                     .build());
                 } else {
-                    return ResponseEntity.ok(
-                            Response.builder()
-                                    .timeStamp(Instant.now())
-                                    .message("The bill " + idBill + " does not exist")
-                                    .status(HttpStatus.BAD_REQUEST)
-                                    .statusCode(HttpStatus.BAD_REQUEST.value())
-                                    .build());
+                    return response("The bill with id:" + idBill + " does not exist");
                 }
             } catch (Exception e) {
-                return ResponseEntity.ok(
-                        Response.builder()
-                                .timeStamp(Instant.now())
-                                .message(("Error validating token " + e.getMessage()))
-                                .status(HttpStatus.BAD_REQUEST)
-                                .statusCode(HttpStatus.BAD_REQUEST.value())
-                                .build());
+                return response("Error validating token " + e.getMessage());
             }
         }
-        return ResponseEntity.ok(
-                Response.builder()
-                        .timeStamp(Instant.now())
-                        .message("The user does not have permissions")
-                        .status(HttpStatus.BAD_REQUEST)
-                        .statusCode(HttpStatus.BAD_REQUEST.value())
-                        .build());
-
+        return response("The user does not have permissions");
     }
 
     @GetMapping(value = "/transaction/{idBill}")
@@ -363,22 +269,10 @@ public class BillController {
                                 .statusCode(HttpStatus.OK.value())
                                 .build());
             } else {
-                return ResponseEntity.ok(
-                        Response.builder()
-                                .timeStamp(Instant.now())
-                                .message("Error problems to connect with Wompi")
-                                .status(HttpStatus.BAD_REQUEST)
-                                .statusCode(HttpStatus.BAD_REQUEST.value())
-                                .build());
+                return response("Error problems to connect with Wompi");
             }
         } else {
-            return ResponseEntity.ok(
-                    Response.builder()
-                            .timeStamp(Instant.now())
-                            .message("The bill with id:" + idBill + " does not exist")
-                            .status(HttpStatus.BAD_REQUEST)
-                            .statusCode(HttpStatus.BAD_REQUEST.value())
-                            .build());
+            return response("The bill with id:" + idBill + " does not exist");
         }
     }
 
@@ -396,23 +290,20 @@ public class BillController {
                                 .statusCode(HttpStatus.OK.value())
                                 .build());
             } else {
-                return ResponseEntity.ok(
-                        Response.builder()
-                                .timeStamp(Instant.now())
-                                .message("Error problems to connect with Wompi")
-                                .status(HttpStatus.BAD_REQUEST)
-                                .statusCode(HttpStatus.BAD_REQUEST.value())
-                                .build());
+                return response("Error problems to connect with Wompi");
             }
         } else {
-            return ResponseEntity.ok(
-                    Response.builder()
-                            .timeStamp(Instant.now())
-                            .message("The bill with id:" + idBill + " does not exist")
-                            .status(HttpStatus.BAD_REQUEST)
-                            .statusCode(HttpStatus.BAD_REQUEST.value())
-                            .build());
+            return response("The bill with id:" + idBill + " does not exist");
         }
     }
 
+    private ResponseEntity<Response> response(String message) {
+        return ResponseEntity.ok(
+                Response.builder()
+                        .timeStamp(Instant.now())
+                        .message(message)
+                        .status(HttpStatus.BAD_REQUEST)
+                        .statusCode(HttpStatus.BAD_REQUEST.value())
+                        .build());
+    }
 }
