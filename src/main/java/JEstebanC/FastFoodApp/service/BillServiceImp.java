@@ -21,7 +21,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -36,6 +35,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
@@ -183,19 +183,11 @@ public class BillServiceImp implements IBillService {
     }
 
     @Override
-    public Collection<UserBillOrdersDTO> findByOrder(
-            StatusOrder statusOrder, String startDate, String endDate) {
+    public Collection<UserBillOrdersDTO> findByOrder(StatusOrder statusOrder, String startDate, String endDate) {
         try {
             log.info("Searching bills by StatusOrder DateBetween");
             //Important this method has a specific filter to show only the available statusBill (PAID 0, PENDING 1, ACCEPTED 6)
-            return billRepository
-                    .findByDateBetweenAndStatusOrder(
-                            new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(startDate),
-                            new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(endDate),
-                            statusOrder.ordinal())
-                    .stream()
-                    .map(this::convertBillOrderToDTO)
-                    .collect(Collectors.toList());
+            return billRepository.findByDateBetweenAndStatusOrder(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(startDate), new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(endDate), statusOrder.ordinal()).stream().map(this::convertBillOrderToDTO).collect(Collectors.toList());
         } catch (ParseException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -204,117 +196,111 @@ public class BillServiceImp implements IBillService {
     }
 
     @Override
-    public EntireBillOrderDTO findByBillParams(
-            String username, StatusBill statusBill, String startDate, String endDate, int number, int page) {
+    public EntireBillOrderDTO findByBillParams(String username, StatusBill statusBill, String startDate, String endDate, int number, int page) {
+
+        boolean fullSearch = username != null && statusBill != null && startDate != null && endDate != null;
+        boolean withoutParams = username == null && statusBill == null && startDate == null && endDate == null;
+        boolean byUsername = username != null && statusBill == null && startDate == null && endDate == null;
+        boolean byStatusBill = username == null && statusBill != null && startDate == null && endDate == null;
+        boolean byUsername_StatusBill = username != null && statusBill != null && startDate == null && endDate == null;
+        boolean byDate = username == null && statusBill == null && startDate != null && endDate != null;
+        boolean byUsername_Date = username != null && statusBill == null && startDate != null && endDate != null;
+        boolean byStatusBill_Date = username == null && statusBill != null && startDate != null && endDate != null;
 
         PageRequest pageRequest = PageRequest.of(page, 5);
         EntireBillOrderDTO entity = new EntireBillOrderDTO();
-        entity.setPage(1);
-        if (username != null && statusBill != null && startDate != null && endDate != null) {
+
+        if (fullSearch) {
             try {
                 log.info("Searching bills by User StatusBill DateBetween");
-                Page<UserBillOrdersDTO> pagePersona = new PageImpl<>(billRepository
-                        .findByIdUserAndStatusBillAndDateBetween(
-                                username,
-                                statusBill.ordinal(),
-                                new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(startDate),
-                                new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(endDate), pageRequest)
-                        .stream()
-                        .map(this::convertBillOrderToDTO)
-                        .collect(Collectors.toList()));
-                entity.setListBill(pagePersona);
+                Page<Bill> pages = billRepository.findByIdUserAndStatusBillAndDateBetween(username, statusBill.ordinal(),
+                        new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(startDate), new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(endDate), pageRequest);
+                List<UserBillOrdersDTO> ListBillDTO = pages.getContent().stream().map(this::convertBillOrderToDTO).collect(Collectors.toList());
+                entity.setListBill(ListBillDTO);
+                entity.setPages(pages.getTotalPages());
             } catch (ParseException e) {
                 e.printStackTrace();
             }
             return entity;
         }
-        if (username == null && statusBill == null && startDate == null && endDate == null) {
+        if (withoutParams) {
             log.info("Searching bills");
-            Page<UserBillOrdersDTO> pagePersona = new PageImpl<>(billRepository.findAll(pageRequest).stream()
-                    .map(this::convertBillOrderToDTO)
-                    .collect(Collectors.toList()));
-            entity.setListBill(pagePersona);
+            Page<Bill> pages = billRepository.findAll(pageRequest);
+            List<UserBillOrdersDTO> ListBillDTO = pages.getContent().stream().map(this::convertBillOrderToDTO).collect(Collectors.toList());
+            entity.setListBill(ListBillDTO);
+            entity.setPages(pages.getTotalPages());
             return entity;
         }
-        if (username != null && statusBill == null && startDate == null && endDate == null) {
+        if (byUsername) {
             if (number == 1) {
                 log.info("Searching bills by User Client");
-                Page<UserBillOrdersDTO> pagePersona = new PageImpl<>(billRepository.findByIdUser(username, pageRequest).stream()
-                        .map(this::convertBillOrderToDTO)
-                        .collect(Collectors.toList()));
-                entity.setListBill(pagePersona);
+                Page<Bill> pages = billRepository.findByIdUser(username, pageRequest);
+
+                List<UserBillOrdersDTO> ListBillDTO = pages.getContent().stream().map(this::convertBillOrderToDTO).collect(Collectors.toList());
+                entity.setListBill(ListBillDTO);
+                entity.setPages(pages.getTotalPages());
             } else {
                 log.info("Searching bills by User Admin");
-                Page<UserBillOrdersDTO> pagePersona = new PageImpl<>(billRepository.findByIdUserAdmin(username, pageRequest).stream()
-                        .map(this::convertBillOrderToDTO)
-                        .collect(Collectors.toList()));
-                entity.setListBill(pagePersona);
+                Page<Bill> pages = billRepository.findByIdUserAdmin(username, pageRequest);
+                List<UserBillOrdersDTO> ListBillDTO = pages.getContent().stream().map(this::convertBillOrderToDTO).collect(Collectors.toList());
+                entity.setListBill(ListBillDTO);
+                entity.setPages(pages.getTotalPages());
             }
             return entity;
         }
-        if (username == null && statusBill != null && startDate == null && endDate == null) {
+        if (byStatusBill) {
             log.info("Searching bills by StatusBill");
-            Page<UserBillOrdersDTO> pagePersona = new PageImpl<>(billRepository.findByStatusBill(statusBill, pageRequest).stream()
-                    .map(this::convertBillOrderToDTO)
-                    .collect(Collectors.toList()));
-            entity.setListBill(pagePersona);
+            Page<Bill> pages = billRepository.findByStatusBill(statusBill, pageRequest);
+            List<UserBillOrdersDTO> ListBillDTO = pages.getContent().stream().map(this::convertBillOrderToDTO).collect(Collectors.toList());
+            entity.setListBill(ListBillDTO);
+            entity.setPages(pages.getTotalPages());
             return entity;
         }
-        if (username != null && statusBill != null && startDate == null && endDate == null) {
+
+        if (byUsername_StatusBill) {
             log.info("Searching bills by User StatusBill");
-            Page<UserBillOrdersDTO> pagePersona = new PageImpl<>(billRepository.findByIdUserAndStatusBill(username, statusBill.ordinal(), pageRequest).stream()
-                    .map(this::convertBillOrderToDTO)
-                    .collect(Collectors.toList()));
-            entity.setListBill(pagePersona);
+            Page<Bill> pages = billRepository.findByIdUserAndStatusBill(username, statusBill.ordinal(), pageRequest);
+            List<UserBillOrdersDTO> ListBillDTO = pages.getContent().stream().map(this::convertBillOrderToDTO).collect(Collectors.toList());
+            entity.setListBill(ListBillDTO);
+            entity.setPages(pages.getTotalPages());
             return entity;
         }
-        if (username == null && statusBill == null && startDate != null && endDate != null) {
+        if (byDate) {
             try {
                 log.info("Searching bills by DateBetween");
-                Page<UserBillOrdersDTO> pagePersona = new PageImpl<>(billRepository
-                        .findByDateBetween(
-                                new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(startDate),
-                                new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(endDate), pageRequest)
-                        .stream()
-                        .map(this::convertBillOrderToDTO)
-                        .collect(Collectors.toList()));
-                entity.setListBill(pagePersona);
+                Page<Bill> pages = billRepository.findByDateBetween(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(startDate),
+                        new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(endDate), pageRequest);
+                List<UserBillOrdersDTO> ListBillDTO = pages.getContent().stream().map(this::convertBillOrderToDTO).collect(Collectors.toList());
+                entity.setListBill(ListBillDTO);
+                entity.setPages(pages.getTotalPages());
                 return entity;
             } catch (ParseException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
         }
-        if (username != null && statusBill == null && startDate != null && endDate != null) {
+        if (byUsername_Date) {
             try {
                 log.info("Searching bills by User DateBetween");
-                Page<UserBillOrdersDTO> pagePersona = new PageImpl<>(billRepository
-                        .findByDateBetweenAndIdUser(
-                                new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(startDate),
-                                new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(endDate),
-                                username, pageRequest)
-                        .stream()
-                        .map(this::convertBillOrderToDTO)
-                        .collect(Collectors.toList()));
-                entity.setListBill(pagePersona);
+                Page<Bill> pages = billRepository.findByDateBetweenAndIdUser(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(startDate),
+                        new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(endDate), username, pageRequest);
+                List<UserBillOrdersDTO> ListBillDTO = pages.getContent().stream().map(this::convertBillOrderToDTO).collect(Collectors.toList());
+                entity.setListBill(ListBillDTO);
+                entity.setPages(pages.getTotalPages());
                 return entity;
             } catch (ParseException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
         }
-        if (username == null && statusBill != null && startDate != null && endDate != null) {
+        if (byStatusBill_Date) {
             try {
                 log.info("Searching bills by StatusBill DateBetween");
-                Page<UserBillOrdersDTO> pagePersona = new PageImpl<>(billRepository
-                        .findByDateBetweenAndStatusBill(
-                                new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(startDate),
-                                new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(endDate),
-                                statusBill, pageRequest)
-                        .stream()
-                        .map(this::convertBillOrderToDTO)
-                        .collect(Collectors.toList()));
-                entity.setListBill(pagePersona);
+                Page<Bill> pages = billRepository.findByDateBetweenAndStatusBill(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(startDate),
+                        new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(endDate), statusBill, pageRequest);
+                List<UserBillOrdersDTO> ListBillDTO = pages.getContent().stream().map(this::convertBillOrderToDTO).collect(Collectors.toList());
+                entity.setListBill(ListBillDTO);
+                entity.setPages(pages.getTotalPages());
                 return entity;
             } catch (ParseException e) {
                 // TODO Auto-generated catch block
@@ -345,10 +331,7 @@ public class BillServiceImp implements IBillService {
         billUser.setNoTable(bill.getNoTable());
         billUser.setReferenceTransaction(bill.getReferenceTransaction());
         convertPartBillDTO(bill, billUser);
-        Collection<OrdersDTO> orders =
-                ordersRepository.findByIdBill(bill.getIdBill()).stream()
-                        .map(this::convertOrderToDTO)
-                        .collect(Collectors.toList());
+        Collection<OrdersDTO> orders = ordersRepository.findByIdBill(bill.getIdBill()).stream().map(this::convertOrderToDTO).collect(Collectors.toList());
         int totalPrice = 0;
         for (OrdersDTO order : orders) {
             PriceProductHistory priceProductHistories = priceProductHistory.findProductHistoryByIdProductAndDate(order.getProduct().getIdProduct(), bill.getDate());

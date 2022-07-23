@@ -3,6 +3,7 @@
  */
 package JEstebanC.FastFoodApp.service;
 
+import JEstebanC.FastFoodApp.dto.EntireUserDTO;
 import JEstebanC.FastFoodApp.dto.UserDTO;
 import JEstebanC.FastFoodApp.dto.update.UserClientDTO;
 import JEstebanC.FastFoodApp.dto.update.UserEmployeeDTO;
@@ -21,6 +22,8 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -37,6 +40,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -62,13 +66,13 @@ public class UserServiceImp implements IUserService, UserDetailsService {
             log.error("User with username: " + username + " not found");
             throw new UsernameNotFoundException("User with username: " + username + " not found");
         } else {
-            if (user.getStatus().equals(Status.ACTIVE)){
+            if (user.getStatus().equals(Status.ACTIVE)) {
                 log.info("User found " + username);
                 Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();
                 authorities.add(new SimpleGrantedAuthority(user.getUserRoles().getAuthority()));
                 return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(),
                         authorities);
-            }else{
+            } else {
                 log.error("User with username: " + username + " is inactive");
                 throw new UsernameNotFoundException("User with username: " + username + " is inactive");
             }
@@ -218,14 +222,26 @@ public class UserServiceImp implements IUserService, UserDetailsService {
         }
     }
 
-    public Collection<UserDTO> list(Long page) {
+    public EntireUserDTO list(int page) {
         log.info("List all users");
-        return userRepository.list(page * 10).stream().map(this::convertUserToDTO).collect(Collectors.toList());
+        PageRequest pageRequest = PageRequest.of(page, 5);
+        EntireUserDTO entity = new EntireUserDTO();
+        Page<User> pages = userRepository.list(pageRequest);
+        List<UserDTO> listUserDTO = pages.getContent().stream().map(this::convertUserToDTO).collect(Collectors.toList());
+        entity.setListBill(listUserDTO);
+        entity.setPages(pages.getTotalPages());
+        return entity;
     }
 
-    public Collection<UserDTO> listAdmin() {
+    public EntireUserDTO listAdmin(int page) {
         log.info("List all users especial");
-        return userRepository.listUser().stream().map(this::convertUserToDTO).collect(Collectors.toList());
+        PageRequest pageRequest = PageRequest.of(page, 5);
+        EntireUserDTO entity = new EntireUserDTO();
+        Page<User> pages = userRepository.listUser(pageRequest);
+        List<UserDTO> listUserDTO = pages.getContent().stream().map(this::convertUserToDTO).collect(Collectors.toList());
+        entity.setListBill(listUserDTO);
+        entity.setPages(pages.getTotalPages());
+        return entity;
     }
 
     public UserDTO getUser(String username) {
@@ -261,7 +277,7 @@ public class UserServiceImp implements IUserService, UserDetailsService {
     public Collection<UserDTO> findByName(String name) {
         log.info("Searching user by name: " + name);
 
-        return userRepository.findByNameStartsWith(name+"%").stream().map(this::convertUserToDTO)
+        return userRepository.findByNameStartsWith(name + "%").stream().map(this::convertUserToDTO)
                 .collect(Collectors.toList());
 
     }
@@ -269,7 +285,7 @@ public class UserServiceImp implements IUserService, UserDetailsService {
     public Collection<UserDTO> findByNameAdmin(String name) {
         log.info("Searching user-admin by name: " + name);
 
-        return userRepository.findByNameAdminStartsWith(name+"%").stream().map(this::convertUserToDTO)
+        return userRepository.findByNameAdminStartsWith(name + "%").stream().map(this::convertUserToDTO)
                 .collect(Collectors.toList());
 
     }
