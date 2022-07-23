@@ -18,6 +18,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
@@ -107,18 +108,18 @@ public class UserController {
 
     @PreAuthorize("hasRole('ROLE_ADMIN') OR hasRole('ROLE_EMPLOYEE')")
 //  READ
-    @GetMapping(value = "/list/{page}")
-    public ResponseEntity<Response> getUser(@PathVariable("page") Long page) {
+    @GetMapping(value = "/list")
+    public ResponseEntity<Response> getUser(@Param(value = "page") int page) {
         return ResponseEntity.ok(Response.builder().timeStamp(Instant.now()).data(Map.of("user", serviceImp.list(page)))
                 .message("List users").status(HttpStatus.OK).statusCode(HttpStatus.OK.value()).build());
     }
 
 
-    //  READ
+    //  READ ADMINS AND EMPLOYEES
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping(value = "/list/admin")
-    public ResponseEntity<Response> getUsersAdmin() {
-        return ResponseEntity.ok(Response.builder().timeStamp(Instant.now()).data(Map.of("user", serviceImp.listAdmin()))
+    public ResponseEntity<Response> getUsersAdmin(@Param(value = "page") int page) {
+        return ResponseEntity.ok(Response.builder().timeStamp(Instant.now()).data(Map.of("user", serviceImp.listAdmin(page)))
                 .message("List users").status(HttpStatus.OK).statusCode(HttpStatus.OK.value()).build());
     }
 
