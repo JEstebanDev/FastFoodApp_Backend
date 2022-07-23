@@ -18,4 +18,5 @@ public enum StatusOrder {
 	COOKING,
 	COOKED,
 	DELIVERED,
+
 }

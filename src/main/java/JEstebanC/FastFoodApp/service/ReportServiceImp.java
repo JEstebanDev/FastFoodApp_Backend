@@ -3,7 +3,7 @@
  */
 package JEstebanC.FastFoodApp.service;
 
-import JEstebanC.FastFoodApp.dto.*;
+import JEstebanC.FastFoodApp.dto.report.*;
 import JEstebanC.FastFoodApp.repository.IReportRepository;
 import JEstebanC.FastFoodApp.service.interfaces.IReportService;
 import lombok.RequiredArgsConstructor;

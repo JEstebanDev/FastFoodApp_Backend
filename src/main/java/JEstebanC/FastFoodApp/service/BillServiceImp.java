@@ -4,6 +4,7 @@
 package JEstebanC.FastFoodApp.service;
 
 import JEstebanC.FastFoodApp.dto.BillUserDTO;
+import JEstebanC.FastFoodApp.dto.EntireBillOrderDTO;
 import JEstebanC.FastFoodApp.dto.OrdersDTO;
 import JEstebanC.FastFoodApp.dto.UserBillOrdersDTO;
 import JEstebanC.FastFoodApp.dto.validation.UserForBillDTO;
@@ -11,11 +12,17 @@ import JEstebanC.FastFoodApp.dto.wompi.Wompi;
 import JEstebanC.FastFoodApp.enumeration.StatusBill;
 import JEstebanC.FastFoodApp.enumeration.StatusOrder;
 import JEstebanC.FastFoodApp.model.*;
-import JEstebanC.FastFoodApp.repository.*;
+import JEstebanC.FastFoodApp.repository.IBillRepository;
+import JEstebanC.FastFoodApp.repository.IOrdersRepository;
+import JEstebanC.FastFoodApp.repository.IPriceAdditionalHistory;
+import JEstebanC.FastFoodApp.repository.IPriceProductHistory;
 import JEstebanC.FastFoodApp.service.interfaces.IBillService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -125,7 +132,6 @@ public class BillServiceImp implements IBillService {
         return true;
     }
 
-
     @Override
     public BillUserDTO update(Long idBill, Bill bill) {
         log.info("Updating bill with id: " + idBill);
@@ -181,6 +187,7 @@ public class BillServiceImp implements IBillService {
             StatusOrder statusOrder, String startDate, String endDate) {
         try {
             log.info("Searching bills by StatusOrder DateBetween");
+            //Important this method has a specific filter to show only the available statusBill (PAID 0, PENDING 1, ACCEPTED 6)
             return billRepository
                     .findByDateBetweenAndStatusOrder(
                             new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(startDate),
@@ -197,64 +204,82 @@ public class BillServiceImp implements IBillService {
     }
 
     @Override
-    public Collection<UserBillOrdersDTO> findByNewIdUser(
-            String username, StatusBill statusBill, String startDate, String endDate, int number) {
+    public EntireBillOrderDTO findByBillParams(
+            String username, StatusBill statusBill, String startDate, String endDate, int number, int page) {
+
+        PageRequest pageRequest = PageRequest.of(page, 5);
+        EntireBillOrderDTO entity = new EntireBillOrderDTO();
+        entity.setPage(1);
         if (username != null && statusBill != null && startDate != null && endDate != null) {
             try {
                 log.info("Searching bills by User StatusBill DateBetween");
-                return billRepository
+                Page<UserBillOrdersDTO> pagePersona = new PageImpl<>(billRepository
                         .findByIdUserAndStatusBillAndDateBetween(
                                 username,
                                 statusBill.ordinal(),
                                 new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(startDate),
-                                new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(endDate))
+                                new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(endDate), pageRequest)
                         .stream()
                         .map(this::convertBillOrderToDTO)
-                        .collect(Collectors.toList());
+                        .collect(Collectors.toList()));
+                entity.setListBill(pagePersona);
             } catch (ParseException e) {
                 e.printStackTrace();
             }
+            return entity;
         }
         if (username == null && statusBill == null && startDate == null && endDate == null) {
             log.info("Searching bills");
-            return billRepository.findAll().stream()
+            Page<UserBillOrdersDTO> pagePersona = new PageImpl<>(billRepository.findAll(pageRequest).stream()
                     .map(this::convertBillOrderToDTO)
-                    .collect(Collectors.toList());
+                    .collect(Collectors.toList()));
+            entity.setListBill(pagePersona);
+            return entity;
         }
         if (username != null && statusBill == null && startDate == null && endDate == null) {
-            log.info("Searching bills by User");
             if (number == 1) {
-                return billRepository.findByIdUser(username).stream()
+                log.info("Searching bills by User Client");
+                Page<UserBillOrdersDTO> pagePersona = new PageImpl<>(billRepository.findByIdUser(username, pageRequest).stream()
                         .map(this::convertBillOrderToDTO)
-                        .collect(Collectors.toList());
+                        .collect(Collectors.toList()));
+                entity.setListBill(pagePersona);
             } else {
-                return billRepository.findByIdUserAdmin(username).stream()
+                log.info("Searching bills by User Admin");
+                Page<UserBillOrdersDTO> pagePersona = new PageImpl<>(billRepository.findByIdUserAdmin(username, pageRequest).stream()
                         .map(this::convertBillOrderToDTO)
-                        .collect(Collectors.toList());
+                        .collect(Collectors.toList()));
+                entity.setListBill(pagePersona);
             }
+            return entity;
         }
         if (username == null && statusBill != null && startDate == null && endDate == null) {
             log.info("Searching bills by StatusBill");
-            return billRepository.findByStatusBill(statusBill).stream()
+            Page<UserBillOrdersDTO> pagePersona = new PageImpl<>(billRepository.findByStatusBill(statusBill, pageRequest).stream()
                     .map(this::convertBillOrderToDTO)
-                    .collect(Collectors.toList());
+                    .collect(Collectors.toList()));
+            entity.setListBill(pagePersona);
+            return entity;
         }
         if (username != null && statusBill != null && startDate == null && endDate == null) {
             log.info("Searching bills by User StatusBill");
-            return billRepository.findByIdUserAndStatusBill(username, statusBill.ordinal()).stream()
+            Page<UserBillOrdersDTO> pagePersona = new PageImpl<>(billRepository.findByIdUserAndStatusBill(username, statusBill.ordinal(), pageRequest).stream()
                     .map(this::convertBillOrderToDTO)
-                    .collect(Collectors.toList());
+                    .collect(Collectors.toList()));
+            entity.setListBill(pagePersona);
+            return entity;
         }
         if (username == null && statusBill == null && startDate != null && endDate != null) {
             try {
                 log.info("Searching bills by DateBetween");
-                return billRepository
+                Page<UserBillOrdersDTO> pagePersona = new PageImpl<>(billRepository
                         .findByDateBetween(
                                 new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(startDate),
-                                new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(endDate))
+                                new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(endDate), pageRequest)
                         .stream()
                         .map(this::convertBillOrderToDTO)
-                        .collect(Collectors.toList());
+                        .collect(Collectors.toList()));
+                entity.setListBill(pagePersona);
+                return entity;
             } catch (ParseException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
@@ -263,14 +288,16 @@ public class BillServiceImp implements IBillService {
         if (username != null && statusBill == null && startDate != null && endDate != null) {
             try {
                 log.info("Searching bills by User DateBetween");
-                return billRepository
+                Page<UserBillOrdersDTO> pagePersona = new PageImpl<>(billRepository
                         .findByDateBetweenAndIdUser(
                                 new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(startDate),
                                 new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(endDate),
-                                username)
+                                username, pageRequest)
                         .stream()
                         .map(this::convertBillOrderToDTO)
-                        .collect(Collectors.toList());
+                        .collect(Collectors.toList()));
+                entity.setListBill(pagePersona);
+                return entity;
             } catch (ParseException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
@@ -279,14 +306,16 @@ public class BillServiceImp implements IBillService {
         if (username == null && statusBill != null && startDate != null && endDate != null) {
             try {
                 log.info("Searching bills by StatusBill DateBetween");
-                return billRepository
+                Page<UserBillOrdersDTO> pagePersona = new PageImpl<>(billRepository
                         .findByDateBetweenAndStatusBill(
                                 new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(startDate),
                                 new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(endDate),
-                                statusBill)
+                                statusBill, pageRequest)
                         .stream()
                         .map(this::convertBillOrderToDTO)
-                        .collect(Collectors.toList());
+                        .collect(Collectors.toList()));
+                entity.setListBill(pagePersona);
+                return entity;
             } catch (ParseException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
@@ -311,7 +340,6 @@ public class BillServiceImp implements IBillService {
     @Transactional(readOnly = true)
     UserBillOrdersDTO convertBillOrderToDTO(Bill bill) {
         UserBillOrdersDTO billOrder = new UserBillOrdersDTO();
-
         BillUserDTO billUser = new BillUserDTO();
         billUser.setIdBill(bill.getIdBill());
         billUser.setNoTable(bill.getNoTable());
@@ -324,10 +352,10 @@ public class BillServiceImp implements IBillService {
         int totalPrice = 0;
         for (OrdersDTO order : orders) {
             PriceProductHistory priceProductHistories = priceProductHistory.findProductHistoryByIdProductAndDate(order.getProduct().getIdProduct(), bill.getDate());
-            if (priceProductHistories!=null) {
+            if (priceProductHistories != null) {
                 order.getProduct().setPrice(priceProductHistories.getPrice());
             }
-           if(order.getAdditional()!=null) {
+            if (order.getAdditional() != null) {
                 order.getAdditional().forEach(additional -> {
                     PriceAdditionalHistory priceAdditionalHistories = priceAdditionalHistory.findAdditionalHistoryByIdAdditionalAndDate(additional.getIdAdditional(), bill.getDate());
                     additional.setPrice(priceAdditionalHistories.getPrice());
@@ -341,7 +369,6 @@ public class BillServiceImp implements IBillService {
         return billOrder;
     }
 
-
     private OrdersDTO convertOrderToDTO(Orders orders) {
         OrdersDTO billOrder = new OrdersDTO();
         billOrder.setIdOrder(orders.getIdOrder());
@@ -349,7 +376,6 @@ public class BillServiceImp implements IBillService {
         billOrder.setAmount(orders.getAmount());
         billOrder.setTotal(orders.getTotal());
         billOrder.setProduct(orders.getProduct());
-
         Collection<Additional> additional = new ArrayList<>(orders.getAdditional());
         billOrder.setAdditional(additional);
         return billOrder;

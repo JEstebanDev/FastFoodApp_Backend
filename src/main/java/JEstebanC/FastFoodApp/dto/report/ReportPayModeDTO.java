@@ -1,4 +1,4 @@
-package JEstebanC.FastFoodApp.dto;
+package JEstebanC.FastFoodApp.dto.report;
 
 import lombok.Data;
 
