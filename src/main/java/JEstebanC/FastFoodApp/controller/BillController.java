@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.Nullable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -84,7 +85,7 @@ public class BillController {
             @Param(value = "statusOrder") StatusOrder statusOrder,
             @Param(value = "startDate") String startDate,
             @Param(value = "endDate") String endDate,
-            @Param(value = "page") int page,
+            @RequestParam(value = "page", defaultValue = "0")  int page,
             HttpServletRequest request) {
         if (request.isUserInRole("ROLE_CLIENT")) {
             String authorizationHeader = request.getHeader(AUTHORIZATION);

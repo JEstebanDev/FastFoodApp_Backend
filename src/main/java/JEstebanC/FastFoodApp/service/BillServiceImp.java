@@ -209,7 +209,7 @@ public class BillServiceImp implements IBillService {
         boolean byUsername_Date = username != null && statusBill == null && startDate != null && endDate != null;
         boolean byStatusBill_Date = username == null && statusBill != null && startDate != null && endDate != null;
 
-        PageRequest pageRequest = PageRequest.of(page, 5);
+        PageRequest pageRequest = PageRequest.of(page, 8);
         EntireBillOrderDTO entity = new EntireBillOrderDTO();
 
         if (fullSearch) {
