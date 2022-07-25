@@ -18,7 +18,7 @@ import JEstebanC.FastFoodApp.model.Category;
 public interface ICategoryRepository extends JpaRepository<Category, Long> {
 	Collection<Category> findAllByNameStartsWith(String name);
 
-	@Query(value = "SELECT distinct(Category.*) FROM product Product JOIN category Category ON Category.id_category=Product.id_category ORDER BY Category.id_category", nativeQuery = true)
+	@Query(value = "SELECT distinct(Category.*) FROM product Product JOIN category Category ON Category.id_category=Product.id_category WHERE Category.status!=0 ORDER BY Category.id_category", nativeQuery = true)
 	Collection<Category> findCategoriesWithProducts();
 	Category findByName(String name);
 }

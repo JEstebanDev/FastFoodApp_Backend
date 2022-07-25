@@ -10,5 +10,5 @@ import java.util.List;
 @Data
 public class EntireUserDTO {
     private List<Integer> pages;
-    private List<UserDTO> listBill;
+    private List<UserDTO> listUser;
 }

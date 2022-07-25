@@ -18,7 +18,7 @@ import java.util.Collection;
  */
 @Repository
 public interface IUserRepository extends JpaRepository<User, Long> {
-    @Query(value = "select * from user_app where user_roles=2 and name like :name order by name", nativeQuery = true)
+    @Query(value = "select * from user_app where user_roles=2 and name like :name order by name LIMIT 5", nativeQuery = true)
     Collection<User> findByNameStartsWith(@Param("name") String name);
 
     @Query(value = "select * from user_app where user_roles!=2 and name=:name order by name", nativeQuery = true)

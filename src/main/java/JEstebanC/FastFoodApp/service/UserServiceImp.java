@@ -237,38 +237,34 @@ public class UserServiceImp implements IUserService, UserDetailsService {
     public EntireUserDTO list(int page) {
         log.info("List all users");
 
-        PageRequest pageRequest = PageRequest.of(page, 5);
+        PageRequest pageRequest = PageRequest.of(page, 12);
         EntireUserDTO entity = new EntireUserDTO();
         Page<User> pages = userRepository.list(pageRequest);
-        List<UserDTO> listUserDTO = pages.getContent().stream().map(this::convertUserToDTO).collect(Collectors.toList());
-        entity.setListBill(listUserDTO);
-        int totalPage = pages.getTotalPages();
-        if(totalPage > 0) {
-            List<Integer> pagination = IntStream.rangeClosed(1, totalPage).boxed().collect(Collectors.toList());
-            entity.setPages(pagination);
-        }
-        return entity;
+        return convertPageToList(entity, pages);
     }
 
     public EntireUserDTO listAdmin(int page) {
         log.info("List all users especial");
-        PageRequest pageRequest = PageRequest.of(page, 5);
+        PageRequest pageRequest = PageRequest.of(page, 12);
         EntireUserDTO entity = new EntireUserDTO();
         Page<User> pages = userRepository.listUser(pageRequest);
-        List<UserDTO> listUserDTO = pages.getContent().stream().map(this::convertUserToDTO).collect(Collectors.toList());
-        entity.setListBill(listUserDTO);
-        int totalPage = pages.getTotalPages();
-        if(totalPage > 0) {
-            List<Integer> pagination = IntStream.rangeClosed(1, totalPage).boxed().collect(Collectors.toList());
-            entity.setPages(pagination);
-        }
-        return entity;
+        return convertPageToList(entity, pages);
     }
 
     public UserDTO getUser(String username) {
         return convertUserToDTO(userRepository.findByUsername(username));
     }
 
+    private EntireUserDTO convertPageToList(EntireUserDTO entity, Page<User> pages) {
+        List<UserDTO> listUserDTO = pages.getContent().stream().map(this::convertUserToDTO).collect(Collectors.toList());
+        entity.setListUser(listUserDTO);
+        int totalPage = pages.getTotalPages();
+        if(totalPage > 0) {
+            List<Integer> pagination = IntStream.rangeClosed(1, totalPage).boxed().collect(Collectors.toList());
+            entity.setPages(pagination);
+        }
+        return entity;
+    }
     private UserDTO convertUserToDTO(User user) {
         UserDTO userDto = new UserDTO();
         userDto.setIdUser(user.getIdUser());
