@@ -97,10 +97,18 @@ public class ProductController {
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @DeleteMapping(value = "/{id}")
     public ResponseEntity<Response> deleteProduct(@PathVariable("id") Long id) {
+
         if (serviceImp.exist(id)) {
-            return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
-                    .data(Map.of("product", serviceImp.delete(id))).message("Delete product with id: " + id)
-                    .status(HttpStatus.OK).statusCode(HttpStatus.OK.value()).build());
+            boolean value = serviceImp.delete(id);
+            if (value) {
+                return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
+                        .data(Map.of("product", value)).message("Delete product with id: " + id)
+                        .status(HttpStatus.OK).statusCode(HttpStatus.OK.value()).build());
+            } else {
+                return ResponseEntity
+                        .ok(Response.builder().timeStamp(Instant.now()).message("The product " + id + " has an associated bill")
+                                .status(HttpStatus.BAD_REQUEST).statusCode(HttpStatus.BAD_REQUEST.value()).build());
+            }
         } else {
             return ResponseEntity
                     .ok(Response.builder().timeStamp(Instant.now()).message("The product " + id + " does not exist")

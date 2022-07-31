@@ -6,6 +6,7 @@ package JEstebanC.FastFoodApp.service;
 import JEstebanC.FastFoodApp.model.PriceProductHistory;
 import JEstebanC.FastFoodApp.model.Product;
 import JEstebanC.FastFoodApp.repository.ICategoryRepository;
+import JEstebanC.FastFoodApp.repository.IOrdersRepository;
 import JEstebanC.FastFoodApp.repository.IPriceProductHistory;
 import JEstebanC.FastFoodApp.repository.IProductRepository;
 import JEstebanC.FastFoodApp.service.interfaces.IProductService;
@@ -32,6 +33,8 @@ public class ProductServiceImp implements IProductService {
 
     @Autowired
     private final IProductRepository productRepository;
+    @Autowired
+    private final IOrdersRepository ordersRepository;
     @Autowired
     private final IPriceProductHistory priceProductHistory;
     @Autowired
@@ -100,6 +103,10 @@ public class ProductServiceImp implements IProductService {
     @Override
     public Boolean delete(Long idProduct) {
         log.info("Deleting the products with id: " + idProduct);
+        if (ordersRepository.countIdProduct(idProduct)!=0) {
+            return false;
+        }
+        priceProductHistory.deleteByIdProduct(idProduct);
         productRepository.deleteById(idProduct);
         return true;
     }

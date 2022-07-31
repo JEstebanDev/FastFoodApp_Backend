@@ -113,9 +113,16 @@ public class AdditionalController {
 	@DeleteMapping(value = "/{id}")
 	public ResponseEntity<Response> deleteAdditional(@PathVariable("id") Long id) {
 		if (serviceImp.exist(id)) {
-			return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
-					.data(Map.of("additional", serviceImp.delete(id))).message("Delete additional with id: " + id)
-					.status(HttpStatus.OK).statusCode(HttpStatus.OK.value()).build());
+			boolean value=serviceImp.delete(id);
+			if (value) {
+				return ResponseEntity.ok(Response.builder().timeStamp(Instant.now())
+						.data(Map.of("additional", value)).message("Delete additional with id: " + id)
+						.status(HttpStatus.OK).statusCode(HttpStatus.OK.value()).build());
+			}else{
+				return ResponseEntity
+						.ok(Response.builder().timeStamp(Instant.now()).message("The additional " + id + " has an associated bill")
+								.status(HttpStatus.BAD_REQUEST).statusCode(HttpStatus.BAD_REQUEST.value()).build());
+			}
 		} else {
 			return ResponseEntity
 					.ok(Response.builder().timeStamp(Instant.now()).message("The additional " + id + " does not exist")
