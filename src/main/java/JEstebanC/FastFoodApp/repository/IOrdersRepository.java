@@ -3,6 +3,7 @@
  */
 package JEstebanC.FastFoodApp.repository;
 
+import java.math.BigInteger;
 import java.util.Collection;
 import java.util.Map;
 
@@ -19,6 +20,13 @@ import JEstebanC.FastFoodApp.model.Orders;
  */
 @Repository
 public interface IOrdersRepository extends JpaRepository<Orders, Long> {
+
+
+	@Query(value = "SELECT COUNT(*) FROM orders WHERE id_product=?",nativeQuery = true)
+	Long countIdProduct(Long idProduct);
+
+	@Query(value = "SELECT COUNT(*) FROM orders_additional WHERE id_additional=?",nativeQuery = true)
+	Long countIdAdditional(Long idAdditional);
 
 	@Query(value = "SELECT ord.* FROM orders ord join bill bi on ord.id_bill=bi.id_bill where bi.id_bill=?", nativeQuery = true)
 	Collection<Orders> findByIdBill(Long idBill);

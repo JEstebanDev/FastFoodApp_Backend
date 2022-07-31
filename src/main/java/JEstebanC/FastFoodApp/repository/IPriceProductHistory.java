@@ -2,6 +2,7 @@ package JEstebanC.FastFoodApp.repository;
 
 import JEstebanC.FastFoodApp.model.PriceProductHistory;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -16,6 +17,9 @@ import java.util.Date;
 @Repository
 public interface IPriceProductHistory extends JpaRepository<PriceProductHistory,Long> {
 
+    @Modifying
+    @Query(value = "DELETE FROM price_product_history WHERE id_product=?", nativeQuery = true)
+    void deleteByIdProduct(Long idProduct);
     @Query(value = "SELECT * FROM price_product_history " +
             "WHERE creation_date<=:date and id_product=:id_product order by creation_date desc limit 1",nativeQuery = true)
     PriceProductHistory findProductHistoryByIdProductAndDate(@Param("id_product")Long id_product,@Param("date") Date date);

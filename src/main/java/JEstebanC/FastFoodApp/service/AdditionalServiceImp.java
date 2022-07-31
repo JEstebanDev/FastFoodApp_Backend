@@ -6,6 +6,7 @@ package JEstebanC.FastFoodApp.service;
 import JEstebanC.FastFoodApp.model.Additional;
 import JEstebanC.FastFoodApp.model.PriceAdditionalHistory;
 import JEstebanC.FastFoodApp.repository.IAdditionalRepository;
+import JEstebanC.FastFoodApp.repository.IOrdersRepository;
 import JEstebanC.FastFoodApp.repository.IPriceAdditionalHistory;
 import JEstebanC.FastFoodApp.service.interfaces.IAdditionalService;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +34,8 @@ public class AdditionalServiceImp implements IAdditionalService {
     private final IAdditionalRepository additionalRepository;
     @Autowired
     private final IPriceAdditionalHistory priceAdditionalHistory;
+    @Autowired
+    private final IOrdersRepository ordersRepository;
     @Autowired
     private final CloudinaryService cloudinaryService;
 
@@ -97,12 +100,12 @@ public class AdditionalServiceImp implements IAdditionalService {
     @Override
     public Boolean delete(Long id_additional) {
         log.info("Deleting the additional id: " + id_additional);
-        if (additionalRepository.existsById(id_additional)) {
-            additionalRepository.deleteById(id_additional);
-            return true;
-        } else {
+        if (ordersRepository.countIdAdditional(id_additional) != 0) {
             return false;
         }
+        priceAdditionalHistory.deleteByIdAdditional(id_additional);
+        additionalRepository.deleteById(id_additional);
+        return true;
     }
 
     @Override
