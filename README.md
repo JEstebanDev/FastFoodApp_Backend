@@ -10,7 +10,7 @@ Esteban Castaño: <castanoesteban9@gmail.com>
 ## Contributors:
 
 <a href="https://github.com/JEstebanCDev/FastFoodApp_Backend/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=JEstebanCDev/FastFoodApp_Backend" />
+  <img src="https://github.com/JEstebanDev/FastFoodApp_Backend/blob/main/FastFood-version%209.jpeg" />
 </a>
 
 Made with [contrib.rocks](https://contrib.rocks).
