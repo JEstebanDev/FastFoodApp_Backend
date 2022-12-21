@@ -369,7 +369,8 @@ public class UserServiceImp implements IUserService, UserDetailsService {
         Map<String, Object> model = new HashMap<String, Object>();
         model.put("name", name);
         model.put("username", userName);
-        model.put("token", "http://localhost:4200/recover-password/" + token);
+        //model.put("token", "http://localhost:4200/recover-password/" + token);
+        model.put("token", "https://jefastfoodapp.netlify.app/recover-password/" + token);
         mail.setProps(model);
 
         Context context = new Context();
