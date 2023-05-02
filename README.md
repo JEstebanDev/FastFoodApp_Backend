@@ -6,7 +6,7 @@ Currently it maps this DB schema:
 <img src="FastFood-version%209.jpeg" alt="DB Schema" title="Database schema version 8">
 
 ## Author
-Esteban Castaño: <castanoesteban9@gmail.com>
+Esteban Castaño: <jestebancdev@gmail.com>
 ## Contributors:
 
 <a href="https://github.com/JEstebanCDev/FastFoodApp_Backend/graphs/contributors">
